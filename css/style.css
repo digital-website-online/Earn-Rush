@@ -1,1 +1,344 @@
+/* =========================================
+   EARNRUSH — MAIN UI
+========================================= */
 
+:root {
+    --bg-main: #050b14;
+    --bg-card: #0b1625;
+    --bg-card-light: #101f32;
+
+    --neon-green: #39ff88;
+    --electric-blue: #28a9ff;
+    --gold: #ffd84d;
+
+    --text-main: #ffffff;
+    --text-muted: #8d9bad;
+
+    --border: rgba(255, 255, 255, 0.08);
+
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+
+    --shadow-green: 0 0 35px rgba(57, 255, 136, 0.12);
+    --shadow-blue: 0 0 35px rgba(40, 169, 255, 0.12);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at 50% 15%,
+            rgba(40, 169, 255, 0.10),
+            transparent 35%
+        ),
+        var(--bg-main);
+
+    color: var(--text-main);
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    font: inherit;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+    outline: 2px solid var(--electric-blue);
+    outline-offset: 3px;
+}
+
+
+/* =========================================
+   APP
+========================================= */
+
+#app {
+    width: 100%;
+    min-height: 100vh;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 16px 14px 30px;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.brand-mark {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--neon-green),
+            var(--electric-blue)
+        );
+
+    color: #061019;
+    font-weight: 900;
+
+    box-shadow: var(--shadow-green);
+}
+
+.brand-name {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-button {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+
+    color: var(--text-main);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.icon-button:active {
+    transform: scale(0.92);
+}
+
+
+/* =========================================
+   PLAYER STATUS
+========================================= */
+
+.player-status {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.status-card {
+    padding: 13px;
+    border-radius: var(--radius-md);
+
+    background: rgba(11, 22, 37, 0.82);
+    border: 1px solid var(--border);
+
+    box-shadow: var(--shadow-blue);
+}
+
+.status-label {
+    display: block;
+    margin-bottom: 4px;
+
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+}
+
+.status-value {
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.status-value.green {
+    color: var(--neon-green);
+}
+
+.status-value.gold {
+    color: var(--gold);
+}
+
+
+/* =========================================
+   BALANCE
+========================================= */
+
+.balance-card {
+    position: relative;
+
+    padding: 22px 18px;
+
+    margin-bottom: 14px;
+
+    border-radius: var(--radius-lg);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(16, 31, 50, 0.96),
+            rgba(7, 17, 31, 0.96)
+        );
+
+    border: 1px solid rgba(57, 255, 136, 0.13);
+
+    box-shadow: var(--shadow-green);
+
+    overflow: hidden;
+}
+
+.balance-card::before {
+    content: "";
+
+    position: absolute;
+
+    width: 150px;
+    height: 150px;
+
+    right: -70px;
+    top: -70px;
+
+    border-radius: 50%;
+
+    background: rgba(57, 255, 136, 0.08);
+}
+
+.balance-label {
+    position: relative;
+
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.balance-row {
+    position: relative;
+
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+
+    margin-top: 4px;
+}
+
+.balance-amount {
+    font-size: clamp(36px, 11vw, 54px);
+    line-height: 1;
+
+    font-weight: 950;
+    letter-spacing: -2px;
+
+    color: var(--neon-green);
+
+    text-shadow:
+        0 0 22px rgba(57, 255, 136, 0.22);
+}
+
+.balance-currency {
+    color: var(--gold);
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.income-rate {
+    position: relative;
+
+    margin-top: 9px;
+
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.income-rate strong {
+    color: var(--electric-blue);
+}
+
+
+/* =========================================
+   REACTOR
+========================================= */
+
+.reactor-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 22px 10px 18px;
+
+    margin-bottom: 14px;
+
+    border-radius: var(--radius-lg);
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(40, 169, 255, 0.09),
+            transparent 55%
+        ),
+        var(--bg-card);
+
+    border: 1px solid var(--border);
+}
+
+.reactor-label {
+    margin-bottom: 13px;
+
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.reactor {
+    position: relative;
+
+   
