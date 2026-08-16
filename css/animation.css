@@ -1,1 +1,192 @@
 
+/* =========================================
+   EARNRUSH — ANIMATIONS
+========================================= */
+
+/* Smooth reactor idle glow */
+.reactor-core {
+    animation: reactorPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes reactorPulse {
+    0%, 100% {
+        box-shadow:
+            0 0 30px rgba(57, 255, 136, 0.42),
+            0 0 80px rgba(40, 169, 255, 0.16);
+    }
+
+    50% {
+        box-shadow:
+            0 0 42px rgba(57, 255, 136, 0.58),
+            0 0 100px rgba(40, 169, 255, 0.22);
+    }
+}
+
+
+/* Reactor rings */
+.reactor::before {
+    animation: ringRotate 8s linear infinite;
+}
+
+.reactor::after {
+    animation: ringRotateReverse 12s linear infinite;
+}
+
+@keyframes ringRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes ringRotateReverse {
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+
+/* Balance subtle glow */
+.balance-amount {
+    animation: balanceGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes balanceGlow {
+    0%, 100% {
+        text-shadow:
+            0 0 18px rgba(57, 255, 136, 0.18);
+    }
+
+    50% {
+        text-shadow:
+            0 0 28px rgba(57, 255, 136, 0.34);
+    }
+}
+
+
+/* Button breathing */
+.tap-button {
+    animation: buttonGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes buttonGlow {
+    0%, 100% {
+        box-shadow:
+            0 10px 30px rgba(57, 255, 136, 0.14);
+    }
+
+    50% {
+        box-shadow:
+            0 10px 38px rgba(57, 255, 136, 0.25);
+    }
+}
+
+
+/* Quick cards hover */
+.quick-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(40, 169, 255, 0.25);
+}
+
+
+/* Tap feedback class */
+.tap-pop {
+    animation: tapPop 0.18s ease-out;
+}
+
+@keyframes tapPop {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.91);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+/* Number gain animation */
+.balance-pop {
+    animation: balancePop 0.28s ease-out;
+}
+
+@keyframes balancePop {
+    0% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.08);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+/* Page entrance */
+.game-header,
+.player-status,
+.balance-card,
+.reactor-section,
+.quick-actions {
+    animation: sectionEnter 0.6s ease both;
+}
+
+.game-header {
+    animation-delay: 0.05s;
+}
+
+.player-status {
+    animation-delay: 0.10s;
+}
+
+.balance-card {
+    animation-delay: 0.16s;
+}
+
+.reactor-section {
+    animation-delay: 0.22s;
+}
+
+.quick-actions {
+    animation-delay: 0.28s;
+}
+
+@keyframes sectionEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+}
