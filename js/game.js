@@ -1,43 +1,78 @@
 /* =========================================
-   EARNRUSH — COMPLETE GAME ENGINE
+   EARNRUSH — GAME ENGINE v1
 ========================================= */
 
 (() => {
     "use strict";
 
     /* =========================================
-       DEFAULT GAME STATE
+       SAVE VERSION
+    ========================================== */
+
+    const SAVE_KEY = "earnRushSave";
+    const SAVE_VERSION = 2;
+
+
+    /* =========================================
+       NEW PLAYER DEFAULTS
     ========================================== */
 
     const defaultState = {
-        balance: 12840,
-        level: 7,
-        combo: 12,
-        comboProgress: 62,
+        saveVersion: SAVE_VERSION,
+
+        balance: 0,
+
+        level: 1,
+
+        combo: 1,
+
+        comboProgress: 0,
+
         totalTaps: 0,
-        baseReward: 245
+
+        baseReward: 10
     };
 
 
     /* =========================================
-       LOAD SAVED GAME
+       LOAD GAME
     ========================================== */
 
     function loadGame() {
 
         try {
 
-            const saved =
-                localStorage.getItem("earnRushSave");
+            const savedData =
+                localStorage.getItem(SAVE_KEY);
 
-            if (!saved) {
+            if (!savedData) {
                 return {
                     ...defaultState
                 };
             }
 
             const parsed =
-                JSON.parse(saved);
+                JSON.parse(savedData);
+
+
+            /*
+             * Ignore old demo save data.
+             */
+
+            if (
+                parsed.saveVersion !==
+                SAVE_VERSION
+            ) {
+
+                localStorage.removeItem(
+                    SAVE_KEY
+                );
+
+                return {
+                    ...defaultState
+                };
+            }
+
 
             return {
                 ...defaultState,
@@ -49,6 +84,10 @@
             console.warn(
                 "EarnRush save could not be loaded.",
                 error
+            );
+
+            localStorage.removeItem(
+                SAVE_KEY
             );
 
             return {
@@ -74,7 +113,7 @@
         try {
 
             localStorage.setItem(
-                "earnRushSave",
+                SAVE_KEY,
                 JSON.stringify(gameState)
             );
 
@@ -95,6 +134,9 @@
     const balanceElement =
         document.getElementById("balance");
 
+    const levelElement =
+        document.getElementById("levelValue");
+
     const reactorCore =
         document.getElementById("reactorCore");
 
@@ -102,20 +144,25 @@
         document.getElementById("tapButton");
 
     const progressFill =
-        document.querySelector(".progress-fill");
+        document.querySelector(
+            ".progress-fill"
+        );
 
     const comboValue =
-        document.querySelector(".combo-value");
+        document.querySelector(
+            ".combo-value"
+        );
 
 
     /* =========================================
-       FORMAT NUMBERS
+       NUMBER FORMAT
     ========================================== */
 
     function formatNumber(number) {
 
-        return Math.floor(number)
-            .toLocaleString("en-US");
+        return Math.floor(
+            number
+        ).toLocaleString("en-US");
 
     }
 
@@ -126,7 +173,9 @@
 
     function updateBalance() {
 
-        if (!balanceElement) return;
+        if (!balanceElement) {
+            return;
+        }
 
         balanceElement.textContent =
             formatNumber(
@@ -136,12 +185,31 @@
 
 
     /* =========================================
+       UPDATE LEVEL
+    ========================================== */
+
+    function updateLevel() {
+
+        if (!levelElement) {
+            return;
+        }
+
+        levelElement.textContent =
+            String(
+                gameState.level
+            ).padStart(2, "0");
+    }
+
+
+    /* =========================================
        UPDATE COMBO
     ========================================== */
 
     function updateCombo() {
 
-        if (!comboValue) return;
+        if (!comboValue) {
+            return;
+        }
 
         comboValue.textContent =
             `🔥 x${gameState.combo}`;
@@ -149,12 +217,14 @@
 
 
     /* =========================================
-       UPDATE PROGRESS BAR
+       UPDATE PROGRESS
     ========================================== */
 
     function updateProgress() {
 
-        if (!progressFill) return;
+        if (!progressFill) {
+            return;
+        }
 
         const progress =
             Math.max(
@@ -171,28 +241,35 @@
 
 
     /* =========================================
-       UPDATE EVERYTHING
+       UPDATE COMPLETE UI
     ========================================== */
 
     function updateUI() {
 
         updateBalance();
-        updateCombo();
-        updateProgress();
 
+        updateLevel();
+
+        updateCombo();
+
+        updateProgress();
     }
 
 
     /* =========================================
-       CALCULATE TAP REWARD
+       TAP REWARD
     ========================================== */
 
     function calculateReward() {
 
-        const comboBonus =
-            gameState.combo * 25;
+        /*
+         * Reward grows slowly with combo.
+         */
 
-        return Math.floor(
+        const comboBonus =
+            (gameState.combo - 1) * 2;
+
+        return (
             gameState.baseReward +
             comboBonus
         );
@@ -200,12 +277,14 @@
 
 
     /* =========================================
-       REACTOR ANIMATION
+       REACTOR EFFECT
     ========================================== */
 
     function reactorEffect() {
 
-        if (!reactorCore) return;
+        if (!reactorCore) {
+            return;
+        }
 
         reactorCore.classList.remove(
             "tap-pop"
@@ -220,12 +299,14 @@
 
 
     /* =========================================
-       BALANCE ANIMATION
+       BALANCE EFFECT
     ========================================== */
 
     function balanceEffect() {
 
-        if (!balanceElement) return;
+        if (!balanceElement) {
+            return;
+        }
 
         balanceElement.classList.remove(
             "balance-pop"
@@ -243,13 +324,14 @@
        REWARD POPUP
     ========================================== */
 
-    function createRewardPopup(amount) {
+    function createRewardPopup(
+        amount
+    ) {
 
         const popup =
-            document.createElement("div");
-
-        popup.className =
-            "earnrush-reward-popup";
+            document.createElement(
+                "div"
+            );
 
         popup.textContent =
             `+${formatNumber(amount)} Rs`;
@@ -317,7 +399,9 @@
 
                 {
                     duration: 700,
-                    easing: "ease-out"
+
+                    easing:
+                        "ease-out"
                 }
             );
 
@@ -328,13 +412,17 @@
 
 
     /* =========================================
-       MESSAGE POPUP
+       MESSAGE
     ========================================== */
 
-    function showMessage(text) {
+    function showMessage(
+        text
+    ) {
 
         const message =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
         message.textContent =
             text;
@@ -414,7 +502,9 @@
 
                 {
                     duration: 1200,
-                    easing: "ease-out"
+
+                    easing:
+                        "ease-out"
                 }
             );
 
@@ -430,17 +520,25 @@
 
     function comboLevelUp() {
 
-        gameState.combo++;
+        gameState.combo += 1;
 
         gameState.comboProgress = 0;
 
-        const bonus = 1000;
 
-        gameState.balance += bonus;
+        /*
+         * Small bonus for maintaining combo.
+         */
+
+        const comboBonus = 50;
+
+        gameState.balance +=
+            comboBonus;
+
 
         createRewardPopup(
-            bonus
+            comboBonus
         );
+
 
         showMessage(
             `🔥 COMBO x${gameState.combo}!`
@@ -449,7 +547,36 @@
 
 
     /* =========================================
-       MAIN TAP FUNCTION
+       GAME LEVEL CALCULATION
+    ========================================== */
+
+    function checkLevelUp() {
+
+        /*
+         * Every 100 taps = next level.
+         */
+
+        const requiredTaps =
+            gameState.level * 100;
+
+
+        if (
+            gameState.totalTaps >=
+            requiredTaps
+        ) {
+
+            gameState.level += 1;
+
+
+            showMessage(
+                `🎉 LEVEL ${gameState.level}!`
+            );
+        }
+    }
+
+
+    /* =========================================
+       MAIN TAP
     ========================================== */
 
     function performTap() {
@@ -458,23 +585,31 @@
             calculateReward();
 
 
-        /* Add reward */
+        /*
+         * Add balance.
+         */
 
         gameState.balance +=
             reward;
 
 
-        /* Count tap */
+        /*
+         * Count tap.
+         */
 
-        gameState.totalTaps++;
+        gameState.totalTaps += 1;
 
 
-        /* Increase combo progress */
+        /*
+         * Combo progress.
+         */
 
         gameState.comboProgress += 8;
 
 
-        /* Check combo */
+        /*
+         * Combo milestone.
+         */
 
         if (
             gameState.comboProgress >=
@@ -482,21 +617,33 @@
         ) {
 
             comboLevelUp();
-
         }
 
 
-        /* Update screen */
+        /*
+         * Level check.
+         */
+
+        checkLevelUp();
+
+
+        /*
+         * Update UI.
+         */
 
         updateUI();
 
 
-        /* Save immediately */
+        /*
+         * Save immediately.
+         */
 
         saveGame();
 
 
-        /* Visual feedback */
+        /*
+         * Visual feedback.
+         */
 
         reactorEffect();
 
@@ -505,12 +652,11 @@
         createRewardPopup(
             reward
         );
-
     }
 
 
     /* =========================================
-       BUTTON EVENTS
+       TAP EVENTS
     ========================================== */
 
     if (reactorCore) {
@@ -519,7 +665,6 @@
             "click",
             performTap
         );
-
     }
 
 
@@ -529,12 +674,11 @@
             "click",
             performTap
         );
-
     }
 
 
     /* =========================================
-       SAVE WHEN PAGE IS HIDDEN
+       SAVE WHEN TAB GOES BACKGROUND
     ========================================== */
 
     document.addEventListener(
@@ -547,15 +691,13 @@
             ) {
 
                 saveGame();
-
             }
-
         }
     );
 
 
     /* =========================================
-       SAVE BEFORE PAGE CLOSE
+       SAVE BEFORE LEAVING
     ========================================== */
 
     window.addEventListener(
