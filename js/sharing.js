@@ -1,19 +1,37 @@
 /* =========================================
-   EARNRUSH — WHATSAPP SHARE TASK
+   EARNRUSH — WHATSAPP SHARE TASK (Referral verified)
 ========================================= */
 (() => {
   "use strict";
 
-  const SHARE_URL = "https://earn-rush.vercel.app/";
+  const SHARE_BASE_URL = "https://earn-rush.vercel.app/";
   const SHARE_TEXT = "🔥 Playing EarnRush and earning real rewards! Tap, level up, and cash out. Try it now:";
   const SHARE_REWARD = 200; // Rs — adjust as needed
-  const MIN_AWAY_MS = 4000; // user must be away at least 4s to count as a real share attempt
+  const POLL_INTERVAL_MS = 8000;
 
-  let shareClickedAt = null;
+  let pollTimer = null;
 
   function getState() {
     if (!window.EarnRushGame) return null;
     return window.EarnRushGame.getState();
+  }
+
+  function getOrCreateRefCode() {
+    let code = localStorage.getItem("earnRushRefCode");
+    if (!code) {
+      code = "u" + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem("earnRushRefCode", code);
+    }
+    return code;
+  }
+
+  function getOrCreateVisitorId() {
+    let id = localStorage.getItem("earnRushVisitorId");
+    if (!id) {
+      id = "v" + Math.random().toString(36).slice(2, 12);
+      localStorage.setItem("earnRushVisitorId", id);
+    }
+    return id;
   }
 
   function isShareCompleted(state) {
@@ -21,34 +39,74 @@
   }
 
   function openWhatsAppShare() {
-    const message = `${SHARE_TEXT} ${SHARE_URL}`;
+    const myCode = getOrCreateRefCode();
+    const link = `${SHARE_BASE_URL}?ref=${myCode}`;
+    const message = `${SHARE_TEXT} ${link}`;
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    shareClickedAt = Date.now();
     window.open(url, "_blank");
+    startPolling();
   }
 
-  function handleVisibilityReturn() {
-    if (document.visibilityState !== "visible") return;
-    if (!shareClickedAt) return;
+  async function trackIncomingReferral() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (!ref) return;
 
-    const awayTime = Date.now() - shareClickedAt;
-    shareClickedAt = null;
+    const visitor = getOrCreateVisitorId();
 
-    // Too quick — probably closed WhatsApp without sharing
-    if (awayTime < MIN_AWAY_MS) return;
+    try {
+      await fetch("/api/track-click", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ref, visitor })
+      });
+    } catch (error) {
+      console.warn("Referral tracking failed", error);
+    }
+  }
 
-    completeShareTask();
+  async function checkMyReferral() {
+    const state = getState();
+    if (!state || isShareCompleted(state)) {
+      stopPolling();
+      return;
+    }
+
+    const myCode = getOrCreateRefCode();
+
+    try {
+      const response = await fetch(`/api/check-referral?ref=${myCode}`);
+      const data = await response.json();
+
+      if (data.count && data.count >= 1) {
+        completeShareTask();
+      }
+    } catch (error) {
+      console.warn("Referral check failed", error);
+    }
+  }
+
+  function startPolling() {
+    if (pollTimer) return;
+    pollTimer = setInterval(checkMyReferral, POLL_INTERVAL_MS);
+  }
+
+  function stopPolling() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
   }
 
   function completeShareTask() {
     const state = getState();
-    if (!state) return;
-    if (isShareCompleted(state)) return;
+    if (!state || isShareCompleted(state)) return;
 
     state.completedMissions.push("whatsapp_share");
     window.EarnRushGame.addBalance(SHARE_REWARD);
-    window.EarnRushGame.showMessage(`🎉 Share Task Complete! +${SHARE_REWARD} Rs`);
+    window.EarnRushGame.showMessage(`🎉 Share Confirmed! +${SHARE_REWARD} Rs`);
     window.EarnRushGame.save();
+    stopPolling();
     renderShareTask();
   }
 
@@ -59,7 +117,6 @@
     const state = getState();
     if (!state) return;
 
-    // Remove old card if it exists (avoid duplicates on re-render)
     const existing = document.getElementById("shareTaskCard");
     if (existing) existing.remove();
 
@@ -72,7 +129,7 @@
       <div class="mission-icon">${completed ? "✓" : "📤"}</div>
       <div class="mission-content">
         <div class="mission-title">Share on WhatsApp</div>
-        <div class="mission-description">Share EarnRush with a friend or group</div>
+        <div class="mission-description">${completed ? "Confirmed!" : "Share your link — unlocks when someone opens it"}</div>
       </div>
       <div class="mission-reward">
         ${completed ? "Claimed" : `<button type="button" id="shareTaskBtn">Share</button>`}
@@ -86,14 +143,17 @@
     }
   }
 
-  document.addEventListener("visibilitychange", handleVisibilityReturn);
   document.addEventListener("DOMContentLoaded", () => {
-    // Small delay so it renders after mission.js's own render
+    trackIncomingReferral();
     setTimeout(renderShareTask, 50);
+
+    const state = getState();
+    if (state && !isShareCompleted(state)) {
+      startPolling();
+    }
   });
 
   window.EarnRushSharing = {
     render: renderShareTask
   };
 })();
-
