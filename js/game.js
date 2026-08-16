@@ -1,21 +1,13 @@
 /* =========================================
-   EARNRUSH — GAME ENGINE v1
+   EARNRUSH — CORE GAME ENGINE
+   Version 3.0
 ========================================= */
 
 (() => {
     "use strict";
 
-    /* =========================================
-       SAVE VERSION
-    ========================================== */
-
     const SAVE_KEY = "earnRushSave";
-    const SAVE_VERSION = 2;
-
-
-    /* =========================================
-       NEW PLAYER DEFAULTS
-    ========================================== */
+    const SAVE_VERSION = 3;
 
     const defaultState = {
         saveVersion: SAVE_VERSION,
@@ -24,40 +16,47 @@
 
         level: 1,
 
+        xp: 0,
+
+        xpToNextLevel: 100,
+
         combo: 1,
 
         comboProgress: 0,
 
         totalTaps: 0,
 
-        baseReward: 10
+        baseTapReward: 1,
+
+        streak: 1,
+
+        lastPlayedDate: null,
+
+        completedMissions: [],
+
+        claimedRewards: []
     };
 
 
     /* =========================================
        LOAD GAME
-    ========================================== */
+    ========================================= */
 
     function loadGame() {
 
         try {
 
-            const savedData =
+            const saved =
                 localStorage.getItem(SAVE_KEY);
 
-            if (!savedData) {
+            if (!saved) {
                 return {
                     ...defaultState
                 };
             }
 
             const parsed =
-                JSON.parse(savedData);
-
-
-            /*
-             * Ignore old demo save data.
-             */
+                JSON.parse(saved);
 
             if (
                 parsed.saveVersion !==
@@ -72,7 +71,6 @@
                     ...defaultState
                 };
             }
-
 
             return {
                 ...defaultState,
@@ -97,16 +95,12 @@
     }
 
 
-    /* =========================================
-       GAME STATE
-    ========================================== */
-
     const gameState = loadGame();
 
 
     /* =========================================
        SAVE GAME
-    ========================================== */
+    ========================================= */
 
     function saveGame() {
 
@@ -120,7 +114,7 @@
         } catch (error) {
 
             console.warn(
-                "EarnRush save could not be created.",
+                "EarnRush save could not be saved.",
                 error
             );
         }
@@ -129,7 +123,7 @@
 
     /* =========================================
        ELEMENTS
-    ========================================== */
+    ========================================= */
 
     const balanceElement =
         document.getElementById("balance");
@@ -153,29 +147,34 @@
             ".combo-value"
         );
 
+    const xpBar =
+        document.getElementById("xpBar");
+
+    const xpText =
+        document.getElementById("xpText");
+
+    const streakElement =
+        document.getElementById("streakValue");
+
 
     /* =========================================
-       NUMBER FORMAT
-    ========================================== */
+       FORMAT NUMBER
+    ========================================= */
 
-    function formatNumber(number) {
+    function formatNumber(value) {
 
-        return Math.floor(
-            number
-        ).toLocaleString("en-US");
-
+        return Math.floor(value)
+            .toLocaleString("en-US");
     }
 
 
     /* =========================================
        UPDATE BALANCE
-    ========================================== */
+    ========================================= */
 
     function updateBalance() {
 
-        if (!balanceElement) {
-            return;
-        }
+        if (!balanceElement) return;
 
         balanceElement.textContent =
             formatNumber(
@@ -186,13 +185,11 @@
 
     /* =========================================
        UPDATE LEVEL
-    ========================================== */
+    ========================================= */
 
     function updateLevel() {
 
-        if (!levelElement) {
-            return;
-        }
+        if (!levelElement) return;
 
         levelElement.textContent =
             String(
@@ -203,13 +200,11 @@
 
     /* =========================================
        UPDATE COMBO
-    ========================================== */
+    ========================================= */
 
     function updateCombo() {
 
-        if (!comboValue) {
-            return;
-        }
+        if (!comboValue) return;
 
         comboValue.textContent =
             `🔥 x${gameState.combo}`;
@@ -217,32 +212,63 @@
 
 
     /* =========================================
-       UPDATE PROGRESS
-    ========================================== */
+       UPDATE COMBO PROGRESS
+    ========================================= */
 
-    function updateProgress() {
+    function updateComboProgress() {
 
-        if (!progressFill) {
-            return;
-        }
-
-        const progress =
-            Math.max(
-                0,
-                Math.min(
-                    100,
-                    gameState.comboProgress
-                )
-            );
+        if (!progressFill) return;
 
         progressFill.style.width =
-            `${progress}%`;
+            `${gameState.comboProgress}%`;
+    }
+
+
+    /* =========================================
+       UPDATE XP
+    ========================================= */
+
+    function updateXP() {
+
+        const percentage =
+            Math.min(
+                100,
+                (
+                    gameState.xp /
+                    gameState.xpToNextLevel
+                ) * 100
+            );
+
+        if (xpBar) {
+
+            xpBar.style.width =
+                `${percentage}%`;
+        }
+
+        if (xpText) {
+
+            xpText.textContent =
+                `${gameState.xp} / ${gameState.xpToNextLevel} XP`;
+        }
+    }
+
+
+    /* =========================================
+       UPDATE STREAK
+    ========================================= */
+
+    function updateStreak() {
+
+        if (!streakElement) return;
+
+        streakElement.textContent =
+            `🔥 ${gameState.streak} Day`;
     }
 
 
     /* =========================================
        UPDATE COMPLETE UI
-    ========================================== */
+    ========================================= */
 
     function updateUI() {
 
@@ -252,39 +278,155 @@
 
         updateCombo();
 
-        updateProgress();
+        updateComboProgress();
+
+        updateXP();
+
+        updateStreak();
     }
 
 
     /* =========================================
-       TAP REWARD
-    ========================================== */
+       ADD XP
+    ========================================= */
 
-    function calculateReward() {
+    function addXP(amount) {
+
+        gameState.xp += amount;
+
+        while (
+            gameState.xp >=
+            gameState.xpToNextLevel
+        ) {
+
+            gameState.xp -=
+                gameState.xpToNextLevel;
+
+            gameState.level += 1;
+
+            gameState.xpToNextLevel =
+                Math.floor(
+                    gameState.xpToNextLevel *
+                    1.25
+                );
+
+            levelUp();
+        }
+
+        updateUI();
+    }
+
+
+    /* =========================================
+       LEVEL UP
+    ========================================= */
+
+    function levelUp() {
+
+        const bonus =
+            gameState.level * 10;
+
+        gameState.balance +=
+            bonus;
+
+        showMessage(
+            `🎉 LEVEL ${gameState.level}! +${bonus} Rs`
+        );
+
+        createRewardPopup(
+            bonus
+        );
+    }
+
+
+    /* =========================================
+       TAP
+    ========================================= */
+
+    function performTap() {
 
         /*
-         * Reward grows slowly with combo.
+         * CORE RULE:
+         * Every normal tap gives exactly 1 Rs.
          */
 
-        const comboBonus =
-            (gameState.combo - 1) * 2;
+        const reward =
+            gameState.baseTapReward;
 
-        return (
-            gameState.baseReward +
-            comboBonus
+
+        gameState.balance +=
+            reward;
+
+
+        gameState.totalTaps +=
+            1;
+
+
+        /* XP */
+
+        addXP(1);
+
+
+        /* Combo */
+
+        gameState.comboProgress +=
+            5;
+
+
+        if (
+            gameState.comboProgress >=
+            100
+        ) {
+
+            gameState.combo += 1;
+
+            gameState.comboProgress = 0;
+
+            showMessage(
+                `🔥 COMBO x${gameState.combo}!`
+            );
+        }
+
+
+        /* Mission system */
+
+        if (
+            window.EarnRushMissions &&
+            typeof window
+                .EarnRushMissions
+                .handleTap ===
+                "function"
+        ) {
+
+            window
+                .EarnRushMissions
+                .handleTap(
+                    gameState
+                );
+        }
+
+
+        updateUI();
+
+        saveGame();
+
+        reactorEffect();
+
+        balanceEffect();
+
+        createRewardPopup(
+            reward
         );
     }
 
 
     /* =========================================
        REACTOR EFFECT
-    ========================================== */
+    ========================================= */
 
     function reactorEffect() {
 
-        if (!reactorCore) {
-            return;
-        }
+        if (!reactorCore) return;
 
         reactorCore.classList.remove(
             "tap-pop"
@@ -300,13 +442,11 @@
 
     /* =========================================
        BALANCE EFFECT
-    ========================================== */
+    ========================================= */
 
     function balanceEffect() {
 
-        if (!balanceElement) {
-            return;
-        }
+        if (!balanceElement) return;
 
         balanceElement.classList.remove(
             "balance-pop"
@@ -322,7 +462,7 @@
 
     /* =========================================
        REWARD POPUP
-    ========================================== */
+    ========================================= */
 
     function createRewardPopup(
         amount
@@ -370,7 +510,6 @@
             popup
         );
 
-
         const animation =
             popup.animate(
 
@@ -405,7 +544,6 @@
                 }
             );
 
-
         animation.onfinish =
             () => popup.remove();
     }
@@ -413,7 +551,7 @@
 
     /* =========================================
        MESSAGE
-    ========================================== */
+    ========================================= */
 
     function showMessage(
         text
@@ -466,13 +604,9 @@
         message.style.whiteSpace =
             "nowrap";
 
-        message.style.boxShadow =
-            "0 0 30px rgba(57,255,136,.18)";
-
         document.body.appendChild(
             message
         );
-
 
         const animation =
             message.animate(
@@ -508,156 +642,84 @@
                 }
             );
 
-
         animation.onfinish =
             () => message.remove();
     }
 
 
     /* =========================================
-       COMBO LEVEL UP
-    ========================================== */
+       DAILY STREAK
+    ========================================= */
 
-    function comboLevelUp() {
+    function updateDailyStreak() {
 
-        gameState.combo += 1;
-
-        gameState.comboProgress = 0;
-
-
-        /*
-         * Small bonus for maintaining combo.
-         */
-
-        const comboBonus = 50;
-
-        gameState.balance +=
-            comboBonus;
-
-
-        createRewardPopup(
-            comboBonus
-        );
-
-
-        showMessage(
-            `🔥 COMBO x${gameState.combo}!`
-        );
-    }
-
-
-    /* =========================================
-       GAME LEVEL CALCULATION
-    ========================================== */
-
-    function checkLevelUp() {
-
-        /*
-         * Every 100 taps = next level.
-         */
-
-        const requiredTaps =
-            gameState.level * 100;
+        const today =
+            new Date()
+                .toISOString()
+                .split("T")[0];
 
 
         if (
-            gameState.totalTaps >=
-            requiredTaps
+            !gameState.lastPlayedDate
         ) {
 
-            gameState.level += 1;
+            gameState.lastPlayedDate =
+                today;
+
+            gameState.streak = 1;
+
+            return;
+        }
 
 
-            showMessage(
-                `🎉 LEVEL ${gameState.level}!`
+        if (
+            gameState.lastPlayedDate ===
+            today
+        ) {
+
+            return;
+        }
+
+
+        const previous =
+            new Date(
+                gameState.lastPlayedDate
             );
-        }
-    }
 
+        const current =
+            new Date(today);
 
-    /* =========================================
-       MAIN TAP
-    ========================================== */
+        const difference =
+            Math.floor(
+                (
+                    current -
+                    previous
+                ) /
+                86400000
+            );
 
-    function performTap() {
-
-        const reward =
-            calculateReward();
-
-
-        /*
-         * Add balance.
-         */
-
-        gameState.balance +=
-            reward;
-
-
-        /*
-         * Count tap.
-         */
-
-        gameState.totalTaps += 1;
-
-
-        /*
-         * Combo progress.
-         */
-
-        gameState.comboProgress += 8;
-
-
-        /*
-         * Combo milestone.
-         */
 
         if (
-            gameState.comboProgress >=
-            100
+            difference === 1
         ) {
 
-            comboLevelUp();
+            gameState.streak +=
+                1;
+
+        } else {
+
+            gameState.streak = 1;
         }
 
 
-        /*
-         * Level check.
-         */
-
-        checkLevelUp();
-
-
-        /*
-         * Update UI.
-         */
-
-        updateUI();
-
-
-        /*
-         * Save immediately.
-         */
-
-        saveGame();
-
-
-        /*
-         * Visual feedback.
-         */
-
-        reactorEffect();
-
-        balanceEffect();
-
-        createRewardPopup(
-            reward
-        );
+        gameState.lastPlayedDate =
+            today;
     }
 
 
     /* =========================================
-       TAP EVENTS
-    ========================================== */
+       EVENTS
+    ========================================= */
 
     if (reactorCore) {
 
@@ -678,8 +740,8 @@
 
 
     /* =========================================
-       SAVE WHEN TAB GOES BACKGROUND
-    ========================================== */
+       SAVE ON BACKGROUND
+    ========================================= */
 
     document.addEventListener(
         "visibilitychange",
@@ -696,10 +758,6 @@
     );
 
 
-    /* =========================================
-       SAVE BEFORE LEAVING
-    ========================================== */
-
     window.addEventListener(
         "beforeunload",
         saveGame
@@ -707,8 +765,61 @@
 
 
     /* =========================================
+       PUBLIC API
+    ========================================= */
+
+    window.EarnRushGame = {
+
+        getState() {
+
+            return gameState;
+        },
+
+        save() {
+
+            saveGame();
+        },
+
+        updateUI() {
+
+            updateUI();
+        },
+
+        addXP(amount) {
+
+            addXP(amount);
+            saveGame();
+        },
+
+        addBalance(amount) {
+
+            gameState.balance +=
+                amount;
+
+            updateUI();
+
+            saveGame();
+        },
+
+        showMessage(text) {
+
+            showMessage(text);
+        },
+
+        createRewardPopup(amount) {
+
+            createRewardPopup(
+                amount
+            );
+        }
+    };
+
+
+    /* =========================================
        INITIALIZE
-    ========================================== */
+    ========================================= */
+
+    updateDailyStreak();
 
     updateUI();
 
