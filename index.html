@@ -1,7 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -14,21 +15,38 @@
         content="EarnRush — a fast, simple and exciting mobile game."
     >
 
-    <meta name="theme-color" content="#07111f">
+    <meta
+        name="theme-color"
+        content="#07111f"
+    >
 
     <title>EarnRush — Play. Rush. Level Up.</title>
 
-    <!-- Main Styles -->
-    <link rel="stylesheet" href="css/style.css">
 
-    <!-- Animations -->
-    <link rel="stylesheet" href="css/animations.css">
+    <!-- =========================================
+         STYLES
+    ========================================== -->
 
-    <!-- Responsive Design -->
-    <link rel="stylesheet" href="css/responsive.css">
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/animations.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
 </head>
 
+
 <body>
+
 
     <!-- =========================================
          EARNRUSH APP
@@ -36,185 +54,435 @@
 
     <div id="app">
 
+
+        <!-- =========================================
+             HEADER
+        ========================================== -->
+
         <header class="game-header">
 
-    <div class="brand">
-        <div class="brand-mark">E</div>
+            <div class="brand">
 
-        <div class="brand-name">
-            EarnRush
-        </div>
-    </div>
+                <div class="brand-mark">
+                    E
+                </div>
 
-    <div class="header-actions">
+                <div class="brand-name">
+                    EarnRush
+                </div>
 
-        <button class="icon-button" type="button" aria-label="Notifications">
-            🔔
-        </button>
-
-        <button class="icon-button" type="button" aria-label="Settings">
-            ⚙️
-        </button>
-
-    </div>
-
-</header>
+            </div>
 
 
-<section class="player-status">
+            <div class="header-actions">
 
-    <div class="status-card">
-        <span class="status-label">Level</span>
-        <span class="status-value green">07</span>
-    </div>
-
-    <div class="status-card">
-        <span class="status-label">Streak</span>
-        <span class="status-value gold">🔥 05 Days</span>
-    </div>
-
-</section>
+                <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Notifications"
+                >
+                    🔔
+                </button>
 
 
-<section class="balance-card">
+                <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Settings"
+                >
+                    ⚙️
+                </button>
 
-    <span class="balance-label">
-        Current Balance
-    </span>
+            </div>
 
-    <div class="balance-row">
-
-        <span class="balance-amount" id="balance">
-            12,840
-        </span>
-
-        <span class="balance-currency">
-            RS
-        </span>
-
-    </div>
-
-    <p class="income-rate">
-        Earning rate:
-        <strong>+245 / tap</strong>
-    </p>
-
-</section>
+        </header>
 
 
-<section class="reactor-section">
 
-    <span class="reactor-label">
-        Cash Reactor
-    </span>
+        <!-- =========================================
+             PLAYER STATUS
+        ========================================== -->
 
-    <div class="reactor">
+        <section class="player-status">
 
-        <button
-            class="reactor-core"
-            id="reactorCore"
-            type="button"
-            aria-label="Tap reactor"
+
+            <div class="status-card">
+
+                <span class="status-label">
+                    Level
+                </span>
+
+                <span
+                    class="status-value green"
+                    id="levelValue"
+                >
+                    01
+                </span>
+
+            </div>
+
+
+
+            <div class="status-card">
+
+                <span class="status-label">
+                    Streak
+                </span>
+
+                <span
+                    class="status-value gold"
+                    id="streakValue"
+                >
+                    🔥 1 Day
+                </span>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================================
+             BALANCE
+        ========================================== -->
+
+        <section class="balance-card">
+
+            <span class="balance-label">
+                Current Balance
+            </span>
+
+
+            <div class="balance-row">
+
+                <span
+                    class="balance-amount"
+                    id="balance"
+                >
+                    0
+                </span>
+
+                <span class="balance-currency">
+                    RS
+                </span>
+
+            </div>
+
+
+            <p class="income-rate">
+
+                Earning rate:
+
+                <strong>
+                    +1 / tap
+                </strong>
+
+            </p>
+
+        </section>
+
+
+
+        <!-- =========================================
+             XP / LEVEL PROGRESS
+        ========================================== -->
+
+        <section class="xp-card">
+
+            <div class="xp-header">
+
+                <span class="xp-title">
+                    Level Progress
+                </span>
+
+                <span
+                    class="xp-value"
+                    id="xpText"
+                >
+                    0 / 100 XP
+                </span>
+
+            </div>
+
+
+            <div class="xp-track">
+
+                <div
+                    class="xp-fill"
+                    id="xpBar"
+                    style="width: 0%;"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================================
+             REACTOR
+        ========================================== -->
+
+        <section class="reactor-section">
+
+
+            <span class="reactor-label">
+                Cash Reactor
+            </span>
+
+
+            <div class="reactor">
+
+                <button
+                    class="reactor-core"
+                    id="reactorCore"
+                    type="button"
+                    aria-label="Tap reactor"
+                >
+                    ⚡
+                </button>
+
+            </div>
+
+
+
+            <!-- =====================================
+                 COMBO
+            ====================================== -->
+
+            <div class="combo-area">
+
+
+                <div class="combo-top">
+
+                    <span class="combo-label">
+                        Combo
+                    </span>
+
+                    <span class="combo-value">
+                        🔥 x1
+                    </span>
+
+                </div>
+
+
+                <div class="progress-track">
+
+                    <div
+                        class="progress-fill"
+                        style="width: 0%;"
+                    ></div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =====================================
+                 TAP BUTTON
+            ====================================== -->
+
+            <button
+                class="tap-button"
+                id="tapButton"
+                type="button"
+            >
+                TAP TO RUSH ⚡
+            </button>
+
+
+        </section>
+
+
+
+        <!-- =========================================
+             QUICK ACTIONS
+        ========================================== -->
+
+        <section class="quick-actions">
+
+
+            <button
+                class="quick-card"
+                type="button"
+                onclick="document.getElementById('missionsSection').scrollIntoView({ behavior: 'smooth' });"
+            >
+
+                <span class="quick-icon">
+                    🎯
+                </span>
+
+                <span class="quick-title">
+                    Missions
+                </span>
+
+                <span class="quick-subtitle">
+                    Complete tasks
+                </span>
+
+            </button>
+
+
+
+            <button
+                class="quick-card"
+                type="button"
+                onclick="document.getElementById('rewardsSection').scrollIntoView({ behavior: 'smooth' });"
+            >
+
+                <span class="quick-icon">
+                    🏆
+                </span>
+
+                <span class="quick-title">
+                    Progress
+                </span>
+
+                <span class="quick-subtitle">
+                    Track your level
+                </span>
+
+            </button>
+
+
+
+            <button
+                class="quick-card"
+                type="button"
+                onclick="document.getElementById('rewardsSection').scrollIntoView({ behavior: 'smooth' });"
+            >
+
+                <span class="quick-icon">
+                    🎁
+                </span>
+
+                <span class="quick-title">
+                    Rewards
+                </span>
+
+                <span class="quick-subtitle">
+                    Unlock milestones
+                </span>
+
+            </button>
+
+
+        </section>
+
+
+
+        <!-- =========================================
+             MISSIONS SECTION
+        ========================================== -->
+
+        <section
+            class="missions-section"
+            id="missionsSection"
         >
-            ⚡
-        </button>
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-kicker">
+                        DAILY PROGRESS
+                    </span>
+
+                    <h2>
+                        Missions
+                    </h2>
+
+                </div>
+
+
+                <span class="mission-count">
+                    🎯
+                </span>
+
+            </div>
+
+
+            <div id="missionsList">
+
+                <!-- Missions are generated by missions.js -->
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================================
+             REWARDS SECTION
+        ========================================== -->
+
+        <section
+            class="rewards-section"
+            id="rewardsSection"
+        >
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-kicker">
+                        MILESTONES
+                    </span>
+
+                    <h2>
+                        Rewards
+                    </h2>
+
+                </div>
+
+
+                <span class="reward-heading-icon">
+                    🎁
+                </span>
+
+            </div>
+
+
+            <div id="rewardsList">
+
+                <!-- Rewards are generated by rewards.js -->
+
+            </div>
+
+
+        </section>
+
+
 
     </div>
 
-
-    <div class="combo-area">
-
-        <div class="combo-top">
-
-            <span class="combo-label">
-                Combo
-            </span>
-
-            <span class="combo-value">
-                🔥 x12
-            </span>
-
-        </div>
-
-        <div class="progress-track">
-
-            <div class="progress-fill"></div>
-
-        </div>
-
-    </div>
-
-
-    <button
-        class="tap-button"
-        id="tapButton"
-        type="button"
-    >
-        TAP TO RUSH ⚡
-    </button>
-
-</section>
-
-
-<section class="quick-actions">
-
-    <button class="quick-card" type="button">
-
-        <span class="quick-icon">🎯</span>
-
-        <span class="quick-title">
-            Missions
-        </span>
-
-        <span class="quick-subtitle">
-            3 available
-        </span>
-
-    </button>
-
-
-    <button class="quick-card" type="button">
-
-        <span class="quick-icon">🏆</span>
-
-        <span class="quick-title">
-            Ranking
-        </span>
-
-        <span class="quick-subtitle">
-            Your position
-        </span>
-
-    </button>
-
-
-    <button class="quick-card" type="button">
-
-        <span class="quick-icon">🎁</span>
-
-        <span class="quick-title">
-            Rewards
-        </span>
-
-        <span class="quick-subtitle">
-            2 unlocked
-        </span>
-
-    </button>
-
-</section>
-    </div>
 
 
     <!-- =========================================
          JAVASCRIPT
+         
+         IMPORTANT:
+         game.js must load before missions.js
+         and rewards.js.
     ========================================== -->
 
     <script src="js/ui.js"></script>
+
     <script src="js/game.js"></script>
+
     <script src="js/missions.js"></script>
+
     <script src="js/rewards.js"></script>
+
     <script src="js/sharing.js"></script>
 
+
 </body>
+
 </html>
