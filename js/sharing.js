@@ -1,5 +1,6 @@
 /* =========================================
-   EARNRUSH — WHATSAPP REFERRAL (Coins Tiers)
+   EARNRUSH — WHATSAPP REFERRAL (Coins Tiers v2)
+   Better UI, Coins display
 ========================================= */
 (() => {
   "use strict";
@@ -100,7 +101,7 @@
     state.claimedRewards.push(tier.id);
     window.EarnRushGame.addCoins(tier.coins);
     window.EarnRushGame.addXP(tier.xp);
-    window.EarnRushGame.showMessage(`🎉 Claimed! +${tier.coins} 🪙, +${tier.xp} XP`);
+    window.EarnRushGame.showMessage(`🎉 Claimed! +${tier.coins} 🪙`);
     renderTiers();
   }
 
@@ -117,13 +118,14 @@
     const wrapper = document.createElement("div");
     wrapper.id = "referralTiers";
 
+    /* SHARE ROW */
     const shareRow = document.createElement("div");
     shareRow.className = "mission-card";
     shareRow.innerHTML = `
       <div class="mission-icon">📤</div>
       <div class="mission-content">
         <div class="mission-title">Share Your Link</div>
-        <div class="mission-description">Referrals: ${referralCount}</div>
+        <div class="mission-description">Referrals: ${referralCount} 🪙</div>
       </div>
       <div class="mission-reward">
         <button type="button" id="shareTaskBtn">Share</button>
@@ -131,6 +133,7 @@
     `;
     wrapper.appendChild(shareRow);
 
+    /* TIER CARDS */
     tiers.forEach(tier => {
       const claimed = isClaimed(tier, state);
       const unlocked = referralCount >= tier.target;
@@ -143,7 +146,7 @@
         <div class="mission-icon">${claimed ? "✓" : "🎯"}</div>
         <div class="mission-content">
           <div class="mission-title">${tier.target} Referral${tier.target > 1 ? "s" : ""}</div>
-          <div class="mission-description">+${tier.coins} 🪙, +${tier.xp} XP</div>
+          <div class="mission-description">🪙 ${tier.coins.toLocaleString()} • ⭐ ${tier.xp} XP</div>
           <div class="mission-progress">
             <div class="mission-progress-track">
               <div class="mission-progress-fill" style="width:${percent}%"></div>
@@ -151,9 +154,9 @@
             <span>${progress}/${tier.target}</span>
           </div>
         </div>
-        <div class="mission-reward">
+        <div class="mission-reward ${claimed ? "claimed" : ""}">
           ${claimed
-            ? "Claimed"
+            ? "✓ Claimed"
             : `<button type="button" class="claimBtn" data-id="${tier.id}" ${unlocked ? "" : "disabled"}>Claim</button>`}
         </div>
       `;
