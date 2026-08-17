@@ -1,494 +1,420 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+<meta
+name="description"
+content="EarnRush — a fast, simple and exciting mobile game."
+>
+<meta
+name="theme-color"
+content="#07111f"
+>
+<title>EarnRush — Play. Rush. Level Up.</title>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
-
-    <meta
-        name="description"
-        content="EarnRush — a fast, simple and exciting mobile game."
-    >
-
-    <meta
-        name="theme-color"
-        content="#07111f"
-    >
-
-    <title>EarnRush — Play. Rush. Level Up.</title>
-
-
-    <!-- =========================================
-         STYLES
-    ========================================== -->
-
-    <link
-        rel="stylesheet"
-        href="css/style.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/animations.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/responsive.css"
-    >
-    <link
-        rel="stylesheet"
-        href="css/enhancements.css"
-    >
-    <link 
-        rel="stylesheet" 
-        href="css/enhancements.css"
-    >
-
+<!-- =========================================
+STYLES
+========================================== -->
+<link
+rel="stylesheet"
+href="css/style.css"
+>
+<link
+rel="stylesheet"
+href="css/animations.css"
+>
+<link
+rel="stylesheet"
+href="css/responsive.css"
+>
+<link
+rel="stylesheet"
+href="css/enhancements.css"
+>
+<link
+rel="stylesheet"
+href="css/withdrawal-styles.css"
+>
 </head>
-
-
 <body>
 
-
-    <!-- =========================================
-         EARNRUSH APP
-    ========================================== -->
-
-    <div id="app">
-
-
-        <!-- =========================================
-             HEADER
-        ========================================== -->
-
-        <header class="game-header">
-
-            <div class="brand">
-
-                <div class="brand-mark">
-                    E
-                </div>
-
-                <div class="brand-name">
-                    EarnRush
-                </div>
-
-            </div>
-
-
-            <div class="header-actions">
-
-                <button
-                    class="icon-button"
-                    type="button"
-                    aria-label="Notifications"
-                >
-                    🔔
-                </button>
-
-
-                <button
-                    class="icon-button"
-                    type="button"
-                    aria-label="Settings"
-                >
-                    ⚙️
-                </button>
-
-            </div>
-
-        </header>
-
-
-
-        <!-- =========================================
-             PLAYER STATUS
-        ========================================== -->
-
-        <section class="player-status">
-
-
-            <div class="status-card">
-
-                <span class="status-label">
-                    Level
-                </span>
-
-                <span
-                    class="status-value green"
-                    id="levelValue"
-                >
-                    01
-                </span>
-
-            </div>
-
-
-
-            <div class="status-card">
-
-                <span class="status-label">
-                    Streak
-                </span>
-
-                <span
-                    class="status-value gold"
-                    id="streakValue"
-                >
-                    🔥 1 Day
-                </span>
-
-            </div>
-
-
-        </section>
-
-
-
-        <!-- =========================================
-             BALANCE
-        ========================================== -->
-
-        <section class="balance-card">
-
-            <span class="balance-label">
-                Current Balance
-            </span>
-
-
-            <div class="balance-row">
-
-                <span
-                    class="balance-amount"
-                    id="balance"
-                >
-                    0
-                </span>
-
-                <span class="balance-currency">
-                    COINS
-                </span>
-
-            </div>
-
-
-            <p class="income-rate">
-
-                Earning rate:
-
-                <strong>
-                    +1 / tap
-                </strong>
-
-            </p>
-
-        </section>
-
-
-
-        <!-- =========================================
-             XP / LEVEL PROGRESS
-        ========================================== -->
-
-        <section class="xp-card">
-
-            <div class="xp-header">
-
-                <span class="xp-title">
-                    Level Progress
-                </span>
-
-                <span
-                    class="xp-value"
-                    id="xpText"
-                >
-                    0 / 250 XP
-                </span>
-
-            </div>
-
-
-            <div class="xp-track">
-
-                <div
-                    class="xp-fill"
-                    id="xpBar"
-                    style="width: 0%;"
-                ></div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================================
-             REACTOR
-        ========================================== -->
-
-        <section class="reactor-section">
-
-
-            <span class="reactor-label">
-                TAP TAP
-            </span>
-
-
-            <div class="reactor">
-
-                <button
-                    class="reactor-core"
-                    id="reactorCore"
-                    type="button"
-                    aria-label="Tap reactor"
-                >
-                    ⚡
-                </button>
-
-            </div>
-
-
-
-            <!-- =====================================
-                 COMBO
-            ====================================== -->
-
-            <div class="combo-area">
-
-
-                <div class="combo-top">
-
-                    <span class="combo-label">
-                        Combo
-                    </span>
-
-                    <span class="combo-value">
-                        🔥 x1
-                    </span>
-
-                </div>
-
-
-                <div class="progress-track">
-
-                    <div
-                        class="progress-fill"
-                        style="width: 0%;"
-                    ></div>
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- =====================================
-                 TAP BUTTON
-            ====================================== -->
-
-            <button
-                class="tap-button"
-                id="tapButton"
-                type="button"
-            >
-                TAP TO RUSH ⚡
-            </button>
-
-
-        </section>
-
-
-
-        <!-- =========================================
-             QUICK ACTIONS
-        ========================================== -->
-
-        <section class="quick-actions">
-
-
-            <button
-                class="quick-card"
-                type="button"
-                onclick="document.getElementById('missionsSection').scrollIntoView({ behavior: 'smooth' });"
-            >
-
-                <span class="quick-icon">
-                    🎯
-                </span>
-
-                <span class="quick-title">
-                    Missions
-                </span>
-
-                <span class="quick-subtitle">
-                    Complete tasks
-                </span>
-
-            </button>
-
-
-
-            <button
-                class="quick-card"
-                type="button"
-                onclick="document.getElementById('rewardsSection').scrollIntoView({ behavior: 'smooth' });"
-            >
-
-                <span class="quick-icon">
-                    🏆
-                </span>
-
-                <span class="quick-title">
-                    Progress
-                </span>
-
-                <span class="quick-subtitle">
-                    Track your level
-                </span>
-
-            </button>
-
-
-
-            <button
-                class="quick-card"
-                type="button"
-                onclick="document.getElementById('rewardsSection').scrollIntoView({ behavior: 'smooth' });"
-            >
-
-                <span class="quick-icon">
-                    🎁
-                </span>
-
-                <span class="quick-title">
-                    Rewards
-                </span>
-
-                <span class="quick-subtitle">
-                    Unlock milestones
-                </span>
-
-            </button>
-
-
-        </section>
-
-
-
-        <!-- =========================================
-             MISSIONS SECTION
-        ========================================== -->
-
-        <section
-            class="missions-section"
-            id="missionsSection"
-        >
-
-
-            <div class="section-heading">
-
-                <div>
-
-                    <span class="section-kicker">
-                        DAILY PROGRESS
-                    </span>
-
-                    <h2>
-                        Missions
-                    </h2>
-
-                </div>
-
-
-                <span class="mission-count">
-                    🎯
-                </span>
-
-            </div>
-
-
-            <div id="missionsList">
-
-                <!-- Missions are generated by missions.js -->
-
-            </div>
-
-
-        </section>
-
-
-
-        <!-- =========================================
-             REWARDS SECTION
-        ========================================== -->
-
-        <section
-            class="rewards-section"
-            id="rewardsSection"
-        >
-
-
-            <div class="section-heading">
-
-                <div>
-
-                    <span class="section-kicker">
-                        MILESTONES
-                    </span>
-
-                    <h2>
-                        Rewards
-                    </h2>
-
-                </div>
-
-
-                <span class="reward-heading-icon">
-                    🎁
-                </span>
-
-            </div>
-
-
-            <div id="rewardsList">
-
-                <!-- Rewards are generated by rewards.js -->
-
-            </div>
-
-
-        </section>
-
-
-
+<!-- =========================================
+EARNRUSH APP
+========================================== -->
+<div id="app">
+
+<!-- =========================================
+HEADER
+========================================== -->
+<header class="game-header">
+<div class="brand">
+<div class="brand-mark">
+E
+</div>
+<div class="brand-name">
+EarnRush
+</div>
+</div>
+<div class="header-actions">
+<button
+class="icon-button"
+type="button"
+aria-label="Notifications"
+>
+🔔
+</button>
+<button
+class="icon-button"
+type="button"
+aria-label="Settings"
+>
+⚙️
+</button>
+</div>
+</header>
+
+<!-- =========================================
+LIVE USERS COUNTER
+========================================== -->
+<div style="text-align: center; padding: 12px; background: linear-gradient(135deg, rgba(39,200,255,0.12), rgba(54,245,139,0.08)); border-radius: 14px; margin-bottom: 16px; border: 1px solid var(--border);">
+  <span style="font-size: 12px; color: var(--text-soft); text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">👥 Live Users</span>
+  <div style="font-size: 24px; font-weight: 950; color: var(--cyan); margin-top: 4px;">
+    <span id="liveUsersCounter">250</span> Active Players
+  </div>
+</div>
+
+<!-- =========================================
+PLAYER STATUS
+========================================== -->
+<section class="player-status">
+<div class="status-card">
+<span class="status-label">
+Level
+</span>
+<span
+class="status-value green"
+id="levelValue"
+>
+01
+</span>
+</div>
+<div class="status-card">
+<span class="status-label">
+Streak
+</span>
+<span
+class="status-value gold"
+id="streakValue"
+>
+🔥 1 Day
+</span>
+</div>
+</section>
+
+<!-- =========================================
+BALANCE
+========================================== -->
+<section class="balance-card">
+<span class="balance-label">
+Current Balance
+</span>
+<div class="balance-row">
+<span
+class="balance-amount"
+id="balance"
+>
+0
+</span>
+<span class="balance-currency">
+🪙
+</span>
+</div>
+<p class="income-rate">
+Earning rate:
+<strong>
++1 / tap
+</strong>
+</p>
+</section>
+
+<!-- =========================================
+XP / LEVEL PROGRESS
+========================================== -->
+<section class="xp-card">
+<div class="xp-header">
+<span class="xp-title">
+Level Progress
+</span>
+<span
+class="xp-value"
+id="xpText"
+>
+0 / 250 XP
+</span>
+</div>
+<div class="xp-track">
+<div
+class="xp-fill"
+id="xpBar"
+style="width: 0%;"
+></div>
+</div>
+</section>
+
+<!-- =========================================
+REACTOR
+========================================== -->
+<section class="reactor-section">
+<span class="reactor-label">
+TAP TAP
+</span>
+<div class="reactor">
+<button
+class="reactor-core"
+id="reactorCore"
+type="button"
+aria-label="Tap reactor"
+>
+⚡
+</button>
+</div>
+
+<!-- =====================================
+COMBO
+====================================== -->
+<div class="combo-area">
+<div class="combo-top">
+<span class="combo-label">
+Combo
+</span>
+<span class="combo-value">
+🔥 x1
+</span>
+</div>
+<div class="progress-track">
+<div
+class="progress-fill"
+style="width: 0%;"
+></div>
+</div>
+</div>
+
+<!-- =====================================
+TAP BUTTON
+====================================== -->
+<button
+class="tap-button"
+id="tapButton"
+type="button"
+>
+TAP TO RUSH ⚡
+</button>
+</section>
+
+<!-- =========================================
+QUICK ACTIONS
+========================================== -->
+<section class="quick-actions">
+<button
+class="quick-card"
+type="button"
+onclick="document.getElementById('missionsSection').scrollIntoView({ behavior: 'smooth' });"
+>
+<span class="quick-icon">
+🎯
+</span>
+<span class="quick-title">
+Missions
+</span>
+<span class="quick-subtitle">
+Complete tasks
+</span>
+</button>
+<button
+class="quick-card"
+type="button"
+onclick="document.getElementById('withdrawalSection').scrollIntoView({ behavior: 'smooth' });"
+>
+<span class="quick-icon">
+💸
+</span>
+<span class="quick-title">
+Withdraw
+</span>
+<span class="quick-subtitle">
+Cash out coins
+</span>
+</button>
+<button
+class="quick-card"
+type="button"
+onclick="document.getElementById('rewardsSection').scrollIntoView({ behavior: 'smooth' });"
+>
+<span class="quick-icon">
+🎁
+</span>
+<span class="quick-title">
+Rewards
+</span>
+<span class="quick-subtitle">
+Unlock milestones
+</span>
+</button>
+</section>
+
+<!-- =========================================
+WITHDRAWAL SECTION
+========================================== -->
+<section id="withdrawalSection" style="margin-bottom: 20px; padding: 20px; border-radius: 18px; background: linear-gradient(145deg, rgba(10,28,45,0.96), rgba(6,18,31,0.96)); border: 1px solid var(--border);">
+  
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+    <h3 style="font-size: 18px; font-weight: 950; color: var(--text-main);">💸 Withdrawal</h3>
+    <span style="font-size: 20px;">💰</span>
+  </div>
+
+  <!-- COINS TO RS CONVERSION INFO -->
+  <div style="padding: 14px; background: rgba(9, 24, 39, 0.8); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; text-align: center;">
+    <div style="font-size: 12px; color: var(--text-soft); margin-bottom: 6px;">Exchange Rate</div>
+    <div style="font-size: 16px; font-weight: 900; color: var(--cyan);">25,000 🪙 = 250 Rs</div>
+  </div>
+
+  <!-- COINS INPUT -->
+  <div style="margin-bottom: 14px;">
+    <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 6px;">Enter Coins</label>
+    <div style="display: flex; gap: 8px;">
+      <input type="number" id="withdrawCoins" placeholder="Minimum 500 coins" style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
+      <div style="padding: 12px 14px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--cyan); font-weight: 900; font-size: 14px; white-space: nowrap;">
+        <span id="rsDisplay">= 0 Rs</span>
+      </div>
     </div>
+    <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Minimum 500 coins required</div>
+  </div>
 
+  <!-- ACCOUNT TYPE SELECTION -->
+  <div style="margin-bottom: 14px;">
+    <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 8px;">Account Type</label>
+    <select id="accountType" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
+      <option value="easypaisa">📱 EasyPaisa</option>
+      <option value="jazzcash">📱 JazzCash</option>
+      <option value="bank">🏦 Bank Transfer</option>
+    </select>
+  </div>
 
+  <!-- MOBILE INPUT (EasyPaisa/JazzCash) -->
+  <div id="mobileInputGroup" style="margin-bottom: 14px; display: block;">
+    <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 6px;">Phone Number</label>
+    <input type="tel" id="mobileNumber" placeholder="03XX-XXXXXXX" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
+  </div>
 
-    <!-- =========================================
-         JAVASCRIPT
-         
-         IMPORTANT:
-         game.js must load before missions.js
-         and rewards.js.
-    ========================================== -->
+  <!-- BANK INPUT -->
+  <div id="bankInputGroup" style="display: none;">
+    <div style="margin-bottom: 14px;">
+      <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 6px;">Select Bank</label>
+      <select id="bankSelect" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
+        <option value="">Choose Bank...</option>
+        <option value="habib">Habib Bank Limited</option>
+        <option value="ubl">United Bank Limited</option>
+        <option value="mcb">MCB Bank</option>
+        <option value="hbl">HBL Bank</option>
+        <option value="alBaraka">Al Baraka Bank</option>
+        <option value="faysal">Faysal Bank</option>
+        <option value="BoP">Bank of Punjab</option>
+        <option value="silkbank">Silk Bank</option>
+        <option value="ztbl">ZTBL Bank</option>
+      </select>
+    </div>
+    <div style="margin-bottom: 14px;">
+      <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 6px;">Account Number</label>
+      <input type="text" id="bankAccountNumber" placeholder="Enter account number" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
+    </div>
+  </div>
 
-    <script src="js/ui.js"></script>
+  <!-- WITHDRAW BUTTON -->
+  <button id="withdrawBtn" type="button" style="width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, var(--blue), #1a66ff); color: white; font-size: 15px; font-weight: 900; border: 0; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 8px 20px rgba(36, 124, 255, 0.15);">
+    Withdraw Now
+  </button>
 
-    <script src="js/game.js"></script>
+  <!-- LOADING -->
+  <div id="withdrawLoader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 9999;">
+    <div style="text-align: center;">
+      <div style="width: 50px; height: 50px; border: 4px solid rgba(39,200,255,0.3); border-top: 4px solid var(--cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 14px;"></div>
+      <div style="color: var(--text-main); font-weight: 900; font-size: 16px;">Verifying...</div>
+    </div>
+  </div>
 
-    <script src="js/missions.js"></script>
+  <!-- MESSAGE -->
+  <div id="withdrawMessage" style="display: none; margin-top: 14px; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 800; text-align: center;"></div>
 
-    <script src="js/sharing.js"></script>
+</section>
 
+<!-- =========================================
+MISSIONS SECTION
+========================================== -->
+<section
+class="missions-section"
+id="missionsSection"
+>
+<div class="section-heading">
+<div>
+<span class="section-kicker">
+DAILY PROGRESS
+</span>
+<h2>
+Missions
+</h2>
+</div>
+<span class="mission-count">
+🎯
+</span>
+</div>
+<div id="missionsList">
+<!-- Missions are generated by missions.js -->
+</div>
+</section>
+
+<!-- =========================================
+REWARDS SECTION
+========================================== -->
+<section
+class="rewards-section"
+id="rewardsSection"
+>
+<div class="section-heading">
+<div>
+<span class="section-kicker">
+MILESTONES
+</span>
+<h2>
+Rewards
+</h2>
+</div>
+<span class="reward-heading-icon">
+🎁
+</span>
+</div>
+<div id="rewardsList">
+<!-- Rewards are generated by rewards.js -->
+</div>
+</section>
+
+</div>
+
+<!-- =========================================
+JAVASCRIPT
+IMPORTANT:
+game.js must load before missions.js
+and rewards.js.
+========================================== -->
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/rewards.js"></script>
+<script src="js/sharing.js"></script>
+<script src="js/withdrawal.js"></script>
 
 </body>
-
 </html>
