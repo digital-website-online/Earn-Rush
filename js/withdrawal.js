@@ -46,9 +46,9 @@
         const rs = (coins * 0.01).toFixed(2);
         rsDisplay.textContent = `= ${rs} Rs`;
 
-        // Disable button if less than 500
+        // Disable button if less than 25000
         if (withdrawBtn) {
-          withdrawBtn.disabled = coins < 500;
+          withdrawBtn.disabled = coins < 25000;
           if (coins < 500) {
             withdrawBtn.style.opacity = "0.5";
             withdrawBtn.style.cursor = "not-allowed";
@@ -69,8 +69,8 @@
         const coins = parseFloat(coinsInput.value) || 0;
 
         // Validation
-        if (coins < 500) {
-          showWithdrawMessage("❌ Minimum 500 coins required", "error");
+        if (coins < 25000) {
+          showWithdrawMessage("❌ Minimum 25000 coins required", "error");
           return;
         }
 
