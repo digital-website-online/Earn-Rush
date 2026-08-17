@@ -1,5 +1,5 @@
 /* =========================================
-   EARNRUSH — LIVE COUNTER + WITHDRAWAL SYSTEM
+   EARNRUSH — WITHDRAWAL SYSTEM (FINAL)
 ========================================= */
 (() => {
   "use strict";
@@ -9,15 +9,14 @@
     const counterEl = document.getElementById("liveUsersCounter");
     if (!counterEl) return;
 
-    let currentCount = Math.floor(Math.random() * (350 - 200) + 200); // 200-350
+    let currentCount = Math.floor(Math.random() * (350 - 200) + 200);
     counterEl.textContent = currentCount;
 
     setInterval(() => {
-      // Random change: +/- 5 to 30 users
-      const change = Math.floor(Math.random() * 60) - 30; // -30 to +30
+      const change = Math.floor(Math.random() * 60) - 30;
       currentCount = Math.max(200, Math.min(350, currentCount + change));
       counterEl.textContent = currentCount;
-    }, 3000); // Change every 3 seconds
+    }, 3000);
   }
 
   /* WITHDRAWAL SYSTEM */
@@ -30,7 +29,6 @@
     const withdrawBtn = document.getElementById("withdrawBtn");
     const withdrawMessage = document.getElementById("withdrawMessage");
 
-    // Toggle between account types
     if (accountTypeSelect) {
       accountTypeSelect.addEventListener("change", (e) => {
         const isMobile = e.target.value !== "bank";
@@ -39,16 +37,14 @@
       });
     }
 
-    // Real-time coin to Rs conversion
     if (coinsInput && rsDisplay) {
       coinsInput.addEventListener("input", (e) => {
         const coins = parseFloat(e.target.value) || 0;
         const rs = (coins * 0.01).toFixed(2);
         rsDisplay.textContent = `= ${rs} Rs`;
 
-        // Disable button if less than 25000
         if (withdrawBtn) {
-          withdrawBtn.disabled = coins < 25000;
+          withdrawBtn.disabled = coins < 500;
           if (coins < 500) {
             withdrawBtn.style.opacity = "0.5";
             withdrawBtn.style.cursor = "not-allowed";
@@ -60,7 +56,6 @@
       });
     }
 
-    // Withdraw button logic
     if (withdrawBtn) {
       withdrawBtn.addEventListener("click", () => {
         const state = window.EarnRushGame?.getState();
@@ -68,14 +63,14 @@
 
         const coins = parseFloat(coinsInput.value) || 0;
 
-        // Validation
-        if (coins < 25000) {
-          showWithdrawMessage("❌ Minimum 25000 coins required", "error");
+        // VALIDATION
+        if (coins < 500) {
+          showErrorPopup("Minimum 500 coins required", "Enter at least 500 coins to withdraw");
           return;
         }
 
         if (coins > state.coins) {
-          showWithdrawMessage("❌ Aap ke paas coins kam hain", "error");
+          showErrorPopup("Aap ke paas coins kam hain", "You don't have enough coins. Keep earning!");
           return;
         }
 
@@ -86,13 +81,13 @@
           const bank = document.getElementById("bankSelect")?.value;
           accountNumber = document.getElementById("bankAccountNumber")?.value || "";
           if (!bank || !accountNumber) {
-            showWithdrawMessage("❌ Bank aur account number enter kren", "error");
+            showErrorPopup("Complete the form", "Please select bank and enter account number");
             return;
           }
         } else {
           accountNumber = document.getElementById("mobileNumber")?.value || "";
           if (!accountNumber || accountNumber.length < 10) {
-            showWithdrawMessage("❌ Valid phone number enter kren", "error");
+            showErrorPopup("Invalid phone number", "Please enter a valid mobile number");
             return;
           }
         }
@@ -101,40 +96,59 @@
         showLoading();
         withdrawBtn.disabled = true;
 
-        // Simulate 8-10 sec verification
+        // 8-10 sec verification
         setTimeout(() => {
           withdrawBtn.disabled = false;
           hideLoading();
-
-          // For now: always show "eligible nahi" message (can be changed to check actual conditions)
-          showWithdrawMessage("⏳ Aap abhi eligible nahi hain. Admin approval pending.", "pending");
-
-          // Optional: Deduct coins on success (uncomment if needed)
-          // state.coins -= coins;
-          // window.EarnRushGame.updateUI();
-          // coinsInput.value = "";
-          // rsDisplay.textContent = "= 0 Rs";
-        }, Math.random() * 2000 + 8000); // 8-10 seconds
+          
+          // Show pending message
+          const msg = document.getElementById("withdrawMessage");
+          if (msg) {
+            msg.textContent = "⏳ Aap abhi eligible nahi hain. Admin approval pending.";
+            msg.className = "withdraw-message pending show";
+            msg.style.display = "block";
+          }
+        }, Math.random() * 2000 + 8000);
       });
     }
   }
 
-  function showWithdrawMessage(text, type) {
-    const msg = document.getElementById("withdrawMessage");
-    if (!msg) return;
-    msg.textContent = text;
-    msg.className = `withdraw-message ${type}`;
-    msg.style.display = "block";
+  function showErrorPopup(title, message) {
+    // Remove existing popup if any
+    const existing = document.getElementById("errorPopup");
+    if (existing) existing.remove();
+
+    const popup = document.createElement("div");
+    popup.id = "errorPopup";
+    popup.className = "error-popup";
+    popup.innerHTML = `
+      <div class="error-popup-icon">❌</div>
+      <div class="error-popup-title">${title}</div>
+      <div class="error-popup-message">${message}</div>
+      <button class="error-popup-btn" onclick="this.parentElement.remove()">OK</button>
+    `;
+    document.body.appendChild(popup);
+
+    // Auto close after 5 seconds
+    setTimeout(() => {
+      if (existing) existing.remove();
+    }, 5000);
   }
 
   function showLoading() {
     const loader = document.getElementById("withdrawLoader");
-    if (loader) loader.style.display = "flex";
+    if (loader) {
+      loader.style.display = "flex";
+      loader.classList.add("active");
+    }
   }
 
   function hideLoading() {
     const loader = document.getElementById("withdrawLoader");
-    if (loader) loader.style.display = "none";
+    if (loader) {
+      loader.style.display = "none";
+      loader.classList.remove("active");
+    }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
