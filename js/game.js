@@ -131,7 +131,7 @@
     while (gameState.xp >= gameState.xpToNextLevel) {
       gameState.xp -= gameState.xpToNextLevel;
       gameState.level += 1;
-      gameState.baseCoinsPerTap += 0.5; // +0.5 coins per level
+      gameState.baseCoinsPerTap += 0.5;
       gameState.xpToNextLevel = Math.floor(gameState.xpToNextLevel * 1.25);
       levelUp();
     }
@@ -140,7 +140,7 @@
 
   /* LEVEL UP */
   function levelUp() {
-    const bonus = gameState.level * 10; // bonus coins
+    const bonus = gameState.level * 10;
     gameState.coins += bonus;
     showMessage(`🎉 LEVEL ${gameState.level}! +${bonus} Coins`);
     createRewardPopup(bonus, "coins");
