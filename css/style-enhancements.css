@@ -1,0 +1,207 @@
+/* =========================================
+   ENHANCED CSS — Smaller cards, better task display
+========================================= */
+
+/* QUICK ACTIONS (Top Cards) — Make Even Smaller */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.quick-card {
+  min-height: 95px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #0a1a2a, #071320);
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.quick-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+}
+
+.quick-card:active {
+  transform: scale(0.95);
+}
+
+.quick-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.quick-title {
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.quick-subtitle {
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1;
+}
+
+/* MISSION CARDS — Better Layout */
+.mission-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(10, 28, 45, 0.96), rgba(6, 18, 31, 0.96));
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.mission-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+
+.mission-card.completed {
+  border-color: rgba(54, 245, 139, 0.3);
+  background: linear-gradient(145deg, rgba(20, 50, 30, 0.7), rgba(10, 30, 15, 0.7));
+}
+
+.mission-icon {
+  font-size: 26px;
+  min-width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.mission-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mission-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+
+.mission-description {
+  font-size: 13px;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.mission-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+}
+
+.mission-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.mission-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  border-radius: inherit;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 12px rgba(39, 200, 255, 0.25);
+}
+
+.mission-progress > span {
+  font-size: 11px;
+  color: var(--text-soft);
+  font-weight: 700;
+}
+
+.mission-reward {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.mission-reward button {
+  padding: 9px 18px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--green), #18c975);
+  color: #03120b;
+  font-size: 13px;
+  font-weight: 900;
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.2s ease;
+  box-shadow: 0 8px 20px rgba(54, 245, 139, 0.15);
+}
+
+.mission-reward button:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 10px 25px rgba(54, 245, 139, 0.25);
+}
+
+.mission-reward button:active {
+  transform: scale(0.94);
+}
+
+.mission-reward button:disabled {
+  background: rgba(120, 120, 120, 0.15);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+.mission-reward.claimed {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--green);
+  padding-right: 6px;
+}
+
+/* MISSIONS/REWARDS SECTION HEADERS */
+.missions-section,
+.rewards-section {
+  margin-bottom: 16px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.section-header-label {
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.section-header-title {
+  font-size: 20px;
+  font-weight: 950;
+  color: var(--text-main);
+}
+
+.section-header-icon {
+  font-size: 24px;
+  opacity: 0.7;
+  margin-left: auto;
+}
