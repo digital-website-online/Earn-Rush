@@ -5,19 +5,130 @@
   "use strict";
 
   /* LIVE USERS COUNTER */
-  function initLiveCounter() {
-    const counterEl = document.getElementById("liveUsersCounter");
-    if (!counterEl) return;
+  /* =====================================================
+   LIVE USERS COUNTER — SMOOTH NUMBER WHEEL
+===================================================== */
 
-    let currentCount = Math.floor(Math.random() * (350 - 200) + 200);
-    counterEl.textContent = currentCount;
+function initLiveCounter() {
+  const counterEl = document.getElementById("liveUsersCounter");
+  if (!counterEl) return;
 
-    setInterval(() => {
-      const change = Math.floor(Math.random() * 60) - 30;
-      currentCount = Math.max(200, Math.min(350, currentCount + change));
-      counterEl.textContent = currentCount;
-    }, 3000);
+  let currentCount = Math.floor(Math.random() * 51) + 200;
+  let targetCount = currentCount;
+
+  /* Create wheel */
+  counterEl.classList.add("live-counter-wheel");
+
+  function createDigits(number) {
+    return String(number)
+      .padStart(3, "0")
+      .split("")
+      .map((digit, index) => {
+        return `
+          <span class="counter-digit" data-index="${index}">
+            <span class="digit-track">
+              <span>${digit}</span>
+            </span>
+          </span>
+        `;
+      })
+      .join("");
   }
+
+  counterEl.innerHTML = createDigits(currentCount);
+
+  function animateNumber(nextNumber) {
+    const oldNumber = currentCount;
+    currentCount = nextNumber;
+
+    const oldDigits = String(oldNumber)
+      .padStart(3, "0")
+      .split("");
+
+    const newDigits = String(nextNumber)
+      .padStart(3, "0")
+      .split("");
+
+    const digitElements =
+      counterEl.querySelectorAll(".counter-digit");
+
+    digitElements.forEach((digitEl, index) => {
+      const track = digitEl.querySelector(".digit-track");
+
+      if (!track) return;
+
+      const oldDigit = Number(oldDigits[index]);
+      const newDigit = Number(newDigits[index]);
+
+      if (oldDigit === newDigit) return;
+
+      const direction = newDigit > oldDigit ? -1 : 1;
+
+      track.innerHTML = `
+        <span>${oldDigit}</span>
+        <span>${newDigit}</span>
+      `;
+
+      track.style.transform = `translateY(${direction * 100}%)`;
+
+      requestAnimationFrame(() => {
+        track.classList.add("rolling");
+
+        track.style.transform =
+          `translateY(${direction * 0}%)`;
+      });
+
+      setTimeout(() => {
+        track.classList.remove("rolling");
+
+        track.innerHTML = `
+          <span>${newDigit}</span>
+        `;
+
+        track.style.transform = "translateY(0)";
+      }, 480);
+    });
+  }
+
+  function chooseNextTarget() {
+    /*
+     * Small natural movement only.
+     * Never makes huge fake jumps.
+     */
+    const direction =
+      Math.random() > 0.48 ? 1 : -1;
+
+    const steps =
+      Math.floor(Math.random() * 4) + 1;
+
+    targetCount =
+      Math.max(
+        200,
+        Math.min(
+          350,
+          currentCount + direction * steps
+        )
+      );
+
+    animateNumber(targetCount);
+  }
+
+  /*
+   * Change slowly and naturally.
+   * 2.5–5 seconds between movements.
+   */
+  function scheduleNextChange() {
+    const delay =
+      Math.floor(Math.random() * 2500) + 2500;
+
+    setTimeout(() => {
+      chooseNextTarget();
+      scheduleNextChange();
+    }, delay);
+  }
+
+  scheduleNextChange();
+}
 
   /* WITHDRAWAL SYSTEM */
   function initWithdrawal() {
