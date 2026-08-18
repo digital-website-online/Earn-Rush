@@ -103,9 +103,9 @@ function initLiveCounter() {
 
     targetCount =
       Math.max(
-        200,
+        150,
         Math.min(
-          350,
+          450,
           currentCount + direction * steps
         )
       );
@@ -115,7 +115,7 @@ function initLiveCounter() {
 
   /*
    * Change slowly and naturally.
-   * 2.5–5 seconds between movements.
+   * 1.5–5 seconds between movements.
    */
   function scheduleNextChange() {
     const delay =
