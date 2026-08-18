@@ -19,27 +19,423 @@ content="#07111f"
 <!-- =========================================
 STYLES
 ========================================== -->
-<link
-rel="stylesheet"
-href="css/style.css"
->
-<link
-rel="stylesheet"
-href="css/animations.css"
->
-<link
-rel="stylesheet"
-href="css/responsive.css"
->
-<link
-rel="stylesheet"
-href="css/enhancements.css"
->
-<link
-rel="stylesheet"
-href="css/withdrawal-styles.css"
->
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/enhancements.css">
+<link rel="stylesheet" href="css/withdrawal-styles.css">
+
+<!-- =========================================
+STEP 1 PREMIUM UI OVERRIDES
+These styles only upgrade the existing UI.
+Existing JS IDs/classes are preserved.
+========================================== -->
+<style>
+/* =========================================
+   LIVE ACTIVE PLAYERS
+========================================= */
+
+.earnrush-live-counter {
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  margin: 0 auto 12px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 70, 90, 0.20);
+  border-radius: 999px;
+  background: rgba(7, 17, 31, 0.82);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.earnrush-live-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: #ff5364;
+  box-shadow: 0 0 0 0 rgba(255, 83, 100, 0.45);
+  animation: earnrushLivePulse 1.45s ease-out infinite;
+}
+
+.earnrush-live-label {
+  color: var(--text-soft);
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+
+.earnrush-live-number {
+  min-width: 28px;
+  color: var(--text-main);
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 950;
+  text-align: right;
+}
+
+.earnrush-live-number.is-changing {
+  animation: earnrushLiveNumber 0.28s ease-out;
+}
+
+@keyframes earnrushLivePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 83, 100, 0.45);
+    opacity: 1;
+  }
+
+  65% {
+    box-shadow: 0 0 0 7px rgba(255, 83, 100, 0);
+    opacity: 0.68;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 83, 100, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes earnrushLiveNumber {
+  0% {
+    opacity: 0.35;
+    transform: translateY(2px) scale(0.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* =========================================
+   COMPACT PLAYER STATUS
+========================================= */
+
+.player-status {
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.player-status .status-card {
+  min-height: 0 !important;
+  padding: 9px 11px !important;
+  border-radius: 12px !important;
+}
+
+.player-status .status-label {
+  font-size: 9px !important;
+  letter-spacing: 0.7px !important;
+}
+
+.player-status .status-value {
+  font-size: 13px !important;
+}
+
+
+/* =========================================
+   PREMIUM TOTAL COINS
+========================================= */
+
+.earnrush-coins-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  margin-bottom: 11px;
+  padding: 19px 16px 15px;
+  text-align: center;
+  border: 1px solid rgba(39, 200, 255, 0.20);
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      circle at 50% 10%,
+      rgba(39, 200, 255, 0.13),
+      transparent 48%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(10, 29, 46, 0.98),
+      rgba(5, 17, 30, 0.98)
+    );
+  box-shadow:
+    0 14px 38px rgba(0, 0, 0, 0.23),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.earnrush-coins-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 170px;
+  height: 170px;
+  top: -105px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(39, 200, 255, 0.08);
+  filter: blur(28px);
+  pointer-events: none;
+}
+
+.earnrush-coins-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 85px;
+  height: 85px;
+  right: -42px;
+  bottom: -42px;
+  border-radius: 50%;
+  background: rgba(39, 200, 255, 0.045);
+  filter: blur(16px);
+  pointer-events: none;
+}
+
+.earnrush-coins-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.earnrush-coin-badge {
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 200, 61, 0.10);
+  border: 1px solid rgba(255, 200, 61, 0.20);
+  font-size: 13px;
+  box-shadow: 0 0 18px rgba(255, 200, 61, 0.07);
+}
+
+.earnrush-coins-label {
+  color: var(--text-soft);
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+}
+
+.earnrush-coins-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 6px;
+}
+
+.earnrush-coins-number {
+  display: inline-block;
+  color: var(--text-main);
+  font-size: clamp(34px, 9vw, 47px);
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: -1.7px;
+  text-shadow:
+    0 0 24px rgba(39, 200, 255, 0.17);
+}
+
+.earnrush-coins-number.is-collecting {
+  animation: earnrushCoinCollect 0.30s ease-out;
+}
+
+.earnrush-coins-icon {
+  font-size: 21px;
+  transform: translateY(2px);
+}
+
+.earnrush-coins-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(120, 190, 220, 0.09);
+}
+
+.earnrush-coins-meta span {
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: 0.75px;
+  text-transform: uppercase;
+}
+
+.earnrush-coins-meta strong {
+  color: var(--cyan);
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: 0.4px;
+}
+
+@keyframes earnrushCoinCollect {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.07);
+    text-shadow:
+      0 0 30px rgba(39, 200, 255, 0.38);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+/* =========================================
+   COMPACT XP / LEVEL PROGRESS
+========================================= */
+
+.earnrush-xp-card {
+  padding: 11px 13px !important;
+  margin-bottom: 12px !important;
+  border-radius: 14px !important;
+}
+
+.earnrush-xp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.earnrush-xp-title {
+  color: var(--text-soft);
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+
+.earnrush-xp-value {
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.earnrush-xp-track {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.earnrush-xp-fill {
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--blue),
+    var(--cyan)
+  );
+  box-shadow:
+    0 0 10px rgba(39, 200, 255, 0.22);
+  transition: width 0.35s ease;
+}
+
+
+/* =========================================
+   SMALLER QUICK ACTIONS
+========================================= */
+
+.quick-actions {
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+.quick-actions .quick-card {
+  min-height: 0 !important;
+  padding: 10px 8px !important;
+  border-radius: 13px !important;
+}
+
+.quick-actions .quick-icon {
+  font-size: 17px !important;
+}
+
+.quick-actions .quick-title {
+  font-size: 10px !important;
+}
+
+.quick-actions .quick-subtitle {
+  font-size: 8px !important;
+}
+
+
+/* =========================================
+   RESPONSIVE MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+  .earnrush-live-counter {
+    margin-bottom: 9px;
+    padding: 6px 10px;
+  }
+
+  .earnrush-coins-card {
+    padding: 17px 14px 14px;
+  }
+
+  .earnrush-coins-number {
+    font-size: 35px;
+  }
+
+  .earnrush-coins-icon {
+    font-size: 19px;
+  }
+
+  .earnrush-coins-meta {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .earnrush-xp-card {
+    padding: 10px 12px !important;
+  }
+}
+
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .earnrush-live-dot,
+  .earnrush-live-number.is-changing,
+  .earnrush-coins-number.is-collecting {
+    animation: none !important;
+  }
+
+  .earnrush-xp-fill {
+    transition: none !important;
+  }
+}
+</style>
 </head>
+
 <body>
 
 <!-- =========================================
@@ -51,357 +447,919 @@ EARNRUSH APP
 HEADER
 ========================================== -->
 <header class="game-header">
-<div class="brand">
-<div class="brand-mark">
-E
-</div>
-<div class="brand-name">
-EarnRush
-</div>
-</div>
-<div class="header-actions">
-<button
-class="icon-button"
-type="button"
-aria-label="Notifications"
->
-🔔
-</button>
-<button
-class="icon-button"
-type="button"
-aria-label="Settings"
->
-⚙️
-</button>
-</div>
+  <div class="brand">
+    <div class="brand-mark">
+      E
+    </div>
+
+    <div class="brand-name">
+      EarnRush
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button
+      class="icon-button"
+      type="button"
+      aria-label="Notifications"
+    >
+      🔔
+    </button>
+
+    <button
+      class="icon-button"
+      type="button"
+      aria-label="Settings"
+    >
+      ⚙️
+    </button>
+  </div>
 </header>
 
+
 <!-- =========================================
-LIVE USERS COUNTER
+LIVE ACTIVE PLAYERS
+Compact gaming-style counter
 ========================================== -->
-<div style="text-align: center; padding: 12px; background: linear-gradient(135deg, rgba(39,200,255,0.12), rgba(54,245,139,0.08)); border-radius: 14px; margin-bottom: 16px; border: 1px solid var(--border);">
-  <span style="font-size: 12px; color: var(--text-soft); text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">👥 Live Users</span>
-  <div style="font-size: 24px; font-weight: 950; color: var(--cyan); margin-top: 4px;">
-    <span id="liveUsersCounter">250</span> Active Players
-  </div>
+<div
+  class="earnrush-live-counter"
+  aria-label="Active players"
+>
+  <span
+    class="earnrush-live-dot"
+    aria-hidden="true"
+  ></span>
+
+  <span class="earnrush-live-label">
+    Active Players
+  </span>
+
+  <strong
+    class="earnrush-live-number"
+    id="liveUsersCounter"
+  >
+    250
+  </strong>
 </div>
+
 
 <!-- =========================================
 PLAYER STATUS
 ========================================== -->
 <section class="player-status">
-<div class="status-card">
-<span class="status-label">
-Level
-</span>
-<span
-class="status-value green"
-id="levelValue"
->
-01
-</span>
-</div>
-<div class="status-card">
-<span class="status-label">
-Streak
-</span>
-<span
-class="status-value gold"
-id="streakValue"
->
-🔥 1 Day
-</span>
-</div>
+
+  <div class="status-card">
+    <span class="status-label">
+      Level
+    </span>
+
+    <span
+      class="status-value green"
+      id="levelValue"
+    >
+      01
+    </span>
+  </div>
+
+  <div class="status-card">
+    <span class="status-label">
+      Streak
+    </span>
+
+    <span
+      class="status-value gold"
+      id="streakValue"
+    >
+      🔥 1 Day
+    </span>
+  </div>
+
 </section>
 
+
 <!-- =========================================
-BALANCE
+PREMIUM TOTAL COINS
+Existing #balance ID preserved
 ========================================== -->
-<section class="balance-card">
-<span class="balance-label">
-Current Balance
-</span>
-<div class="balance-row">
-<span
-class="balance-amount"
-id="balance"
->
-0
-</span>
-<span class="balance-currency">
-🪙
-</span>
-</div>
-<p class="income-rate">
-Earning rate:
-<strong>
-+1 / tap
-</strong>
-</p>
+<section class="earnrush-coins-card">
+
+  <div class="earnrush-coins-heading">
+
+    <span
+      class="earnrush-coin-badge"
+      aria-hidden="true"
+    >
+      🪙
+    </span>
+
+    <span class="earnrush-coins-label">
+      Total Coins
+    </span>
+
+  </div>
+
+  <div class="earnrush-coins-row">
+
+    <span
+      class="earnrush-coins-number"
+      id="balance"
+    >
+      0
+    </span>
+
+    <span
+      class="earnrush-coins-icon"
+      aria-hidden="true"
+    >
+      🪙
+    </span>
+
+  </div>
+
+  <div class="earnrush-coins-meta">
+
+    <span>
+      Coins Collected
+    </span>
+
+    <strong>
+      +1 / Tap
+    </strong>
+
+  </div>
+
 </section>
+
 
 <!-- =========================================
 XP / LEVEL PROGRESS
+Existing IDs preserved
 ========================================== -->
-<section class="xp-card">
-<div class="xp-header">
-<span class="xp-title">
-Level Progress
-</span>
-<span
-class="xp-value"
-id="xpText"
->
-0 / 250 XP
-</span>
-</div>
-<div class="xp-track">
-<div
-class="xp-fill"
-id="xpBar"
-style="width: 0%;"
-></div>
-</div>
+<section class="xp-card earnrush-xp-card">
+
+  <div class="earnrush-xp-header">
+
+    <span class="earnrush-xp-title">
+      Level Progress
+    </span>
+
+    <span
+      class="earnrush-xp-value"
+      id="xpText"
+    >
+      0 / 250 XP
+    </span>
+
+  </div>
+
+  <div class="earnrush-xp-track">
+    <div
+      class="earnrush-xp-fill"
+      id="xpBar"
+      style="width: 0%;"
+    ></div>
+  </div>
+
 </section>
+
 
 <!-- =========================================
 REACTOR
 ========================================== -->
 <section class="reactor-section">
-<span class="reactor-label">
-TAP TAP
-</span>
-<div class="reactor">
-<button
-class="reactor-core"
-id="reactorCore"
-type="button"
-aria-label="Tap reactor"
->
-⚡
-</button>
-</div>
 
-<!-- =====================================
-COMBO
-====================================== -->
-<div class="combo-area">
-<div class="combo-top">
-<span class="combo-label">
-Combo
-</span>
-<span class="combo-value">
-🔥 x1
-</span>
-</div>
-<div class="progress-track">
-<div
-class="progress-fill"
-style="width: 0%;"
-></div>
-</div>
-</div>
+  <span class="reactor-label">
+    TAP TAP
+  </span>
 
-<!-- =====================================
-TAP BUTTON
-====================================== -->
-<button
-class="tap-button"
-id="tapButton"
-type="button"
->
-TAP TO RUSH ⚡
-</button>
+  <div class="reactor">
+
+    <button
+      class="reactor-core"
+      id="reactorCore"
+      type="button"
+      aria-label="Tap reactor"
+    >
+      ⚡
+    </button>
+
+  </div>
+
+
+  <!-- =====================================
+  COMBO
+  ====================================== -->
+  <div class="combo-area">
+
+    <div class="combo-top">
+
+      <span class="combo-label">
+        Combo
+      </span>
+
+      <span class="combo-value">
+        🔥 x1
+      </span>
+
+    </div>
+
+    <div class="progress-track">
+
+      <div
+        class="progress-fill"
+        style="width: 0%;"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================
+  TAP BUTTON
+  ====================================== -->
+  <button
+    class="tap-button"
+    id="tapButton"
+    type="button"
+  >
+    TAP TO RUSH ⚡
+  </button>
+
 </section>
+
 
 <!-- =========================================
 QUICK ACTIONS
 ========================================== -->
 <section class="quick-actions">
-<button
-class="quick-card"
-type="button"
-onclick="document.getElementById('missionsSection').scrollIntoView({ behavior: 'smooth' });"
->
-<span class="quick-icon">
-🎯
-</span>
-<span class="quick-title">
-Missions
-</span>
-<span class="quick-subtitle">
-Complete tasks
-</span>
-</button>
-<button
-class="quick-card"
-type="button"
-onclick="document.getElementById('withdrawalSection').scrollIntoView({ behavior: 'smooth' });"
->
-<span class="quick-icon">
-💸
-</span>
-<span class="quick-title">
-Withdraw
-</span>
-<span class="quick-subtitle">
-Cash out coins
-</span>
-</button>
-<button
-class="quick-card"
-type="button"
-onclick="document.getElementById('rewardsSection').scrollIntoView({ behavior: 'smooth' });"
->
-<span class="quick-icon">
-🎁
-</span>
-<span class="quick-title">
-Rewards
-</span>
-<span class="quick-subtitle">
-Unlock milestones
-</span>
-</button>
+
+  <button
+    class="quick-card"
+    type="button"
+    onclick="document.getElementById('missionsSection').scrollIntoView({ behavior: 'smooth' });"
+  >
+
+    <span class="quick-icon">
+      🎯
+    </span>
+
+    <span class="quick-title">
+      Missions
+    </span>
+
+    <span class="quick-subtitle">
+      Complete tasks
+    </span>
+
+  </button>
+
+
+  <button
+    class="quick-card"
+    type="button"
+    onclick="document.getElementById('withdrawalSection').scrollIntoView({ behavior: 'smooth' });"
+  >
+
+    <span class="quick-icon">
+      💸
+    </span>
+
+    <span class="quick-title">
+      Withdraw
+    </span>
+
+    <span class="quick-subtitle">
+      Cash out coins
+    </span>
+
+  </button>
+
+
+  <button
+    class="quick-card"
+    type="button"
+    onclick="document.getElementById('rewardsSection').scrollIntoView({ behavior: 'smooth' });"
+  >
+
+    <span class="quick-icon">
+      🎁
+    </span>
+
+    <span class="quick-title">
+      Rewards
+    </span>
+
+    <span class="quick-subtitle">
+      Unlock milestones
+    </span>
+
+  </button>
+
 </section>
+
 
 <!-- =========================================
 WITHDRAWAL SECTION
 ========================================== -->
-<section id="withdrawalSection" style="margin-bottom: 20px; padding: 20px; border-radius: 18px; background: linear-gradient(145deg, rgba(10,28,45,0.96), rgba(6,18,31,0.96)); border: 1px solid var(--border);">
-  
-  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
-    <h3 style="font-size: 18px; font-weight: 950; color: var(--text-main);">💸 Withdrawal</h3>
-    <span style="font-size: 20px;">💰</span>
+<section
+  id="withdrawalSection"
+  style="
+    margin-bottom:20px;
+    padding:20px;
+    border-radius:18px;
+    background:linear-gradient(145deg,rgba(10,28,45,0.96),rgba(6,18,31,0.96));
+    border:1px solid var(--border);
+  "
+>
+
+  <div
+    style="
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    "
+  >
+
+    <h3
+      style="
+        font-size:18px;
+        font-weight:950;
+        color:var(--text-main);
+      "
+    >
+      💸 Withdrawal
+    </h3>
+
+    <span style="font-size:20px;">
+      💰
+    </span>
+
   </div>
+
 
   <!-- COINS TO RS CONVERSION INFO -->
-  <div style="padding: 14px; background: rgba(9, 24, 39, 0.8); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; text-align: center;">
-    <div style="font-size: 12px; color: var(--text-soft); margin-bottom: 6px;">Exchange Rate</div>
-    <div style="font-size: 16px; font-weight: 900; color: var(--cyan);">25,000 🪙 = 250 Rs</div>
+  <div
+    style="
+      padding:14px;
+      background:rgba(9,24,39,0.8);
+      border-radius:12px;
+      border:1px solid var(--border);
+      margin-bottom:16px;
+      text-align:center;
+    "
+  >
+
+    <div
+      style="
+        font-size:12px;
+        color:var(--text-soft);
+        margin-bottom:6px;
+      "
+    >
+      Exchange Rate
+    </div>
+
+    <div
+      style="
+        font-size:16px;
+        font-weight:900;
+        color:var(--cyan);
+      "
+    >
+      25,000 🪙 = 250 Rs
+    </div>
+
   </div>
+
 
   <!-- COINS INPUT -->
-  <div style="margin-bottom: 14px;">
-    <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 6px;">Enter Coins</label>
-    <div style="display: flex; gap: 8px;">
-      <input type="number" id="withdrawCoins" placeholder="Minimum 500 coins" style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
-      <div style="padding: 12px 14px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--cyan); font-weight: 900; font-size: 14px; white-space: nowrap;">
-        <span id="rsDisplay">= 0 Rs</span>
+  <div style="margin-bottom:14px;">
+
+    <label
+      style="
+        display:block;
+        font-size:13px;
+        font-weight:800;
+        color:var(--text-soft);
+        margin-bottom:6px;
+      "
+    >
+      Enter Coins
+    </label>
+
+    <div style="display:flex;gap:8px;">
+
+      <input
+        type="number"
+        id="withdrawCoins"
+        placeholder="Minimum 500 coins"
+        style="
+          flex:1;
+          padding:12px;
+          border-radius:12px;
+          background:rgba(9,24,39,0.8);
+          border:1px solid var(--border);
+          color:var(--text-main);
+          font-size:14px;
+        "
+      >
+
+      <div
+        style="
+          padding:12px 14px;
+          border-radius:12px;
+          background:rgba(9,24,39,0.8);
+          border:1px solid var(--border);
+          color:var(--cyan);
+          font-weight:900;
+          font-size:14px;
+          white-space:nowrap;
+        "
+      >
+        <span id="rsDisplay">
+          = 0 Rs
+        </span>
       </div>
+
     </div>
-    <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Minimum 500 coins required</div>
+
+    <div
+      style="
+        font-size:11px;
+        color:var(--text-muted);
+        margin-top:6px;
+      "
+    >
+      Minimum 500 coins required
+    </div>
+
   </div>
+
 
   <!-- ACCOUNT TYPE SELECTION -->
-  <div style="margin-bottom: 14px;">
-    <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 8px;">Account Type</label>
-    <select id="accountType" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
-      <option value="easypaisa">📱 EasyPaisa</option>
-      <option value="jazzcash">📱 JazzCash</option>
-      <option value="bank">🏦 Bank Transfer</option>
+  <div style="margin-bottom:14px;">
+
+    <label
+      style="
+        display:block;
+        font-size:13px;
+        font-weight:800;
+        color:var(--text-soft);
+        margin-bottom:8px;
+      "
+    >
+      Account Type
+    </label>
+
+    <select
+      id="accountType"
+      style="
+        width:100%;
+        padding:12px;
+        border-radius:12px;
+        background:rgba(9,24,39,0.8);
+        border:1px solid var(--border);
+        color:var(--text-main);
+        font-size:14px;
+      "
+    >
+
+      <option value="easypaisa">
+        📱 EasyPaisa
+      </option>
+
+      <option value="jazzcash">
+        📱 JazzCash
+      </option>
+
+      <option value="bank">
+        🏦 Bank Transfer
+      </option>
+
     </select>
+
   </div>
 
-  <!-- MOBILE INPUT (EasyPaisa/JazzCash) -->
-  <div id="mobileInputGroup" style="margin-bottom: 14px; display: block;">
-    <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 6px;">Phone Number</label>
-    <input type="tel" id="mobileNumber" placeholder="03XX-XXXXXXX" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
+
+  <!-- MOBILE INPUT -->
+  <div
+    id="mobileInputGroup"
+    style="
+      margin-bottom:14px;
+      display:block;
+    "
+  >
+
+    <label
+      style="
+        display:block;
+        font-size:13px;
+        font-weight:800;
+        color:var(--text-soft);
+        margin-bottom:6px;
+      "
+    >
+      Phone Number
+    </label>
+
+    <input
+      type="tel"
+      id="mobileNumber"
+      placeholder="03XX-XXXXXXX"
+      style="
+        width:100%;
+        padding:12px;
+        border-radius:12px;
+        background:rgba(9,24,39,0.8);
+        border:1px solid var(--border);
+        color:var(--text-main);
+        font-size:14px;
+      "
+    >
+
   </div>
+
 
   <!-- BANK INPUT -->
-  <div id="bankInputGroup" style="display: none;">
-    <div style="margin-bottom: 14px;">
-      <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 6px;">Select Bank</label>
-      <select id="bankSelect" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
-        <option value="">Choose Bank...</option>
-        <option value="habib">Habib Bank Limited</option>
-        <option value="ubl">United Bank Limited</option>
-        <option value="mcb">MCB Bank</option>
-        <option value="hbl">HBL Bank</option>
-        <option value="alBaraka">Al Baraka Bank</option>
-        <option value="faysal">Faysal Bank</option>
-        <option value="BoP">Bank of Punjab</option>
-        <option value="silkbank">Silk Bank</option>
-        <option value="ztbl">ZTBL Bank</option>
+  <div
+    id="bankInputGroup"
+    style="display:none;"
+  >
+
+    <div style="margin-bottom:14px;">
+
+      <label
+        style="
+          display:block;
+          font-size:13px;
+          font-weight:800;
+          color:var(--text-soft);
+          margin-bottom:6px;
+        "
+      >
+        Select Bank
+      </label>
+
+      <select
+        id="bankSelect"
+        style="
+          width:100%;
+          padding:12px;
+          border-radius:12px;
+          background:rgba(9,24,39,0.8);
+          border:1px solid var(--border);
+          color:var(--text-main);
+          font-size:14px;
+        "
+      >
+
+        <option value="">
+          Choose Bank...
+        </option>
+
+        <option value="habib">
+          Habib Bank Limited
+        </option>
+
+        <option value="ubl">
+          United Bank Limited
+        </option>
+
+        <option value="mcb">
+          MCB Bank
+        </option>
+
+        <option value="hbl">
+          HBL Bank
+        </option>
+
+        <option value="alBaraka">
+          Al Baraka Bank
+        </option>
+
+        <option value="faysal">
+          Faysal Bank
+        </option>
+
+        <option value="BoP">
+          Bank of Punjab
+        </option>
+
+        <option value="silkbank">
+          Silk Bank
+        </option>
+
+        <option value="ztbl">
+          ZTBL Bank
+        </option>
+
       </select>
+
     </div>
-    <div style="margin-bottom: 14px;">
-      <label style="display: block; font-size: 13px; font-weight: 800; color: var(--text-soft); margin-bottom: 6px;">Account Number</label>
-      <input type="text" id="bankAccountNumber" placeholder="Enter account number" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(9, 24, 39, 0.8); border: 1px solid var(--border); color: var(--text-main); font-size: 14px;">
+
+
+    <div style="margin-bottom:14px;">
+
+      <label
+        style="
+          display:block;
+          font-size:13px;
+          font-weight:800;
+          color:var(--text-soft);
+          margin-bottom:6px;
+        "
+      >
+        Account Number
+      </label>
+
+      <input
+        type="text"
+        id="bankAccountNumber"
+        placeholder="Enter account number"
+        style="
+          width:100%;
+          padding:12px;
+          border-radius:12px;
+          background:rgba(9,24,39,0.8);
+          border:1px solid var(--border);
+          color:var(--text-main);
+          font-size:14px;
+        "
+      >
+
     </div>
+
   </div>
 
+
   <!-- WITHDRAW BUTTON -->
-  <button id="withdrawBtn" type="button" style="width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, var(--blue), #1a66ff); color: white; font-size: 15px; font-weight: 900; border: 0; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 8px 20px rgba(36, 124, 255, 0.15);">
+  <button
+    id="withdrawBtn"
+    type="button"
+    style="
+      width:100%;
+      padding:14px;
+      border-radius:12px;
+      background:linear-gradient(135deg,var(--blue),#1a66ff);
+      color:white;
+      font-size:15px;
+      font-weight:900;
+      border:0;
+      cursor:pointer;
+      transition:all 0.2s ease;
+      box-shadow:0 8px 20px rgba(36,124,255,0.15);
+    "
+  >
     Withdraw Now
   </button>
 
+
   <!-- LOADING -->
-  <div id="withdrawLoader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 9999;">
-    <div style="text-align: center;">
-      <div style="width: 50px; height: 50px; border: 4px solid rgba(39,200,255,0.3); border-top: 4px solid var(--cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 14px;"></div>
-      <div style="color: var(--text-main); font-weight: 900; font-size: 16px;">Verifying...</div>
+  <div
+    id="withdrawLoader"
+    style="
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.7);
+      justify-content:center;
+      align-items:center;
+      z-index:9999;
+    "
+  >
+
+    <div style="text-align:center;">
+
+      <div
+        style="
+          width:50px;
+          height:50px;
+          border:4px solid rgba(39,200,255,0.3);
+          border-top:4px solid var(--cyan);
+          border-radius:50%;
+          animation:spin 1s linear infinite;
+          margin:0 auto 14px;
+        "
+      ></div>
+
+      <div
+        style="
+          color:var(--text-main);
+          font-weight:900;
+          font-size:16px;
+        "
+      >
+        Verifying...
+      </div>
+
     </div>
+
   </div>
 
+
   <!-- MESSAGE -->
-  <div id="withdrawMessage" style="display: none; margin-top: 14px; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 800; text-align: center;"></div>
+  <div
+    id="withdrawMessage"
+    style="
+      display:none;
+      margin-top:14px;
+      padding:12px;
+      border-radius:12px;
+      font-size:13px;
+      font-weight:800;
+      text-align:center;
+    "
+  ></div>
 
 </section>
+
 
 <!-- =========================================
 MISSIONS SECTION
 ========================================== -->
 <section
-class="missions-section"
-id="missionsSection"
+  class="missions-section"
+  id="missionsSection"
 >
-<div class="section-heading">
-<div>
-<span class="section-kicker">
-DAILY PROGRESS
-</span>
-<h2>
-Missions
-</h2>
-</div>
-<span class="mission-count">
-🎯
-</span>
-</div>
-<div id="missionsList">
-<!-- Missions are generated by missions.js -->
-</div>
+
+  <div class="section-heading">
+
+    <div>
+
+      <span class="section-kicker">
+        DAILY PROGRESS
+      </span>
+
+      <h2>
+        Missions
+      </h2>
+
+    </div>
+
+    <span class="mission-count">
+      🎯
+    </span>
+
+  </div>
+
+  <div id="missionsList">
+    <!-- Missions are generated by missions.js -->
+  </div>
+
 </section>
+
 
 <!-- =========================================
 REWARDS SECTION
 ========================================== -->
 <section
-class="rewards-section"
-id="rewardsSection"
+  class="rewards-section"
+  id="rewardsSection"
 >
-<div class="section-heading">
-<div>
-<span class="section-kicker">
-MILESTONES
-</span>
-<h2>
-Rewards
-</h2>
-</div>
-<span class="reward-heading-icon">
-🎁
-</span>
-</div>
-<div id="rewardsList">
-<!-- Rewards are generated by rewards.js -->
-</div>
+
+  <div class="section-heading">
+
+    <div>
+
+      <span class="section-kicker">
+        MILESTONES
+      </span>
+
+      <h2>
+        Rewards
+      </h2>
+
+    </div>
+
+    <span class="reward-heading-icon">
+      🎁
+    </span>
+
+  </div>
+
+  <div id="rewardsList">
+    <!-- Rewards are generated by rewards.js -->
+  </div>
+
 </section>
 
 </div>
+
+
+<!-- =========================================
+STEP 1 UI MICRO-INTERACTIONS
+Only targets the new UI elements.
+Does NOT modify referral/game/withdrawal logic.
+========================================== -->
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================
+     LIVE PLAYER DISPLAY
+     JS game/withdrawal logic can still use
+     the existing #liveUsersCounter ID.
+  ========================================== */
+
+  const liveCounter = document.getElementById("liveUsersCounter");
+
+  if (liveCounter) {
+    let liveTimer = null;
+
+    const getRandomLiveNumber = function () {
+      const minimum = 150;
+      const maximum = 350;
+
+      return Math.floor(
+        Math.random() * (maximum - minimum + 1)
+      ) + minimum;
+    };
+
+    const updateLiveCounter = function () {
+      const nextNumber = getRandomLiveNumber();
+
+      liveCounter.textContent = nextNumber;
+
+      liveCounter.classList.remove("is-changing");
+
+      /*
+       * Force a small reflow so the animation can
+       * restart every time the number changes.
+       */
+      void liveCounter.offsetWidth;
+
+      liveCounter.classList.add("is-changing");
+    };
+
+    /*
+     * Existing withdrawal.js may also update this
+     * same element. This interval is intentionally
+     * conservative and will be removed later when
+     * the live-counter logic is consolidated into
+     * withdrawal.js.
+     */
+    liveTimer = window.setInterval(
+      updateLiveCounter,
+      5200 + Math.floor(Math.random() * 3600)
+    );
+
+    window.addEventListener(
+      "beforeunload",
+      function () {
+        if (liveTimer) {
+          window.clearInterval(liveTimer);
+        }
+      },
+      { once: true }
+    );
+  }
+
+
+  /* =========================================
+     COIN DISPLAY MICRO ANIMATION
+     Does not change balance value.
+     Existing game.js remains responsible for
+     actual coin calculations.
+  ========================================== */
+
+  const balanceElement =
+    document.getElementById("balance");
+
+  if (balanceElement) {
+
+    const balanceObserver =
+      new MutationObserver(function () {
+
+        balanceElement.classList.remove(
+          "is-collecting"
+        );
+
+        void balanceElement.offsetWidth;
+
+        balanceElement.classList.add(
+          "is-collecting"
+        );
+
+      });
+
+    balanceObserver.observe(
+      balanceElement,
+      {
+        childList: true,
+        characterData: true,
+        subtree: true
+      }
+    );
+  }
+
+})();
+</script>
+
 
 <!-- =========================================
 JAVASCRIPT
