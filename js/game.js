@@ -971,4 +971,40 @@
 
 
         getTotalTaps() {
+            return gameState.totalTaps;
+        },
+
+
+        getBaseCoinsPerTap() {
+            return gameState.baseCoinsPerTap;
+        },
+
+
+        getCompletedMissions() {
+            return gameState.completedMissions;
+        },
+
+
+        getClaimedRewards() {
+            return gameState.claimedRewards;
+        },
+
+
+        resetGame() {
+            localStorage.removeItem(SAVE_KEY);
+            location.reload();
+        }
+
+    };
+
+
+    /* =====================================================
+       INITIALIZE
+    ===================================================== */
+
+    updateDailyStreak();
+    updateUI();
+    saveGame();
+
+})();
       
