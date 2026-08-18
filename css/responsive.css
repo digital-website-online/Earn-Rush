@@ -1,1 +1,815 @@
+/* =========================================================
+   EARNRUSH — RESPONSIVE SYSTEM
+   Version 4.0
+========================================================= */
 
+
+/* =========================================================
+   TABLET — 601px TO 900px
+========================================================= */
+
+@media (min-width: 601px) and (max-width: 900px) {
+
+    #app {
+        max-width: 760px;
+        padding: 26px 24px 80px;
+    }
+
+    .game-header {
+        margin-bottom: 26px;
+    }
+
+    .brand-name {
+        font-size: 27px;
+    }
+
+    .status-card {
+        min-height: 82px;
+        padding: 16px;
+    }
+
+    .status-value {
+        font-size: 23px;
+    }
+
+    .balance-card {
+        padding: 24px;
+    }
+
+    .balance-amount {
+        font-size: clamp(52px, 9vw, 68px) !important;
+    }
+
+    .reactor-section {
+        padding: 28px 24px 24px;
+    }
+
+    .reactor {
+        width: 175px;
+        height: 175px;
+    }
+
+    .reactor-core {
+        width: 110px;
+        height: 110px;
+    }
+
+    .quick-card {
+        min-height: 100px;
+    }
+
+    .mission-card,
+    .reward-card {
+        padding: 16px;
+    }
+
+    .withdrawal-section,
+    #withdrawalSection {
+        padding: 22px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE — 600px AND BELOW
+========================================================= */
+
+@media (max-width: 600px) {
+
+    html {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    #app {
+        width: 100%;
+        max-width: 100%;
+        padding: 16px 14px 55px;
+    }
+
+
+    /* HEADER */
+
+    .game-header {
+        margin-bottom: 20px;
+        gap: 10px;
+    }
+
+    .brand {
+        gap: 9px;
+        min-width: 0;
+    }
+
+    .brand-mark {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        font-size: 23px;
+        flex-shrink: 0;
+    }
+
+    .brand-name {
+        font-size: 23px;
+        letter-spacing: -0.7px;
+        white-space: nowrap;
+    }
+
+    .header-actions {
+        gap: 7px;
+    }
+
+    .icon-button {
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        font-size: 18px;
+    }
+
+
+    /* PLAYER STATUS */
+
+    .player-status {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .status-card {
+        min-height: 72px;
+        padding: 11px;
+        border-radius: 13px;
+    }
+
+    .status-label {
+        font-size: 9px;
+        letter-spacing: 0.8px;
+    }
+
+    .status-value {
+        font-size: 19px;
+    }
+
+
+    /* BALANCE */
+
+    .balance-card {
+        padding: 20px 17px;
+        margin-bottom: 10px;
+        border-radius: 18px;
+    }
+
+    .balance-label {
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+
+    .balance-row {
+        gap: 7px;
+    }
+
+    .balance-amount {
+        font-size: clamp(40px, 12vw, 55px) !important;
+        letter-spacing: -2px;
+    }
+
+    .balance-currency {
+        font-size: 19px !important;
+    }
+
+    .income-rate {
+        margin-top: 11px;
+        font-size: 12px;
+    }
+
+
+    /* XP */
+
+    .xp-card {
+        padding: 13px;
+        margin-bottom: 10px;
+        border-radius: 14px;
+    }
+
+    .xp-header {
+        margin-bottom: 8px;
+    }
+
+    .xp-title {
+        font-size: 12px;
+    }
+
+    .xp-value {
+        font-size: 11px;
+    }
+
+    .xp-track {
+        height: 6px;
+    }
+
+
+    /* REACTOR */
+
+    .reactor-section {
+        padding: 21px 15px 18px;
+        margin-bottom: 11px;
+        border-radius: 19px;
+    }
+
+    .reactor-label {
+        margin-bottom: 11px;
+        font-size: 11px;
+        letter-spacing: 1.2px;
+    }
+
+    .reactor {
+        width: 145px;
+        height: 145px;
+        margin-bottom: 13px;
+    }
+
+    .reactor-core {
+        width: 90px;
+        height: 90px;
+        font-size: 35px;
+    }
+
+    .reactor::before {
+        inset: 5px;
+    }
+
+    .reactor::after {
+        inset: 20px;
+    }
+
+
+    /* COMBO */
+
+    .combo-area {
+        max-width: 100%;
+        margin-bottom: 11px;
+    }
+
+    .combo-label {
+        font-size: 11px;
+    }
+
+    .combo-value {
+        font-size: 14px;
+    }
+
+    .progress-track {
+        height: 6px;
+    }
+
+
+    /* TAP BUTTON */
+
+    .tap-button {
+        min-height: 50px;
+        border-radius: 15px;
+        font-size: 14px;
+    }
+
+
+    /* QUICK ACTIONS */
+
+    .quick-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        margin-bottom: 18px;
+    }
+
+    .quick-card {
+        min-height: 78px;
+        padding: 8px 5px;
+        gap: 4px;
+        border-radius: 13px;
+    }
+
+    .quick-icon {
+        font-size: 17px;
+    }
+
+    .quick-title {
+        font-size: 10px;
+    }
+
+    .quick-subtitle {
+        font-size: 8px;
+    }
+
+
+    /* SECTION HEADINGS */
+
+    .missions-section,
+    .rewards-section {
+        margin-top: 24px;
+        margin-bottom: 14px;
+    }
+
+    .section-heading {
+        margin-bottom: 11px;
+    }
+
+    .section-kicker {
+        font-size: 9px;
+        margin-bottom: 4px;
+    }
+
+    .section-heading h2 {
+        font-size: 22px;
+    }
+
+    .mission-count,
+    .reward-heading-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        font-size: 17px;
+    }
+
+
+    /* MISSIONS */
+
+    #missionsList,
+    #rewardsList {
+        gap: 8px;
+    }
+
+    .mission-card,
+    .reward-card {
+        width: 100%;
+        min-width: 0;
+        padding: 11px;
+        gap: 9px;
+        border-radius: 14px;
+    }
+
+    .mission-icon,
+    .reward-icon {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        font-size: 18px;
+    }
+
+    .mission-content,
+    .reward-content {
+        min-width: 0;
+    }
+
+    .mission-title,
+    .reward-title {
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .mission-description,
+    .reward-description {
+        font-size: 10px;
+        line-height: 1.3;
+        margin-bottom: 6px;
+    }
+
+    .mission-progress {
+        gap: 3px;
+        margin-top: 4px;
+    }
+
+    .mission-progress-track,
+    .reward-progress-track {
+        height: 5px;
+    }
+
+    .mission-progress > span {
+        font-size: 9px;
+    }
+
+    .mission-reward,
+    .reward-value {
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .mission-reward button {
+        padding: 7px 10px;
+        border-radius: 9px;
+        font-size: 10px;
+    }
+
+
+    /* WITHDRAWAL */
+
+    .withdrawal-section,
+    #withdrawalSection {
+        width: 100%;
+        padding: 17px;
+        margin-bottom: 14px;
+        border-radius: 17px;
+    }
+
+    .withdrawal-header {
+        margin-bottom: 13px;
+    }
+
+    .withdrawal-title {
+        font-size: 16px;
+    }
+
+    .withdrawal-icon {
+        font-size: 22px;
+    }
+
+    .coin-to-rs {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .coin-to-rs-label {
+        font-size: 10px;
+    }
+
+    .coin-to-rs-rate {
+        font-size: 15px;
+    }
+
+    .withdrawal-input-group {
+        gap: 7px;
+    }
+
+    .withdrawal-input {
+        min-width: 0;
+        padding: 10px 11px;
+        font-size: 12px;
+    }
+
+    .withdrawal-btn {
+        padding: 10px 13px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+
+    /* POPUPS */
+
+    .premium-popup {
+        width: calc(100% - 32px);
+        max-width: 330px;
+        min-width: 0;
+        padding: 20px;
+        border-radius: 17px;
+    }
+
+    .premium-popup.error .popup-icon,
+    .premium-popup.success .popup-icon {
+        font-size: 40px;
+    }
+
+    .premium-popup.error .popup-title,
+    .premium-popup.success .popup-title {
+        font-size: 16px;
+    }
+
+    .popup-close {
+        padding: 9px 17px;
+        font-size: 11px;
+    }
+
+
+    /* LOADER */
+
+    .loader-spinner {
+        width: 42px;
+        height: 42px;
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONES — 400px AND BELOW
+========================================================= */
+
+@media (max-width: 400px) {
+
+    #app {
+        padding-left: 11px;
+        padding-right: 11px;
+    }
+
+    .brand-mark {
+        width: 44px;
+        height: 44px;
+        font-size: 21px;
+    }
+
+    .brand-name {
+        font-size: 21px;
+    }
+
+    .icon-button {
+        width: 41px;
+        height: 41px;
+    }
+
+    .balance-amount {
+        font-size: 39px !important;
+    }
+
+    .balance-currency {
+        font-size: 17px !important;
+    }
+
+    .reactor {
+        width: 135px;
+        height: 135px;
+    }
+
+    .reactor-core {
+        width: 84px;
+        height: 84px;
+        font-size: 32px;
+    }
+
+    .quick-card {
+        min-height: 73px;
+    }
+
+    .quick-title {
+        font-size: 9px;
+    }
+
+    .mission-card,
+    .reward-card {
+        gap: 7px;
+        padding: 9px;
+    }
+
+    .mission-icon,
+    .reward-icon {
+        width: 35px;
+        min-width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+
+    .mission-title,
+    .reward-title {
+        font-size: 11px;
+    }
+
+    .mission-description,
+    .reward-description {
+        font-size: 9px;
+    }
+
+    .mission-reward button {
+        padding: 6px 8px;
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES — 350px AND BELOW
+========================================================= */
+
+@media (max-width: 350px) {
+
+    .game-header {
+        gap: 5px;
+    }
+
+    .brand {
+        gap: 7px;
+    }
+
+    .brand-mark {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        font-size: 19px;
+    }
+
+    .brand-name {
+        font-size: 19px;
+    }
+
+    .header-actions {
+        gap: 4px;
+    }
+
+    .icon-button {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
+    .status-card {
+        min-height: 65px;
+        padding: 9px;
+    }
+
+    .status-label {
+        font-size: 8px;
+    }
+
+    .status-value {
+        font-size: 17px;
+    }
+
+    .balance-card {
+        padding: 17px 14px;
+    }
+
+    .balance-amount {
+        font-size: 36px !important;
+    }
+
+    .balance-currency {
+        font-size: 15px !important;
+    }
+
+    .reactor {
+        width: 125px;
+        height: 125px;
+    }
+
+    .reactor-core {
+        width: 78px;
+        height: 78px;
+        font-size: 29px;
+    }
+
+    .tap-button {
+        min-height: 47px;
+        font-size: 13px;
+    }
+
+    .quick-actions {
+        gap: 5px;
+    }
+
+    .quick-card {
+        min-height: 68px;
+        padding: 6px 3px;
+    }
+
+    .quick-icon {
+        font-size: 15px;
+    }
+
+    .quick-title {
+        font-size: 8px;
+    }
+
+    .quick-subtitle {
+        display: none;
+    }
+
+    .mission-card,
+    .reward-card {
+        grid-template-columns: 34px minmax(0, 1fr);
+    }
+
+    .mission-reward,
+    .reward-value {
+        grid-column: 2;
+        justify-self: start;
+        margin-top: 2px;
+    }
+
+    .mission-reward button {
+        padding: 6px 10px;
+    }
+
+    .withdrawal-input-group {
+        flex-direction: column;
+    }
+
+    .withdrawal-btn {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   LANDSCAPE PHONES
+========================================================= */
+
+@media (max-height: 500px) and (orientation: landscape) {
+
+    #app {
+        padding-top: 12px;
+        padding-bottom: 35px;
+    }
+
+    .game-header {
+        margin-bottom: 14px;
+    }
+
+    .reactor-section {
+        padding: 14px;
+    }
+
+    .reactor {
+        width: 115px;
+        height: 115px;
+        margin-bottom: 8px;
+    }
+
+    .reactor-core {
+        width: 72px;
+        height: 72px;
+        font-size: 27px;
+    }
+
+    .tap-button {
+        min-height: 44px;
+    }
+
+    .quick-card {
+        min-height: 65px;
+    }
+}
+
+
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+    .quick-card:hover,
+    .mission-card:hover,
+    .reward-card:hover,
+    .icon-button:hover,
+    .tap-button:hover {
+        transform: none;
+    }
+
+    .quick-card:active,
+    .mission-card:active,
+    .reward-card:active {
+        transform: scale(0.985);
+    }
+
+    .tap-button,
+    .mission-reward button,
+    .withdrawal-btn {
+        min-height: 44px;
+    }
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+========================================================= */
+
+@media (min-width: 1200px) {
+
+    #app {
+        max-width: 760px;
+        padding-top: 30px;
+    }
+
+    .balance-card {
+        padding: 28px;
+    }
+
+    .reactor-section {
+        padding-top: 30px;
+    }
+
+    .reactor {
+        width: 185px;
+        height: 185px;
+    }
+
+    .reactor-core {
+        width: 115px;
+        height: 115px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
