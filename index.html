@@ -1259,42 +1259,123 @@ Does NOT modify referral/game/withdrawal logic.
 <script>
 (function () {
   "use strict";
+   /* =========================================
+   LIVE PLAYER DISPLAY — SMOOTH COUNTER
+========================================== */
 
-  /* =========================================
-     LIVE PLAYER DISPLAY
-     JS game/withdrawal logic can still use
-     the existing #liveUsersCounter ID.
-  ========================================== */
+const liveCounter =
+  document.getElementById("liveUsersCounter");
 
-  const liveCounter = document.getElementById("liveUsersCounter");
+if (liveCounter) {
 
-  if (liveCounter) {
-    let liveTimer = null;
+  let liveTimer = null;
 
-    const getRandomLiveNumber = function () {
-      const minimum = 150;
-      const maximum = 350;
+  let currentNumber =
+    Math.floor(Math.random() * 51) + 200;
 
-      return Math.floor(
-        Math.random() * (maximum - minimum + 1)
-      ) + minimum;
-    };
 
-    const updateLiveCounter = function () {
-      const nextNumber = getRandomLiveNumber();
+  /* Initial number */
+  liveCounter.textContent =
+    currentNumber;
 
-      liveCounter.textContent = nextNumber;
 
-      liveCounter.classList.remove("is-changing");
+  const updateLiveCounter = function () {
 
-      /*
-       * Force a small reflow so the animation can
-       * restart every time the number changes.
-       */
-      void liveCounter.offsetWidth;
+    /* Only 1–2 players change */
+    const step =
+      Math.floor(Math.random() * 2) + 1;
 
-      liveCounter.classList.add("is-changing");
-    };
+
+    /* Natural increase/decrease */
+    const direction =
+      Math.random() < 0.55 ? 1 : -1;
+
+
+    let nextNumber =
+      currentNumber +
+      (step * direction);
+
+
+    /* Keep number between 200–350 */
+    nextNumber =
+      Math.max(
+        200,
+        Math.min(350, nextNumber)
+      );
+
+
+    /* Boundary protection */
+    if (nextNumber === currentNumber) {
+
+      nextNumber =
+        currentNumber < 350
+          ? currentNumber + 1
+          : currentNumber - 1;
+    }
+
+
+    currentNumber =
+      nextNumber;
+
+
+    /* Smooth visual animation */
+    liveCounter.classList.remove(
+      "is-changing"
+    );
+
+    void liveCounter.offsetWidth;
+
+    liveCounter.textContent =
+      currentNumber;
+
+    liveCounter.classList.add(
+      "is-changing"
+    );
+  };
+
+
+  /*
+   * Change every 3–6 seconds.
+   * Never makes a large random jump.
+   */
+  function scheduleLiveUpdate() {
+
+    const delay =
+      Math.floor(
+        Math.random() * 3000
+      ) + 3000;
+
+
+    liveTimer =
+      window.setTimeout(() => {
+
+        updateLiveCounter();
+
+        scheduleLiveUpdate();
+
+      }, delay);
+  }
+
+
+  scheduleLiveUpdate();
+
+
+  window.addEventListener(
+    "beforeunload",
+    function () {
+
+      if (liveTimer) {
+        window.clearTimeout(
+          liveTimer
+        );
+      }
+
+    },
+    { once: true }
+  );
+   }
+
+  
 
     /*
      * Existing withdrawal.js may also update this
