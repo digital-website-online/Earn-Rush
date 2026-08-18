@@ -1,19 +1,21 @@
-/* =========================================
-   EARNRUSH — RESPONSIVE SYSTEM
-   Mobile • Tablet • Desktop
-========================================= */
+/* =========================================================
+   EARNRUSH — RESPONSIVE SYSTEM v4.0
+   Mobile • Tablet • Desktop • Landscape
+========================================================= */
 
-/* ---------- BASE SAFETY ---------- */
+/* =========================================================
+   1. GLOBAL SAFETY
+========================================================= */
 
-html {
-    width: 100%;
-    overflow-x: hidden;
-}
-
+html,
 body {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
+}
+
+* {
+    max-width: 100%;
 }
 
 img,
@@ -34,65 +36,180 @@ textarea {
 
 button {
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 
-/* =========================================
-   SMALL PHONES — 320px to 374px
-========================================= */
+/* =========================================================
+   2. SMALL PHONES — 320px–374px
+========================================================= */
 
 @media (max-width: 374px) {
 
+    #app {
+        padding: 14px 10px 50px;
+    }
+
     .game-header {
-        padding: 12px;
+        margin-bottom: 16px;
+    }
+
+    .brand {
+        gap: 8px;
+    }
+
+    .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        font-size: 21px;
+    }
+
+    .brand-name {
+        font-size: 21px;
+    }
+
+    .header-actions {
+        gap: 6px;
+    }
+
+    .icon-button {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        font-size: 18px;
     }
 
     .player-status {
-        grid-template-columns: 1fr 1fr;
         gap: 7px;
+        margin-bottom: 9px;
     }
 
     .status-card {
-        min-height: 68px;
-        padding: 9px;
-        border-radius: 12px;
+        min-height: 70px;
+        padding: 11px;
+        border-radius: 13px;
     }
 
     .status-label {
         font-size: 8px;
-        letter-spacing: .7px;
+        letter-spacing: .6px;
     }
 
     .status-value {
-        font-size: 17px;
+        font-size: 18px;
     }
 
     .balance-card {
-        padding: 15px 12px;
-        border-radius: 14px;
+        padding: 17px 13px;
+        margin-bottom: 10px;
+        border-radius: 18px;
+    }
+
+    .balance-label {
+        font-size: 11px;
+        margin-bottom: 7px;
     }
 
     .balance-amount {
-        font-size: 38px !important;
+        font-size: 39px !important;
         letter-spacing: -1.5px !important;
     }
 
     .balance-currency {
-        font-size: 19px;
+        font-size: 17px;
+    }
+
+    .income-rate {
+        margin-top: 10px;
+        font-size: 11px;
+    }
+
+    .xp-card {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    .xp-header {
+        margin-bottom: 9px;
+    }
+
+    .xp-title,
+    .xp-value {
+        font-size: 11px;
+    }
+
+    .xp-track {
+        height: 6px;
+    }
+
+    .reactor-section {
+        padding: 18px 10px 16px;
+        border-radius: 19px;
+    }
+
+    .reactor-label {
+        margin-bottom: 9px;
+        font-size: 10px;
+    }
+
+    .reactor {
+        width: 135px;
+        height: 135px;
+        margin-bottom: 12px;
+    }
+
+    .reactor-core {
+        width: 82px;
+        height: 82px;
+        font-size: 32px;
+    }
+
+    .reactor::before {
+        inset: 5px;
+    }
+
+    .reactor::after {
+        inset: 18px;
+    }
+
+    .combo-area {
+        margin-bottom: 10px;
+    }
+
+    .combo-label {
+        font-size: 10px;
+    }
+
+    .combo-value {
+        font-size: 13px;
+    }
+
+    .progress-track {
+        height: 6px;
+    }
+
+    .tap-button {
+        width: 92%;
+        min-height: 48px;
+        font-size: 13px;
+        border-radius: 15px;
     }
 
     .quick-actions {
-        gap: 7px;
+        gap: 6px;
+        margin-bottom: 20px;
     }
 
     .quick-card {
-        min-height: 76px;
-        padding: 7px 4px;
-        border-radius: 12px;
+        min-height: 84px;
+        padding: 8px 4px;
+        border-radius: 13px;
+        gap: 4px;
     }
 
     .quick-icon {
-        font-size: 16px;
+        font-size: 17px;
     }
 
     .quick-title {
@@ -103,188 +220,354 @@ button {
         font-size: 7px;
     }
 
-    .mission-card {
+    .missions-section,
+    .rewards-section {
+        margin-top: 24px;
+    }
+
+    .section-heading {
+        margin-bottom: 11px;
+    }
+
+    .section-heading h2 {
+        font-size: 21px;
+    }
+
+    .mission-count,
+    .reward-heading-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        font-size: 17px;
+    }
+
+    .mission-card,
+    .reward-card {
+        grid-template-columns: 36px minmax(0, 1fr) auto;
         gap: 8px;
         padding: 10px;
-        border-radius: 12px;
+        border-radius: 13px;
+        margin-bottom: 8px;
     }
 
-    .mission-icon {
-        font-size: 18px;
-        min-width: 23px;
+    .mission-icon,
+    .reward-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        font-size: 17px;
     }
 
-    .mission-title {
-        font-size: 12px;
+    .mission-title,
+    .reward-title {
+        font-size: 11px;
     }
 
-    .mission-description {
-        font-size: 10px;
+    .mission-description,
+    .reward-description {
+        font-size: 9px;
+        margin-bottom: 5px;
     }
 
-    .mission-reward button {
-        padding: 7px 10px;
-        font-size: 10px;
+    .mission-progress {
+        gap: 4px;
     }
 
-    .mission-reward.claimed {
+    .mission-progress-track,
+    .reward-progress-track {
+        height: 5px;
+    }
+
+    .mission-progress span {
+        font-size: 8px;
+    }
+
+    .mission-reward,
+    .reward-value {
         font-size: 9px;
     }
 
-    #withdrawalSection {
-        padding: 14px 11px;
-        border-radius: 14px;
+    .mission-reward button {
+        min-height: 34px;
+        padding: 6px 9px;
+        border-radius: 9px;
+        font-size: 9px;
     }
 
-    .premium-popup {
-        width: calc(100% - 28px);
-        min-width: 0;
-        padding: 18px;
-    }
-}
-
-
-/* =========================================
-   NORMAL PHONES — 375px to 480px
-========================================= */
-
-@media (min-width: 375px) and (max-width: 480px) {
-
-    .player-status {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+    #withdrawalSection,
+    .withdrawal-section {
+        padding: 15px 11px;
+        border-radius: 16px;
     }
 
-    .balance-card {
-        padding: 17px 14px;
+    .withdrawal-title {
+        font-size: 16px;
     }
 
-    .balance-amount {
-        font-size: clamp(40px, 11vw, 52px) !important;
+    .withdrawal-icon {
+        font-size: 23px;
     }
 
-    .quick-actions {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-    }
-
-    .mission-card {
+    .coin-to-rs {
         padding: 12px;
     }
 
-    .mission-reward button {
-        padding: 8px 12px;
+    .coin-to-rs-label {
+        font-size: 10px;
     }
 
-    #withdrawalSection {
-        padding: 16px 14px;
+    .coin-to-rs-rate {
+        font-size: 15px;
+    }
+
+    .premium-popup,
+    .error-popup {
+        width: calc(100% - 24px);
+        max-width: 360px;
+        min-width: 0;
     }
 }
 
 
-/* =========================================
-   ALL MOBILE — UP TO 767px
-========================================= */
+/* =========================================================
+   3. NORMAL PHONES — 375px–480px
+========================================================= */
+
+@media (min-width: 375px) and (max-width: 480px) {
+
+    #app {
+        padding: 16px 14px 55px;
+    }
+
+    .game-header {
+        margin-bottom: 19px;
+    }
+
+    .brand-mark {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        font-size: 23px;
+    }
+
+    .brand-name {
+        font-size: 23px;
+    }
+
+    .icon-button {
+        width: 45px;
+        height: 45px;
+        border-radius: 14px;
+    }
+
+    .player-status {
+        gap: 8px;
+    }
+
+    .status-card {
+        min-height: 78px;
+        padding: 13px;
+    }
+
+    .status-label {
+        font-size: 10px;
+    }
+
+    .status-value {
+        font-size: 20px;
+    }
+
+    .balance-card {
+        padding: 20px 17px;
+        border-radius: 21px;
+    }
+
+    .balance-amount {
+        font-size: clamp(42px, 11vw, 55px) !important;
+    }
+
+    .balance-currency {
+        font-size: 19px;
+    }
+
+    .income-rate {
+        font-size: 13px;
+    }
+
+    .xp-card {
+        padding: 15px;
+    }
+
+    .reactor-section {
+        padding: 21px 14px 18px;
+        border-radius: 22px;
+    }
+
+    .reactor {
+        width: 150px;
+        height: 150px;
+    }
+
+    .reactor-core {
+        width: 94px;
+        height: 94px;
+        font-size: 37px;
+    }
+
+    .tap-button {
+        width: 94%;
+        min-height: 52px;
+    }
+
+    .quick-actions {
+        gap: 8px;
+    }
+
+    .quick-card {
+        min-height: 98px;
+        padding: 11px 6px;
+        border-radius: 15px;
+    }
+
+    .quick-title {
+        font-size: 11px;
+    }
+
+    .quick-subtitle {
+        font-size: 8px;
+    }
+
+    .mission-card,
+    .reward-card {
+        grid-template-columns: 40px minmax(0, 1fr) auto;
+        gap: 9px;
+        padding: 12px;
+    }
+
+    .mission-icon,
+    .reward-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .mission-title,
+    .reward-title {
+        font-size: 13px;
+    }
+
+    .mission-description,
+    .reward-description {
+        font-size: 10px;
+    }
+
+    .mission-reward button {
+        min-height: 38px;
+        padding: 7px 11px;
+        font-size: 10px;
+    }
+
+    #withdrawalSection,
+    .withdrawal-section {
+        padding: 18px 15px;
+    }
+}
+
+
+/* =========================================================
+   4. ALL MOBILE — UP TO 767px
+========================================================= */
 
 @media (max-width: 767px) {
+
+    #app {
+        width: 100%;
+        max-width: 100%;
+    }
 
     .game-header,
     .player-status,
     .balance-card,
+    .xp-card,
     .reactor-section,
     .quick-actions,
     .missions-section,
     .rewards-section,
-    #withdrawalSection {
+    #withdrawalSection,
+    .withdrawal-section {
         width: 100%;
-        box-sizing: border-box;
     }
 
     .player-status {
-        margin-bottom: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .balance-card {
-        margin-bottom: 10px;
+    .quick-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .xp-card {
-        padding: 12px;
-        margin-bottom: 10px;
-    }
-
-    .reactor-section {
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    /* Prevent large reactor from breaking mobile */
     .reactor {
-        width: min(78vw, 300px);
-        height: min(78vw, 300px);
-        max-width: 300px;
-        max-height: 300px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .reactor-core {
-        max-width: 100%;
-        max-height: 100%;
+        max-width: 78vw;
+        max-height: 78vw;
     }
 
     .tap-button {
-        width: min(90%, 330px);
-        min-height: 54px;
-        margin-left: auto;
-        margin-right: auto;
         touch-action: manipulation;
     }
 
-    .quick-card {
+    .quick-card,
+    .mission-reward button,
+    .withdrawal-btn {
         touch-action: manipulation;
     }
 
-    .mission-card {
-        width: 100%;
-        box-sizing: border-box;
+    .mission-card,
+    .reward-card,
+    .quick-card,
+    .status-card,
+    .balance-card,
+    .reactor-section,
+    #withdrawalSection {
+        overflow: hidden;
     }
 
-    .mission-content {
+    .mission-content,
+    .reward-content {
         min-width: 0;
+        overflow: hidden;
     }
 
     .mission-title,
-    .mission-description {
+    .mission-description,
+    .reward-title,
+    .reward-description {
         overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
-    .mission-progress {
+    .mission-progress,
+    .mission-progress-track,
+    .reward-progress-track {
         min-width: 0;
     }
 
-    /* Withdrawal */
     #withdrawalSection input,
     #withdrawalSection select,
-    #withdrawalSection button {
+    #withdrawalSection button,
+    .withdrawal-section input,
+    .withdrawal-section select,
+    .withdrawal-section button {
         width: 100%;
-        box-sizing: border-box;
     }
 
-    /* Popups */
     .premium-popup {
-        width: min(90vw, 380px);
-        min-width: 0;
-        box-sizing: border-box;
+        width: min(90vw, 390px);
     }
 
     .error-popup {
-        width: min(90vw, 380px);
-        max-width: calc(100vw - 28px);
-        box-sizing: border-box;
+        width: min(90vw, 390px);
+        max-width: calc(100vw - 24px);
     }
 
-    /* Prevent fixed messages from going off-screen */
     body > div[style*="position: fixed"] {
         max-width: calc(100vw - 24px);
         box-sizing: border-box;
@@ -292,155 +575,182 @@ button {
 }
 
 
-/* =========================================
-   MOBILE LANDSCAPE
-========================================= */
+/* =========================================================
+   5. MOBILE LANDSCAPE
+========================================================= */
 
 @media (max-width: 767px) and (orientation: landscape) {
 
-    .reactor {
-        width: min(48vw, 260px);
-        height: min(48vw, 260px);
+    #app {
+        padding-top: 12px;
+        padding-bottom: 40px;
     }
 
-    .balance-card {
-        padding: 12px;
+    .game-header {
+        margin-bottom: 14px;
+    }
+
+    .reactor-section {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
+    .reactor {
+        width: min(42vw, 220px);
+        height: min(42vw, 220px);
+    }
+
+    .reactor-core {
+        width: 76px;
+        height: 76px;
+        font-size: 30px;
     }
 
     .quick-card {
-        min-height: 70px;
+        min-height: 75px;
+    }
+
+    .quick-icon {
+        font-size: 18px;
     }
 }
 
 
-/* =========================================
-   TABLETS — 768px to 1024px
-========================================= */
+/* =========================================================
+   6. TABLETS — 768px–1024px
+========================================================= */
 
 @media (min-width: 768px) and (max-width: 1024px) {
 
-    .game-header,
-    .player-status,
-    .balance-card,
-    .reactor-section,
-    .quick-actions,
-    .missions-section,
-    .rewards-section,
-    #withdrawalSection {
-        width: min(94vw, 720px);
-        margin-left: auto;
-        margin-right: auto;
-        box-sizing: border-box;
+    #app {
+        max-width: 760px;
+        padding: 25px 24px 70px;
+    }
+
+    .game-header {
+        margin-bottom: 25px;
     }
 
     .player-status {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 10px;
     }
 
-    .quick-actions {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
+    .status-card {
+        min-height: 92px;
+        padding: 16px;
+    }
+
+    .status-value {
+        font-size: 23px;
+    }
+
+    .balance-card {
+        padding: 25px;
     }
 
     .reactor {
-        width: min(52vw, 360px);
-        height: min(52vw, 360px);
-        margin-left: auto;
-        margin-right: auto;
+        width: min(48vw, 300px);
+        height: min(48vw, 300px);
+    }
+
+    .reactor-core {
+        width: 112px;
+        height: 112px;
     }
 
     .tap-button {
-        width: min(80%, 360px);
-        margin-left: auto;
-        margin-right: auto;
+        width: min(80%, 380px);
+        margin-inline: auto;
     }
 
-    .mission-card {
+    .quick-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .mission-card,
+    .reward-card {
         padding: 16px;
     }
 }
 
 
-/* =========================================
-   DESKTOP — 1025px+
-========================================= */
+/* =========================================================
+   7. DESKTOP — 1025px+
+========================================================= */
 
 @media (min-width: 1025px) {
 
-    .game-header,
-    .player-status,
-    .balance-card,
-    .reactor-section,
-    .quick-actions,
-    .missions-section,
-    .rewards-section,
-    #withdrawalSection {
-        width: min(94vw, 900px);
-        margin-left: auto;
-        margin-right: auto;
-        box-sizing: border-box;
+    #app {
+        max-width: 900px;
+        padding: 28px 24px 80px;
     }
 
     .player-status {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .quick-actions {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .reactor {
-        margin-left: auto;
-        margin-right: auto;
+        margin-inline: auto;
     }
 
-    .mission-card {
+    .tap-button {
+        max-width: 420px;
+        margin-inline: auto;
+        display: block;
+    }
+
+    .mission-card,
+    .reward-card,
+    .quick-card {
         transition:
-            transform .2s ease,
-            border-color .2s ease,
-            box-shadow .2s ease;
+            transform .22s ease,
+            border-color .22s ease,
+            box-shadow .22s ease;
     }
 
-    .mission-card:hover {
-        box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+    .mission-card:hover,
+    .reward-card:hover {
+        box-shadow:
+            0 16px 35px rgba(0, 0, 0, .2);
     }
 }
 
 
-/* =========================================
-   VERY WIDE SCREENS
-========================================= */
+/* =========================================================
+   8. LARGE DESKTOP
+========================================================= */
 
 @media (min-width: 1400px) {
 
-    .game-header,
-    .player-status,
-    .balance-card,
-    .reactor-section,
-    .quick-actions,
-    .missions-section,
-    .rewards-section,
-    #withdrawalSection {
-        width: min(90vw, 1000px);
+    #app {
+        max-width: 1000px;
+        padding-top: 32px;
     }
 }
 
 
-/* =========================================
-   TOUCH DEVICES
-========================================= */
+/* =========================================================
+   9. TOUCH DEVICES
+========================================================= */
 
 @media (hover: none) and (pointer: coarse) {
 
     .quick-card:hover,
-    .mission-card:hover {
+    .mission-card:hover,
+    .reward-card:hover {
         transform: none;
     }
 
-    .mission-reward button,
+    .quick-card,
     .tap-button,
-    .quick-card {
+    .mission-reward button,
+    .withdrawal-btn {
         touch-action: manipulation;
     }
 
@@ -450,11 +760,57 @@ button {
 }
 
 
-/* =========================================
-   REDUCED MOTION
-========================================= */
+/* =========================================================
+   10. VERY SMALL HEIGHT SCREENS
+========================================================= */
+
+@media (max-height: 650px) and (max-width: 767px) {
+
+    .game-header {
+        margin-bottom: 12px;
+    }
+
+    .balance-card {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
+    .reactor-section {
+        padding-top: 15px;
+        padding-bottom: 14px;
+    }
+
+    .reactor {
+        width: 125px;
+        height: 125px;
+    }
+
+    .reactor-core {
+        width: 78px;
+        height: 78px;
+        font-size: 30px;
+    }
+
+    .quick-card {
+        min-height: 82px;
+    }
+}
+
+
+/* =========================================================
+   11. REDUCED MOTION
+========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
 
     .reactor,
     .reactor-core,
@@ -465,47 +821,42 @@ button {
     .loader-spinner {
         animation: none !important;
     }
-
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-        transition-duration: .01ms !important;
-    }
 }
 
 
-/* =========================================
-   SAFE AREA — MODERN PHONES
-========================================= */
+/* =========================================================
+   12. SAFE AREA
+========================================================= */
 
 @supports (padding: env(safe-area-inset-bottom)) {
 
-    body {
-        padding-bottom: env(safe-area-inset-bottom);
+    #app {
+        padding-bottom:
+            max(50px, env(safe-area-inset-bottom));
     }
 }
 
 
-/* =========================================
-   FINAL OVERFLOW PROTECTION
-========================================= */
+/* =========================================================
+   13. FINAL OVERFLOW PROTECTION
+========================================================= */
 
 @media (max-width: 767px) {
 
     .mission-card,
-    .quick-card,
-    .status-card,
-    .balance-card,
-    #withdrawalSection {
-        overflow: hidden;
+    .reward-card {
+        max-width: 100%;
     }
 
-    .mission-reward {
+    .mission-reward,
+    .reward-value {
         flex-shrink: 0;
+        min-width: 0;
     }
 
-    .mission-content {
-        overflow: hidden;
+    input,
+    select,
+    textarea {
+        min-width: 0;
     }
 }
