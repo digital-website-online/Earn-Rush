@@ -17,7 +17,10 @@
     let currentCount =
       Math.floor(Math.random() * 51) + 200;
 
-    counterEl.classList.add("live-counter-wheel");
+
+    /* ---------------------------------------------
+       Create digit wheel
+    --------------------------------------------- */
 
     function createDigits(number) {
       return String(number)
@@ -36,30 +39,42 @@
         .join("");
     }
 
+
+    counterEl.classList.add(
+      "live-counter-wheel"
+    );
+
     counterEl.innerHTML =
       createDigits(currentCount);
 
 
     /* ---------------------------------------------
-       Animate ONE number step
+       Animate number
     --------------------------------------------- */
 
     function animateNumber(nextNumber) {
-      const oldNumber = currentCount;
 
-      if (nextNumber === oldNumber) return;
+      const oldNumber =
+        currentCount;
 
-      currentCount = nextNumber;
+      if (
+        nextNumber === oldNumber
+      ) {
+        return;
+      }
+
 
       const oldDigits =
         String(oldNumber)
           .padStart(3, "0")
           .split("");
 
+
       const newDigits =
         String(nextNumber)
           .padStart(3, "0")
           .split("");
+
 
       const digitElements =
         counterEl.querySelectorAll(
@@ -67,116 +82,165 @@
         );
 
 
-      digitElements.forEach((digitEl, index) => {
-        const track =
-          digitEl.querySelector(".digit-track");
+      digitElements.forEach(
+        (digitEl, index) => {
 
-        if (!track) return;
+          const track =
+            digitEl.querySelector(
+              ".digit-track"
+            );
 
-        const oldDigit =
-          Number(oldDigits[index]);
-
-        const newDigit =
-          Number(newDigits[index]);
-
-        if (oldDigit === newDigit) return;
+          if (!track) return;
 
 
-        /*
-         * Number increase:
-         * old digit goes UP
-         *
-         * Number decrease:
-         * old digit goes DOWN
-         */
-        const goingUp =
-          newNumberDirection(oldNumber, nextNumber);
+          const oldDigit =
+            Number(oldDigits[index]);
+
+          const newDigit =
+            Number(newDigits[index]);
 
 
-        track.innerHTML = `
-          <span>${oldDigit}</span>
-          <span>${newDigit}</span>
-        `;
+          if (
+            oldDigit === newDigit
+          ) {
+            return;
+          }
 
 
-        track.classList.remove(
-          "counter-roll-up",
-          "counter-roll-down"
-        );
+          /*
+           * Direction is decided
+           * for EACH digit.
+           */
+          let direction;
+
+          if (
+            newDigit > oldDigit
+          ) {
+            direction = "up";
+          } else if (
+            newDigit < oldDigit
+          ) {
+            direction = "down";
+          } else {
+            return;
+          }
 
 
-        /*
-         * Start position
-         */
-        track.style.transform =
-          goingUp
-            ? "translateY(0)"
-            : "translateY(-100%)";
-
-
-        void track.offsetWidth;
-
-
-        /*
-         * Animate
-         */
-        track.classList.add(
-          goingUp
-            ? "counter-roll-up"
-            : "counter-roll-down"
-        );
-
-
-        track.style.transform =
-          goingUp
-            ? "translateY(-100%)"
-            : "translateY(0)";
-
-
-        /*
-         * Clean after animation
-         */
-        setTimeout(() => {
+          /*
+           * Reset previous animation
+           */
           track.classList.remove(
+            "rolling",
             "counter-roll-up",
             "counter-roll-down"
           );
 
+
+          track.style.transition =
+            "none";
+
+
+          /*
+           * Old + new digit
+           */
           track.innerHTML = `
+            <span>${oldDigit}</span>
             <span>${newDigit}</span>
           `;
 
+
+          /*
+           * Starting position
+           */
           track.style.transform =
-            "translateY(0)";
-        }, 450);
-      });
-    }
+            direction === "up"
+              ? "translateY(0)"
+              : "translateY(-100%)";
 
 
-    function newNumberDirection(oldNumber, nextNumber) {
-      return nextNumber > oldNumber;
+          void track.offsetWidth;
+
+
+          /*
+           * Small stagger between digits.
+           * Prevents the whole number
+           * from looking like one jump.
+           */
+          const delay =
+            index * 55;
+
+
+          setTimeout(() => {
+
+            track.style.transition =
+              "transform 480ms cubic-bezier(.22,.61,.36,1)";
+
+
+            track.style.transform =
+              direction === "up"
+                ? "translateY(-100%)"
+                : "translateY(0)";
+
+
+          }, delay);
+
+
+          /*
+           * Clean animation
+           */
+          setTimeout(() => {
+
+            track.style.transition =
+              "none";
+
+            track.classList.remove(
+              "rolling",
+              "counter-roll-up",
+              "counter-roll-down"
+            );
+
+
+            track.innerHTML = `
+              <span>${newDigit}</span>
+            `;
+
+
+            track.style.transform =
+              "translateY(0)";
+
+
+          }, 600 + delay);
+
+        }
+      );
+
+
+      currentCount =
+        nextNumber;
     }
 
 
     /* ---------------------------------------------
-       Create a SMALL next number
+       Choose next number
     --------------------------------------------- */
 
     function chooseNextNumber() {
 
       /*
-       * Only 1–3 users change at a time.
-       * No big fake jumps.
+       * Only 1–2 users at a time.
        */
       const step =
-        Math.floor(Math.random() * 3) + 1;
+        Math.floor(
+          Math.random() * 2
+        ) + 1;
 
 
       /*
-       * Mostly increase/decrease naturally.
+       * Slightly more chance
+       * of increasing.
        */
       const direction =
-        Math.random() < 0.52
+        Math.random() < 0.55
           ? 1
           : -1;
 
@@ -187,20 +251,25 @@
 
 
       /*
-       * Keep the counter in a realistic range.
+       * Keep realistic range.
        */
       nextNumber =
         Math.max(
           200,
-          Math.min(350, nextNumber)
+          Math.min(
+            350,
+            nextNumber
+          )
         );
 
 
       /*
-       * If it reaches a boundary,
-       * reverse direction naturally.
+       * Boundary protection
        */
-      if (nextNumber === currentCount) {
+      if (
+        nextNumber === currentCount
+      ) {
+
         nextNumber =
           currentCount < 350
             ? currentCount + 1
@@ -208,7 +277,9 @@
       }
 
 
-      animateNumber(nextNumber);
+      animateNumber(
+        nextNumber
+      );
     }
 
 
@@ -218,9 +289,6 @@
 
     function scheduleNextChange() {
 
-      /*
-       * 2.5–5 seconds between changes
-       */
       const delay =
         Math.floor(
           Math.random() * 2500
@@ -248,25 +316,34 @@
   function initWithdrawal() {
 
     const accountTypeSelect =
-      document.getElementById("accountType");
+      document.getElementById(
+        "accountType"
+      );
 
     const mobileInputGroup =
-      document.getElementById("mobileInputGroup");
+      document.getElementById(
+        "mobileInputGroup"
+      );
 
     const bankInputGroup =
-      document.getElementById("bankInputGroup");
+      document.getElementById(
+        "bankInputGroup"
+      );
 
     const coinsInput =
-      document.getElementById("withdrawCoins");
+      document.getElementById(
+        "withdrawCoins"
+      );
 
     const rsDisplay =
-      document.getElementById("rsDisplay");
+      document.getElementById(
+        "rsDisplay"
+      );
 
     const withdrawBtn =
-      document.getElementById("withdrawBtn");
-
-    const withdrawMessage =
-      document.getElementById("withdrawMessage");
+      document.getElementById(
+        "withdrawBtn"
+      );
 
 
     /* ---------------------------------------------
@@ -282,14 +359,18 @@
           const isMobile =
             e.target.value !== "bank";
 
+
           if (mobileInputGroup) {
+
             mobileInputGroup.style.display =
               isMobile
                 ? "block"
                 : "none";
           }
 
+
           if (bankInputGroup) {
+
             bankInputGroup.style.display =
               isMobile
                 ? "none"
@@ -305,17 +386,26 @@
        Coins → Rs
     --------------------------------------------- */
 
-    if (coinsInput && rsDisplay) {
+    if (
+      coinsInput &&
+      rsDisplay
+    ) {
 
       coinsInput.addEventListener(
         "input",
         (e) => {
 
           const coins =
-            parseFloat(e.target.value) || 0;
+            parseFloat(
+              e.target.value
+            ) || 0;
+
 
           const rs =
-            (coins * 0.01).toFixed(2);
+            (
+              coins * 0.01
+            ).toFixed(2);
+
 
           rsDisplay.textContent =
             `= ${rs} Rs`;
@@ -327,7 +417,9 @@
               coins < 500;
 
 
-            if (coins < 500) {
+            if (
+              coins < 500
+            ) {
 
               withdrawBtn.style.opacity =
                 "0.5";
@@ -363,6 +455,7 @@
           const state =
             window.EarnRushGame?.getState();
 
+
           if (!state) return;
 
 
@@ -374,7 +467,9 @@
 
           /* VALIDATION */
 
-          if (coins < 500) {
+          if (
+            coins < 500
+          ) {
 
             showErrorPopup(
               "Minimum 500 coins required",
@@ -385,7 +480,9 @@
           }
 
 
-          if (coins > state.coins) {
+          if (
+            coins > state.coins
+          ) {
 
             showErrorPopup(
               "Aap ke paas coins kam hain",
@@ -400,17 +497,21 @@
             accountTypeSelect?.value;
 
 
-          let accountNumber = "";
+          let accountNumber =
+            "";
 
 
           /* BANK */
 
-          if (accountType === "bank") {
+          if (
+            accountType === "bank"
+          ) {
 
             const bank =
               document.getElementById(
                 "bankSelect"
               )?.value;
+
 
             accountNumber =
               document.getElementById(
@@ -418,7 +519,10 @@
               )?.value || "";
 
 
-            if (!bank || !accountNumber) {
+            if (
+              !bank ||
+              !accountNumber
+            ) {
 
               showErrorPopup(
                 "Complete the form",
@@ -460,7 +564,8 @@
 
           showLoading();
 
-          withdrawBtn.disabled = true;
+          withdrawBtn.disabled =
+            true;
 
 
           /*
@@ -485,8 +590,10 @@
               msg.textContent =
                 "⏳ Aap abhi eligible nahi hain. Admin approval pending.";
 
+
               msg.className =
                 "withdraw-message pending show";
+
 
               msg.style.display =
                 "block";
@@ -504,12 +611,16 @@
      ERROR POPUP
   ===================================================== */
 
-  function showErrorPopup(title, message) {
+  function showErrorPopup(
+    title,
+    message
+  ) {
 
     const existing =
       document.getElementById(
         "errorPopup"
       );
+
 
     if (existing) {
       existing.remove();
@@ -517,17 +628,23 @@
 
 
     const popup =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
+
 
     popup.id =
       "errorPopup";
+
 
     popup.className =
       "error-popup";
 
 
     popup.innerHTML = `
-      <div class="error-popup-icon">❌</div>
+      <div class="error-popup-icon">
+        ❌
+      </div>
 
       <div class="error-popup-title">
         ${title}
@@ -567,6 +684,7 @@
 
 
     /* Auto close */
+
     setTimeout(() => {
 
       if (
@@ -574,6 +692,7 @@
           "errorPopup"
         ) === popup
       ) {
+
         popup.remove();
       }
 
