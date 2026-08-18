@@ -1,22 +1,16 @@
 /* =========================================================
    EARNRUSH — MAIN UI SYSTEM
-   Version 3.0
-========================================================= */
-
-
-/* =========================================================
-   1. ROOT
+   Version 4.0 — Responsive Upgrade
 ========================================================= */
 
 :root {
-
     --bg-main: #030a14;
     --bg-secondary: #071321;
     --bg-card: #091827;
     --bg-card-light: #0d1d2d;
 
-    --border: rgba(120, 190, 220, 0.14);
-    --border-strong: rgba(120, 210, 240, 0.24);
+    --border: rgba(120,190,220,.14);
+    --border-strong: rgba(120,210,240,.28);
 
     --text-main: #f4f8fc;
     --text-soft: #94a5b7;
@@ -24,34 +18,27 @@
 
     --green: #36f58b;
     --green-dark: #17b965;
-
     --cyan: #27c8ff;
     --blue: #247cff;
 
     --gold: #ffc83d;
     --orange: #ff9f32;
-
     --danger: #ff5364;
 
-    --shadow:
-        0 20px 60px rgba(0, 0, 0, 0.32);
+    --shadow: 0 20px 60px rgba(0,0,0,.32);
+    --glow-green: 0 0 35px rgba(54,245,139,.14);
+    --glow-cyan: 0 0 35px rgba(39,200,255,.12);
 
-    --glow-green:
-        0 0 35px rgba(54, 245, 139, 0.14);
-
-    --glow-cyan:
-        0 0 35px rgba(39, 200, 255, 0.12);
-
-    --radius-small: 14px;
-    --radius-medium: 22px;
-    --radius-large: 30px;
+    --radius-sm: 14px;
+    --radius-md: 20px;
+    --radius-lg: 28px;
 
     --max-width: 720px;
 }
 
 
 /* =========================================================
-   2. RESET
+   RESET
 ========================================================= */
 
 * {
@@ -60,21 +47,25 @@
     padding: 0;
 }
 
-
 html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
 }
 
-
 body {
-
     min-height: 100vh;
+    overflow-x: hidden;
 
     background:
         radial-gradient(
-            circle at 50% 0%,
-            rgba(21, 112, 151, 0.12),
-            transparent 38%
+            circle at 50% -5%,
+            rgba(39,200,255,.14),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 100% 40%,
+            rgba(54,245,139,.045),
+            transparent 30%
         ),
         var(--bg-main);
 
@@ -90,10 +81,8 @@ body {
         sans-serif;
 
     -webkit-font-smoothing: antialiased;
-
-    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
 }
-
 
 button,
 input,
@@ -102,7 +91,6 @@ select {
     font: inherit;
 }
 
-
 button {
     border: 0;
     cursor: pointer;
@@ -110,78 +98,68 @@ button {
     -webkit-tap-highlight-color: transparent;
 }
 
-
 button:focus:not(:focus-visible) {
     outline: none;
 }
 
-
-button:focus-visible {
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
     outline: 2px solid var(--cyan);
     outline-offset: 3px;
 }
 
-
 ::selection {
-    background: rgba(39, 200, 255, 0.25);
-    color: white;
+    background: rgba(39,200,255,.25);
+    color: #fff;
 }
 
 
 /* =========================================================
-   3. APP
+   APP
 ========================================================= */
 
 #app {
-
     width: 100%;
     max-width: var(--max-width);
-
     min-height: 100vh;
 
     margin: 0 auto;
-
-    padding:
-        24px
-        24px
-        70px;
+    padding: 22px 22px 70px;
 
     position: relative;
 }
 
 
 /* =========================================================
-   4. HEADER
+   HEADER
 ========================================================= */
 
 .game-header {
-
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 15px;
 
-    margin-bottom: 30px;
+    margin-bottom: 24px;
 }
-
 
 .brand {
-
     display: flex;
     align-items: center;
-
-    gap: 13px;
+    gap: 12px;
+    min-width: 0;
 }
 
-
 .brand-mark {
-
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
 
     display: grid;
     place-items: center;
 
-    border-radius: 18px;
+    border-radius: 17px;
 
     background:
         linear-gradient(
@@ -191,155 +169,135 @@ button:focus-visible {
         );
 
     color: #06121d;
-
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 950;
 
     box-shadow:
-        0 10px 35px
-        rgba(39, 200, 255, 0.18);
+        0 10px 35px rgba(39,200,255,.2);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
 }
 
+.brand-mark:hover {
+    transform: rotate(-4deg) scale(1.04);
+
+    box-shadow:
+        0 14px 42px rgba(39,200,255,.28);
+}
 
 .brand-name {
-
-    font-size: 28px;
-
-    font-weight: 900;
-
+    font-size: 27px;
+    font-weight: 950;
     letter-spacing: -1px;
+    white-space: nowrap;
 }
-
 
 .header-actions {
-
     display: flex;
     align-items: center;
-
-    gap: 10px;
+    gap: 8px;
 }
 
-
 .icon-button {
-
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
 
     display: grid;
     place-items: center;
 
-    border-radius: 17px;
+    border-radius: 15px;
 
-    background:
-        rgba(9, 24, 39, 0.85);
-
+    background: rgba(9,24,39,.86);
     border: 1px solid var(--border);
 
-    font-size: 21px;
+    font-size: 20px;
 
     transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        background 0.2s ease;
+        transform .18s ease,
+        background .18s ease,
+        border-color .18s ease;
 }
-
 
 .icon-button:hover {
-
     transform: translateY(-2px);
-
-    border-color:
-        var(--border-strong);
-
-    background:
-        var(--bg-card-light);
+    background: var(--bg-card-light);
+    border-color: var(--border-strong);
 }
 
-
 .icon-button:active {
-
-    transform:
-        scale(0.94);
+    transform: scale(.93);
 }
 
 
 /* =========================================================
-   5. PLAYER STATUS
+   PLAYER STATUS
 ========================================================= */
 
 .player-status {
-
     display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 11px;
 
-    grid-template-columns:
-        repeat(2, 1fr);
-
-    gap: 14px;
-
-    margin-bottom: 16px;
+    margin-bottom: 13px;
 }
 
-
 .status-card {
-
-    min-height: 105px;
-
-    padding: 22px;
+    min-height: 88px;
 
     display: flex;
-
     flex-direction: column;
-
     justify-content: center;
 
-    gap: 8px;
+    gap: 7px;
 
-    border-radius:
-        var(--radius-medium);
+    padding: 16px 17px;
+
+    border-radius: var(--radius-md);
 
     background:
         linear-gradient(
             145deg,
-            rgba(10, 28, 45, 0.96),
-            rgba(6, 18, 31, 0.96)
+            rgba(10,28,45,.97),
+            rgba(6,18,31,.97)
         );
 
     border: 1px solid var(--border);
 
     box-shadow:
-        0 15px 40px
-        rgba(0, 0, 0, 0.18);
+        0 12px 35px rgba(0,0,0,.17);
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease;
 }
 
+.status-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+}
 
 .status-label {
-
     color: var(--text-soft);
 
-    font-size: 14px;
+    font-size: 11px;
+    font-weight: 800;
 
-    font-weight: 700;
-
+    letter-spacing: 1.1px;
     text-transform: uppercase;
-
-    letter-spacing: 1.2px;
 }
-
 
 .status-value {
-
-    font-size: 27px;
-
-    font-weight: 900;
-
+    font-size: 22px;
     line-height: 1;
-}
 
+    font-weight: 950;
+}
 
 .status-value.green {
     color: var(--green);
 }
-
 
 .status-value.gold {
     color: var(--gold);
@@ -347,21 +305,17 @@ button:focus-visible {
 
 
 /* =========================================================
-   6. BALANCE CARD
+   BALANCE
 ========================================================= */
 
 .balance-card {
-
     position: relative;
-
     overflow: hidden;
 
-    padding: 30px;
+    padding: 25px;
+    margin-bottom: 14px;
 
-    margin-bottom: 18px;
-
-    border-radius:
-        var(--radius-large);
+    border-radius: var(--radius-lg);
 
     background:
         linear-gradient(
@@ -370,194 +324,174 @@ button:focus-visible {
             #071321
         );
 
-    border: 1px solid
-        rgba(54, 245, 139, 0.16);
+    border: 1px solid rgba(54,245,139,.17);
 
     box-shadow:
         var(--shadow),
         var(--glow-green);
 }
 
-
-.balance-card::after {
-
+.balance-card::before {
     content: "";
 
     position: absolute;
+    width: 220px;
+    height: 220px;
 
-    width: 180px;
-    height: 180px;
-
-    right: -70px;
-    top: -95px;
+    top: -140px;
+    right: -80px;
 
     border-radius: 50%;
 
     background:
-        rgba(39, 200, 255, 0.09);
+        radial-gradient(
+            circle,
+            rgba(39,200,255,.16),
+            transparent 68%
+        );
 
     pointer-events: none;
 }
 
+.balance-card::after {
+    content: "";
+
+    position: absolute;
+    left: -70px;
+    bottom: -110px;
+
+    width: 190px;
+    height: 190px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(54,245,139,.07),
+            transparent 70%
+        );
+
+    pointer-events: none;
+}
 
 .balance-label {
-
     position: relative;
     z-index: 1;
 
     display: block;
 
-    margin-bottom: 10px;
+    margin-bottom: 9px;
 
     color: var(--text-soft);
 
-    font-size: 15px;
-
-    font-weight: 700;
-
-    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 800;
 
     letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-
 .balance-row {
-
     position: relative;
     z-index: 1;
 
     display: flex;
-
     align-items: baseline;
 
-    gap: 10px;
+    gap: 9px;
+
+    min-width: 0;
 }
 
-
 .balance-amount {
-
-    font-size: clamp(52px, 13vw, 72px);
-
-    line-height: 0.95;
-
-    font-weight: 950;
-
-    letter-spacing: -3px;
+    min-width: 0;
 
     color: var(--green);
 
-    text-shadow:
-        0 0 30px
-        rgba(54, 245, 139, 0.16);
-}
+    font-size: clamp(44px,11vw,62px);
+    line-height: .95;
 
+    font-weight: 950;
+    letter-spacing: -2.5px;
+
+    text-shadow:
+        0 0 30px rgba(54,245,139,.17);
+
+    transition: transform .2s ease;
+}
 
 .balance-currency {
-
     color: var(--gold);
-
-    font-size: 24px;
-
-    font-weight: 900;
+    font-size: 20px;
+    font-weight: 950;
 }
 
-
 .income-rate {
-
     position: relative;
     z-index: 1;
 
-    margin-top: 18px;
+    margin-top: 14px;
 
     color: var(--text-soft);
-
-    font-size: 16px;
+    font-size: 14px;
 }
 
-
 .income-rate strong {
-
     color: var(--cyan);
-
     font-weight: 900;
 }
 
 
 /* =========================================================
-   7. XP CARD
+   XP
 ========================================================= */
 
 .xp-card {
+    padding: 18px;
+    margin-bottom: 14px;
 
-    padding: 21px;
+    border-radius: var(--radius-md);
 
-    margin-bottom: 18px;
-
-    border-radius:
-        var(--radius-medium);
-
-    background:
-        rgba(8, 23, 38, 0.94);
-
+    background: rgba(8,23,38,.94);
     border: 1px solid var(--border);
 }
 
-
 .xp-header {
-
     display: flex;
-
+    align-items: center;
     justify-content: space-between;
 
-    align-items: center;
-
-    gap: 15px;
-
-    margin-bottom: 13px;
+    gap: 12px;
+    margin-bottom: 11px;
 }
-
 
 .xp-title {
-
-    color: var(--text-main);
-
-    font-size: 15px;
-
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 850;
 }
 
-
 .xp-value {
-
     color: var(--cyan);
 
-    font-size: 14px;
-
-    font-weight: 800;
+    font-size: 13px;
+    font-weight: 850;
 
     white-space: nowrap;
 }
 
-
 .xp-track {
-
     width: 100%;
-
-    height: 9px;
+    height: 8px;
 
     overflow: hidden;
-
     border-radius: 999px;
 
-    background:
-        rgba(255, 255, 255, 0.07);
+    background: rgba(255,255,255,.07);
 }
 
-
 .xp-fill {
-
     width: 0%;
-
     height: 100%;
 
     border-radius: inherit;
@@ -570,38 +504,32 @@ button:focus-visible {
         );
 
     box-shadow:
-        0 0 16px
-        rgba(39, 200, 255, 0.3);
+        0 0 16px rgba(39,200,255,.3);
 
-    transition:
-        width 0.35s ease;
+    transition: width .35s ease;
 }
 
 
 /* =========================================================
-   8. REACTOR SECTION
+   REACTOR
 ========================================================= */
 
 .reactor-section {
-
     position: relative;
-
-    padding: 28px 22px 24px;
-
-    margin-bottom: 18px;
-
     overflow: hidden;
+
+    padding: 24px 18px 20px;
+    margin-bottom: 16px;
 
     text-align: center;
 
-    border-radius:
-        var(--radius-large);
+    border-radius: var(--radius-lg);
 
     background:
         radial-gradient(
-            circle at 50% 35%,
-            rgba(30, 105, 145, 0.13),
-            transparent 45%
+            circle at 50% 38%,
+            rgba(30,105,145,.14),
+            transparent 47%
         ),
         linear-gradient(
             145deg,
@@ -611,94 +539,77 @@ button:focus-visible {
 
     border: 1px solid var(--border);
 
-    box-shadow:
-        var(--shadow);
+    box-shadow: var(--shadow);
 }
 
-
 .reactor-label {
-
     display: block;
 
-    margin-bottom: 18px;
+    margin-bottom: 13px;
 
     color: var(--text-soft);
 
-    font-size: 14px;
-
+    font-size: 13px;
     font-weight: 850;
 
-    letter-spacing: 1.5px;
-
+    letter-spacing: 1.4px;
     text-transform: uppercase;
 }
 
-
 .reactor {
+    width: 160px;
+    height: 160px;
 
-    width: 190px;
-    height: 190px;
+    margin: 0 auto 16px;
 
-    margin: 0 auto 22px;
+    position: relative;
 
     display: grid;
     place-items: center;
-
-    position: relative;
 }
 
-
 .reactor::before {
-
     content: "";
 
     position: absolute;
-
-    inset: 8px;
+    inset: 6px;
 
     border-radius: 50%;
 
-    border: 1px solid
-        rgba(39, 200, 255, 0.22);
+    border: 1px solid rgba(39,200,255,.23);
 
     box-shadow:
-        0 0 50px
-        rgba(39, 200, 255, 0.12);
+        0 0 50px rgba(39,200,255,.12);
 
     animation:
-        reactor-ring 4s linear infinite;
+        reactor-ring 5s linear infinite;
 }
 
-
 .reactor::after {
-
     content: "";
 
     position: absolute;
-
-    inset: 27px;
+    inset: 22px;
 
     border-radius: 50%;
 
     background:
         radial-gradient(
             circle,
-            rgba(54, 245, 139, 0.13),
-            rgba(39, 200, 255, 0.04) 45%,
+            rgba(54,245,139,.14),
+            rgba(39,200,255,.04) 45%,
             transparent 70%
         );
 
     pointer-events: none;
 }
 
-
 .reactor-core {
-
     position: relative;
     z-index: 2;
 
-    width: 118px;
-    height: 118px;
+    width: 100px;
+    height: 100px;
 
     display: grid;
     place-items: center;
@@ -707,116 +618,87 @@ button:focus-visible {
 
     background:
         radial-gradient(
-            circle at 35% 30%,
+            circle at 35% 28%,
             #39f7ff,
             #197ce5 48%,
             #102e61
         );
 
-    border:
-        4px solid
-        rgba(255, 255, 255, 0.08);
+    border: 4px solid rgba(255,255,255,.08);
 
     box-shadow:
-        0 0 35px
-        rgba(39, 200, 255, 0.32),
-        inset 0 0 30px
-        rgba(255, 255, 255, 0.08);
+        0 0 35px rgba(39,200,255,.34),
+        inset 0 0 30px rgba(255,255,255,.08);
 
-    font-size: 48px;
+    font-size: 40px;
+
+    user-select: none;
+    touch-action: manipulation;
 
     transition:
-        transform 0.12s ease,
-        box-shadow 0.2s ease;
+        transform .12s ease,
+        box-shadow .2s ease;
 }
-
 
 .reactor-core:hover {
-
     box-shadow:
-        0 0 50px
-        rgba(39, 200, 255, 0.48),
-        inset 0 0 30px
-        rgba(255, 255, 255, 0.1);
+        0 0 50px rgba(39,200,255,.5),
+        inset 0 0 30px rgba(255,255,255,.1);
 }
 
-
 .reactor-core:active {
-
-    transform:
-        scale(0.91);
+    transform: scale(.91);
 }
 
 
 /* =========================================================
-   9. COMBO
+   COMBO
 ========================================================= */
 
 .combo-area {
-
     width: 100%;
+    max-width: 440px;
 
-    max-width: 460px;
-
-    margin: 0 auto 18px;
+    margin: 0 auto 14px;
 }
-
 
 .combo-top {
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
-    margin-bottom: 9px;
+    margin-bottom: 8px;
 }
-
 
 .combo-label {
-
     color: var(--text-soft);
 
-    font-size: 14px;
-
-    font-weight: 750;
-
-    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 800;
 
     letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-
 .combo-value {
-
     color: var(--gold);
 
-    font-size: 17px;
-
+    font-size: 16px;
     font-weight: 950;
 }
 
-
 .progress-track {
-
     width: 100%;
-
-    height: 8px;
+    height: 7px;
 
     overflow: hidden;
-
     border-radius: 999px;
 
-    background:
-        rgba(255, 255, 255, 0.07);
+    background: rgba(255,255,255,.07);
 }
 
-
 .progress-fill {
-
     width: 0%;
-
     height: 100%;
 
     border-radius: inherit;
@@ -829,25 +711,21 @@ button:focus-visible {
         );
 
     box-shadow:
-        0 0 15px
-        rgba(255, 200, 61, 0.3);
+        0 0 15px rgba(255,200,61,.3);
 
-    transition:
-        width 0.25s ease;
+    transition: width .25s ease;
 }
 
 
 /* =========================================================
-   10. TAP BUTTON
+   TAP BUTTON
 ========================================================= */
 
 .tap-button {
-
     width: 100%;
+    min-height: 54px;
 
-    min-height: 60px;
-
-    border-radius: 18px;
+    border-radius: 17px;
 
     background:
         linear-gradient(
@@ -858,76 +736,64 @@ button:focus-visible {
 
     color: #03120b;
 
-    font-size: 17px;
-
+    font-size: 16px;
     font-weight: 950;
 
-    letter-spacing: 0.5px;
+    letter-spacing: .4px;
 
     box-shadow:
-        0 12px 35px
-        rgba(54, 245, 139, 0.18);
+        0 12px 35px rgba(54,245,139,.18);
+
+    touch-action: manipulation;
 
     transition:
-        transform 0.15s ease,
-        box-shadow 0.2s ease,
-        filter 0.2s ease;
+        transform .15s ease,
+        filter .2s ease,
+        box-shadow .2s ease;
 }
 
-
 .tap-button:hover {
-
     filter: brightness(1.07);
 
     box-shadow:
-        0 15px 40px
-        rgba(54, 245, 139, 0.26);
+        0 15px 40px rgba(54,245,139,.27);
 }
 
-
 .tap-button:active {
-
-    transform:
-        scale(0.97);
+    transform: scale(.97);
 }
 
 
 /* =========================================================
-   11. QUICK ACTIONS
+   QUICK ACTIONS
 ========================================================= */
 
 .quick-actions {
-
     display: grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(3,minmax(0,1fr));
 
-    gap: 12px;
+    gap: 10px;
 
-    margin-bottom: 32px;
+    margin-bottom: 26px;
 }
 
-
 .quick-card {
+    min-height: 110px;
 
-    min-height: 125px;
-
-    padding: 17px 10px;
+    padding: 14px 8px;
 
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
+
+    gap: 6px;
 
     text-align: center;
 
-    gap: 7px;
-
-    border-radius: 20px;
+    border-radius: 18px;
 
     background:
         linear-gradient(
@@ -939,162 +805,126 @@ button:focus-visible {
     border: 1px solid var(--border);
 
     transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        background 0.2s ease;
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease;
 }
-
 
 .quick-card:hover {
+    transform: translateY(-3px);
 
-    transform:
-        translateY(-4px);
-
-    border-color:
-        var(--border-strong);
-
-    background:
-        var(--bg-card-light);
+    border-color: var(--border-strong);
+    background: var(--bg-card-light);
 }
-
 
 .quick-card:active {
-
-    transform:
-        scale(0.96);
+    transform: scale(.96);
 }
 
-
 .quick-icon {
-
-    font-size: 25px;
-
+    font-size: 23px;
     line-height: 1;
 }
 
-
 .quick-title {
-
-    font-size: 14px;
-
+    font-size: 13px;
     font-weight: 900;
 }
 
-
 .quick-subtitle {
-
     color: var(--text-muted);
 
-    font-size: 11px;
-
+    font-size: 10px;
     line-height: 1.2;
 }
 
 
 /* =========================================================
-   12. SECTION HEADINGS
+   SECTION HEADINGS
 ========================================================= */
 
 .missions-section,
 .rewards-section {
-
-    margin-top: 34px;
+    margin-top: 28px;
+    margin-bottom: 18px;
 }
-
 
 .section-heading {
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
-    margin-bottom: 17px;
+    gap: 12px;
+    margin-bottom: 15px;
 }
 
-
 .section-kicker {
-
     display: block;
 
     margin-bottom: 5px;
 
     color: var(--cyan);
 
-    font-size: 11px;
-
+    font-size: 10px;
     font-weight: 900;
 
     letter-spacing: 1.5px;
 }
 
-
 .section-heading h2 {
-
-    color: var(--text-main);
-
-    font-size: 28px;
-
+    font-size: 26px;
     line-height: 1;
 
     font-weight: 950;
-
-    letter-spacing: -0.7px;
+    letter-spacing: -.7px;
 }
-
 
 .mission-count,
 .reward-heading-icon {
-
-    width: 48px;
-    height: 48px;
+    width: 45px;
+    height: 45px;
+    flex: 0 0 45px;
 
     display: grid;
     place-items: center;
 
-    border-radius: 15px;
+    border-radius: 14px;
 
-    background:
-        rgba(39, 200, 255, 0.08);
+    background: rgba(39,200,255,.08);
+    border: 1px solid rgba(39,200,255,.13);
 
-    border: 1px solid
-        rgba(39, 200, 255, 0.13);
-
-    font-size: 21px;
+    font-size: 20px;
 }
 
 
 /* =========================================================
-   13. MISSION CARD
+   MISSION LIST
 ========================================================= */
 
-#missionsList {
-
+#missionsList,
+#rewardsList {
     display: flex;
-
     flex-direction: column;
-
-    gap: 12px;
+    gap: 10px;
 }
 
-
-.mission-card {
-
+.mission-card,
+.reward-card {
     display: grid;
 
     grid-template-columns:
-        48px minmax(0, 1fr) auto;
+        44px minmax(0,1fr) auto;
 
     align-items: center;
 
-    gap: 13px;
+    gap: 11px;
 
-    min-height: 92px;
+    min-width: 0;
+    min-height: 88px;
 
-    padding: 15px;
+    padding: 14px;
 
-    border-radius: 20px;
+    border-radius: 18px;
 
     background:
         linear-gradient(
@@ -1106,126 +936,100 @@ button:focus-visible {
     border: 1px solid var(--border);
 
     box-shadow:
-        0 12px 30px
-        rgba(0, 0, 0, 0.15);
+        0 12px 30px rgba(0,0,0,.14);
 
     transition:
-        transform 0.2s ease,
-        border-color 0.2s ease;
+        transform .2s ease,
+        border-color .2s ease;
 }
 
-
-.mission-card:hover {
-
-    transform:
-        translateY(-2px);
-
-    border-color:
-        rgba(39, 200, 255, 0.22);
+.mission-card:hover,
+.reward-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(39,200,255,.23);
 }
 
-
-.mission-card.completed {
-
-    border-color:
-        rgba(54, 245, 139, 0.25);
+.mission-card.completed,
+.reward-card.claimed {
+    border-color: rgba(54,245,139,.25);
 
     background:
         linear-gradient(
             145deg,
-            rgba(12, 45, 36, 0.8),
+            rgba(12,45,36,.8),
             #071921
         );
 }
 
-
-.mission-icon {
-
-    width: 46px;
-    height: 46px;
+.mission-icon,
+.reward-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
 
     display: grid;
     place-items: center;
 
-    border-radius: 14px;
+    border-radius: 13px;
 
-    background:
-        rgba(39, 200, 255, 0.09);
-
-    border: 1px solid
-        rgba(39, 200, 255, 0.13);
+    background: rgba(39,200,255,.09);
+    border: 1px solid rgba(39,200,255,.13);
 
     font-size: 21px;
 }
 
-
-.mission-card.completed .mission-icon {
-
-    background:
-        rgba(54, 245, 139, 0.1);
-
-    border-color:
-        rgba(54, 245, 139, 0.2);
+.mission-card.completed .mission-icon,
+.reward-card.claimed .reward-icon {
+    background: rgba(54,245,139,.1);
+    border-color: rgba(54,245,139,.2);
 }
 
-
-.mission-content {
-
+.mission-content,
+.reward-content {
     min-width: 0;
 }
 
-
-.mission-title {
-
+.mission-title,
+.reward-title {
     color: var(--text-main);
 
-    font-size: 15px;
-
+    font-size: 14px;
     font-weight: 900;
 
     margin-bottom: 4px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-
-.mission-description {
-
+.mission-description,
+.reward-description {
     color: var(--text-soft);
 
     font-size: 12px;
-
     line-height: 1.35;
 
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 }
-
 
 .mission-progress {
-
     display: flex;
-
-    align-items: center;
-
-    gap: 8px;
+    flex-direction: column;
+    gap: 4px;
 }
 
-
-.mission-progress-track {
-
-    flex: 1;
-
+.mission-progress-track,
+.reward-progress-track {
+    width: 100%;
     height: 6px;
 
     overflow: hidden;
-
     border-radius: 999px;
 
-    background:
-        rgba(255, 255, 255, 0.07);
+    background: rgba(255,255,255,.07);
 }
 
-
 .mission-progress-fill {
-
     height: 100%;
 
     border-radius: inherit;
@@ -1237,178 +1041,84 @@ button:focus-visible {
             var(--green)
         );
 
-    transition:
-        width 0.3s ease;
+    transition: width .3s ease;
 }
 
-
 .mission-progress span {
-
     color: var(--text-muted);
 
     font-size: 10px;
-
     font-weight: 800;
-
-    white-space: nowrap;
 }
 
-
-.mission-reward {
-
+.mission-reward,
+.reward-value {
     color: var(--gold);
 
-    font-size: 12px;
-
+    font-size: 11px;
     font-weight: 950;
 
+    text-align: right;
     white-space: nowrap;
 }
 
 
 /* =========================================================
-   14. REWARDS
+   MISSION BUTTONS
 ========================================================= */
 
-#rewardsList {
+.mission-reward button {
+    min-width: 76px;
 
-    display: flex;
+    padding: 8px 13px;
 
-    flex-direction: column;
-
-    gap: 12px;
-}
-
-
-.reward-card {
-
-    display: grid;
-
-    grid-template-columns:
-        48px minmax(0, 1fr) auto;
-
-    align-items: center;
-
-    gap: 13px;
-
-    min-height: 92px;
-
-    padding: 15px;
-
-    border-radius: 20px;
+    border-radius: 11px;
 
     background:
         linear-gradient(
-            145deg,
-            #101b2b,
-            #08131f
+            135deg,
+            var(--green),
+            #18c975
         );
 
-    border: 1px solid var(--border);
-
-    transition:
-        transform 0.2s ease,
-        border-color 0.2s ease;
-}
-
-
-.reward-card:hover {
-
-    transform:
-        translateY(-2px);
-
-    border-color:
-        rgba(255, 200, 61, 0.2);
-}
-
-
-.reward-card.claimed {
-
-    border-color:
-        rgba(54, 245, 139, 0.24);
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(11, 42, 33, 0.8),
-            #071820
-        );
-}
-
-
-.reward-icon {
-
-    width: 46px;
-    height: 46px;
-
-    display: grid;
-    place-items: center;
-
-    border-radius: 14px;
-
-    background:
-        rgba(255, 200, 61, 0.08);
-
-    border: 1px solid
-        rgba(255, 200, 61, 0.14);
-
-    font-size: 21px;
-}
-
-
-.reward-card.claimed .reward-icon {
-
-    background:
-        rgba(54, 245, 139, 0.1);
-
-    border-color:
-        rgba(54, 245, 139, 0.2);
-}
-
-
-.reward-content {
-
-    min-width: 0;
-}
-
-
-.reward-title {
-
-    color: var(--text-main);
-
-    font-size: 15px;
-
-    font-weight: 900;
-
-    margin-bottom: 4px;
-}
-
-
-.reward-description {
-
-    color: var(--text-soft);
+    color: #03120b;
 
     font-size: 12px;
+    font-weight: 900;
 
-    margin-bottom: 9px;
+    transition:
+        transform .15s ease,
+        filter .2s ease;
+}
+
+.mission-reward button:hover {
+    filter: brightness(1.1);
+}
+
+.mission-reward button:active {
+    transform: scale(.95);
+}
+
+.mission-reward button:disabled {
+    background: rgba(200,200,200,.12);
+
+    color: var(--text-muted);
+
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.mission-reward.claimed,
+.reward-value {
+    color: var(--green);
 }
 
 
-.reward-progress-track {
-
-    height: 6px;
-
-    overflow: hidden;
-
-    border-radius: 999px;
-
-    background:
-        rgba(255, 255, 255, 0.07);
-}
-
+/* =========================================================
+   REWARD PROGRESS
+========================================================= */
 
 .reward-progress-fill {
-
     height: 100%;
 
     border-radius: inherit;
@@ -1420,707 +1130,776 @@ button:focus-visible {
             var(--orange)
         );
 
-    transition:
-        width 0.3s ease;
-}
-
-
-.reward-value {
-
-    color: var(--gold);
-
-    font-size: 12px;
-
-    font-weight: 950;
-
-    white-space: nowrap;
-}
-
-
-.reward-card.claimed .reward-value {
-
-    color: var(--green);
+    transition: width .3s ease;
 }
 
 
 /* =========================================================
-   15. TAP POP ANIMATION
+   SHARE HIGHLIGHT
+========================================================= */
+
+.share-highlight {
+    position: relative;
+
+    border-color:
+        rgba(54,245,139,.22);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(11,48,38,.9),
+            #071a22
+        );
+}
+
+.share-highlight::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(54,245,139,.04),
+            transparent
+        );
+
+    pointer-events: none;
+}
+
+#shareTaskBtn {
+    min-width: 82px;
+
+    padding: 9px 15px;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--green),
+            #18c975
+        ) !important;
+
+    color: #03120b !important;
+
+    font-size: 12px;
+    font-weight: 950;
+}
+
+
+/* =========================================================
+   WITHDRAWAL UI
+========================================================= */
+
+.withdrawal-section {
+    margin-top: 28px;
+    margin-bottom: 20px;
+
+    padding: 21px;
+
+    border-radius: var(--radius-lg);
+
+    background:
+        linear-gradient(
+            145deg,
+            #0a1b2c,
+            #071321
+        );
+
+    border: 1px solid var(--border);
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.18);
+}
+
+.withdrawal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 16px;
+}
+
+.withdrawal-title {
+    font-size: 18px;
+    font-weight: 950;
+}
+
+.withdrawal-icon {
+    font-size: 26px;
+}
+
+.coin-to-rs {
+    padding: 15px;
+    margin-bottom: 14px;
+
+    text-align: center;
+
+    border-radius: 14px;
+
+    background: rgba(9,24,39,.8);
+    border: 1px solid var(--border);
+}
+
+.coin-to-rs-label {
+    margin-bottom: 5px;
+
+    color: var(--text-soft);
+    font-size: 12px;
+}
+
+.coin-to-rs-rate {
+    color: var(--cyan);
+
+    font-size: 18px;
+    font-weight: 950;
+}
+
+.withdrawal-input-group {
+    display: flex;
+    gap: 9px;
+
+    margin-bottom: 12px;
+}
+
+.withdrawal-input,
+.withdrawal-section input,
+.withdrawal-section select {
+    width: 100%;
+
+    padding: 12px 13px;
+
+    border-radius: 11px;
+
+    background: rgba(9,24,39,.85);
+    border: 1px solid var(--border);
+
+    color: var(--text-main);
+
+    font-size: 13px;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.withdrawal-input::placeholder,
+.withdrawal-section input::placeholder {
+    color: var(--text-muted);
+}
+
+.withdrawal-input:focus,
+.withdrawal-section input:focus,
+.withdrawal-section select:focus {
+    border-color: rgba(39,200,255,.45);
+
+    box-shadow:
+        0 0 0 3px rgba(39,200,255,.08);
+}
+
+.withdrawal-btn {
+    min-width: 110px;
+
+    padding: 12px 17px;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--blue),
+            #1a66ff
+        );
+
+    color: #fff;
+
+    font-size: 13px;
+    font-weight: 900;
+
+    transition:
+        transform .15s ease,
+        filter .2s ease;
+}
+
+.withdrawal-btn:hover {
+    filter: brightness(1.1);
+}
+
+.withdrawal-btn:active {
+    transform: scale(.95);
+}
+
+.withdrawal-btn:disabled {
+    background: rgba(200,200,200,.13);
+
+    color: var(--text-muted);
+
+    cursor: not-allowed;
+    opacity: .5;
+}
+
+
+/* =========================================================
+   WITHDRAWAL MESSAGE / LOADER
+========================================================= */
+
+.withdraw-message {
+    display: none;
+
+    margin-top: 12px;
+    padding: 12px;
+
+    border-radius: 12px;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    text-align: center;
+}
+
+.withdraw-message.show {
+    display: block;
+}
+
+.withdraw-message.pending {
+    color: var(--gold);
+
+    background: rgba(255,200,61,.07);
+    border: 1px solid rgba(255,200,61,.15);
+}
+
+#withdrawLoader {
+    position: fixed;
+    inset: 0;
+
+    z-index: 9998;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(2,8,15,.72);
+
+    backdrop-filter: blur(8px);
+}
+
+#withdrawLoader.active {
+    display: flex;
+}
+
+#withdrawLoader > * {
+    max-width: 90%;
+}
+
+
+/* =========================================================
+   ERROR POPUP
+========================================================= */
+
+.error-popup {
+    position: fixed;
+
+    left: 50%;
+    top: 50%;
+
+    z-index: 10001;
+
+    width: min(90%,360px);
+
+    padding: 24px;
+
+    transform: translate(-50%,-50%);
+
+    text-align: center;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0c1b2b,
+            #07121e
+        );
+
+    border: 1px solid rgba(255,83,100,.24);
+
+    box-shadow:
+        0 30px 90px rgba(0,0,0,.55);
+
+    animation:
+        popup-in .22s ease-out;
+}
+
+.error-popup-icon {
+    font-size: 34px;
+    margin-bottom: 8px;
+}
+
+.error-popup-title {
+    font-size: 17px;
+    font-weight: 950;
+}
+
+.error-popup-message {
+    margin-top: 7px;
+
+    color: var(--text-soft);
+
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.error-popup-btn {
+    width: 100%;
+
+    margin-top: 17px;
+    padding: 11px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(255,83,100,.12);
+
+    border: 1px solid rgba(255,83,100,.2);
+
+    color: #ff7c89;
+
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   ANIMATIONS
 ========================================================= */
 
 .tap-pop {
-
-    animation:
-        tap-pop-effect
-        0.18s
-        ease-out;
+    animation: tap-pop-effect .18s ease-out;
 }
-
 
 .balance-pop {
-
-    animation:
-        balance-pop-effect
-        0.2s
-        ease-out;
+    animation: balance-pop-effect .2s ease-out;
 }
-
 
 @keyframes tap-pop-effect {
-
-    0% {
-        transform: scale(1);
-    }
-
-    45% {
-        transform: scale(0.88);
-    }
-
-    100% {
-        transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    45% { transform: scale(.88); }
+    100% { transform: scale(1); }
 }
-
 
 @keyframes balance-pop-effect {
-
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.035);
-    }
-
-    100% {
-        transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.035); }
+    100% { transform: scale(1); }
 }
 
-
 @keyframes reactor-ring {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
+@keyframes popup-in {
     from {
-        transform: rotate(0deg);
+        opacity: 0;
+        transform: translate(-50%,-46%) scale(.92);
     }
 
     to {
-        transform: rotate(360deg);
+        opacity: 1;
+        transform: translate(-50%,-50%) scale(1);
     }
 }
 
 
 /* =========================================================
-   16. SCROLLBAR
+   SCROLLBAR
 ========================================================= */
 
 ::-webkit-scrollbar {
-
     width: 7px;
 }
 
-
 ::-webkit-scrollbar-track {
-
-    background:
-        var(--bg-main);
+    background: var(--bg-main);
 }
 
-
 ::-webkit-scrollbar-thumb {
-
-    background:
-        #173149;
-
+    background: #173149;
     border-radius: 999px;
 }
 
-
 ::-webkit-scrollbar-thumb:hover {
-
-    background:
-        #214662;
+    background: #214662;
 }
 
 
 /* =========================================================
-   17. MOBILE
+   TABLET
 ========================================================= */
 
-@media (max-width: 600px) {
+@media (min-width:601px) and (max-width:900px) {
 
     #app {
-
-        padding:
-            18px
-            16px
-            60px;
+        max-width: 760px;
+        padding-left: 28px;
+        padding-right: 28px;
     }
-
-
-    .game-header {
-
-        margin-bottom: 24px;
-    }
-
-
-    .brand-mark {
-
-        width: 52px;
-        height: 52px;
-
-        border-radius: 16px;
-
-        font-size: 25px;
-    }
-
-
-    .brand-name {
-
-        font-size: 25px;
-    }
-
-
-    .icon-button {
-
-        width: 48px;
-        height: 48px;
-
-        border-radius: 15px;
-    }
-
-
-    .status-card {
-
-        min-height: 96px;
-
-        padding: 18px;
-    }
-
-
-    .status-value {
-
-        font-size: 24px;
-    }
-
-
-    .balance-card {
-
-        padding: 25px 22px;
-
-        border-radius: 26px;
-    }
-
-
-    .balance-amount {
-
-        font-size: 58px;
-    }
-
-
-    .balance-currency {
-
-        font-size: 21px;
-    }
-
-
-    .reactor-section {
-
-        padding:
-            25px
-            17px
-            21px;
-
-        border-radius: 26px;
-    }
-
 
     .reactor {
-
         width: 175px;
         height: 175px;
     }
 
-
     .reactor-core {
-
         width: 108px;
         height: 108px;
-
-        font-size: 43px;
     }
-
-
-    .quick-actions {
-
-        gap: 8px;
-    }
-
-
-    .quick-card {
-
-        min-height: 112px;
-
-        padding:
-            13px
-            6px;
-    }
-
-
-    .quick-title {
-
-        font-size: 12px;
-    }
-
-
-    .quick-subtitle {
-
-        font-size: 10px;
-    }
-
-
-    .mission-card,
-    .reward-card {
-
-        grid-template-columns:
-            42px minmax(0, 1fr) auto;
-
-        gap: 10px;
-
-        padding: 13px;
-    }
-
-
-    .mission-icon,
-    .reward-icon {
-
-        width: 42px;
-        height: 42px;
-
-        border-radius: 13px;
-    }
-
-
-    .mission-title,
-    .reward-title {
-
-        font-size: 14px;
-    }
-
-
-    .mission-reward,
-    .reward-value {
-
-        font-size: 11px;
-    }
-
 }
 
 
 /* =========================================================
-   18. VERY SMALL DEVICES
+   MOBILE
 ========================================================= */
 
-@media (max-width: 380px) {
+@media (max-width:600px) {
 
     #app {
-
-        padding-left: 12px;
-        padding-right: 12px;
+        padding:
+            16px
+            14px
+            55px;
     }
 
-
-    .player-status {
-
-        gap: 8px;
+    .game-header {
+        margin-bottom: 20px;
     }
 
+    .brand {
+        gap: 9px;
+    }
+
+    .brand-mark {
+        width: 49px;
+        height: 49px;
+        flex-basis: 49px;
+
+        border-radius: 15px;
+        font-size: 23px;
+    }
+
+    .brand-name {
+        font-size: 23px;
+    }
+
+    .header-actions {
+        gap: 6px;
+    }
+
+    .icon-button {
+        width: 45px;
+        height: 45px;
+        border-radius: 14px;
+        font-size: 18px;
+    }
 
     .status-card {
-
-        padding: 15px;
+        min-height: 82px;
+        padding: 14px;
     }
 
+    .status-label {
+        font-size: 10px;
+    }
 
     .status-value {
+        font-size: 20px;
+    }
 
+    .balance-card {
+        padding: 22px 19px;
+        border-radius: 24px;
+    }
+
+    .balance-amount {
+        font-size: clamp(42px,12vw,57px);
+    }
+
+    .balance-currency {
+        font-size: 18px;
+    }
+
+    .xp-card {
+        padding: 16px;
+    }
+
+    .reactor-section {
+        padding: 22px 14px 18px;
+        border-radius: 24px;
+    }
+
+    .reactor {
+        width: 150px;
+        height: 150px;
+    }
+
+    .reactor-core {
+        width: 94px;
+        height: 94px;
+        font-size: 37px;
+    }
+
+    .reactor::after {
+        inset: 20px;
+    }
+
+    .quick-actions {
+        gap: 7px;
+    }
+
+    .quick-card {
+        min-height: 103px;
+        padding: 12px 5px;
+    }
+
+    .quick-icon {
         font-size: 21px;
     }
 
-
-    .balance-amount {
-
-        font-size: 50px;
+    .quick-title {
+        font-size: 11px;
     }
 
-
-    .quick-card {
-
-        min-height: 105px;
+    .quick-subtitle {
+        font-size: 9px;
     }
 
+    .section-heading h2 {
+        font-size: 23px;
+    }
+
+    .mission-count,
+    .reward-heading-icon {
+        width: 42px;
+        height: 42px;
+        flex-basis: 42px;
+    }
 
     .mission-card,
     .reward-card {
-
         grid-template-columns:
-            40px minmax(0, 1fr);
+            40px minmax(0,1fr) auto;
 
+        gap: 9px;
+        padding: 12px;
+        border-radius: 16px;
     }
 
+    .mission-icon,
+    .reward-icon {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+        font-size: 19px;
+    }
+
+    .mission-title,
+    .reward-title {
+        font-size: 13px;
+    }
+
+    .mission-description,
+    .reward-description {
+        font-size: 11px;
+    }
+
+    .mission-reward button {
+        min-width: 68px;
+        padding: 7px 10px;
+        font-size: 11px;
+    }
+
+    .withdrawal-section {
+        padding: 18px;
+        border-radius: 23px;
+    }
+
+    .withdrawal-input-group {
+        flex-direction: column;
+    }
+
+    .withdrawal-btn {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media (max-width:380px) {
+
+    #app {
+        padding-left: 11px;
+        padding-right: 11px;
+    }
+
+    .brand-mark {
+        width: 45px;
+        height: 45px;
+        flex-basis: 45px;
+        font-size: 21px;
+    }
+
+    .brand-name {
+        font-size: 21px;
+    }
+
+    .icon-button {
+        width: 42px;
+        height: 42px;
+    }
+
+    .player-status {
+        gap: 7px;
+    }
+
+    .status-card {
+        min-height: 76px;
+        padding: 12px;
+    }
+
+    .status-value {
+        font-size: 18px;
+    }
+
+    .balance-card {
+        padding: 20px 16px;
+    }
+
+    .balance-amount {
+        font-size: 43px;
+    }
+
+    .balance-currency {
+        font-size: 16px;
+    }
+
+    .reactor {
+        width: 140px;
+        height: 140px;
+    }
+
+    .reactor-core {
+        width: 88px;
+        height: 88px;
+        font-size: 34px;
+    }
+
+    .quick-card {
+        min-height: 96px;
+    }
+
+    .quick-title {
+        font-size: 10px;
+    }
+
+    .mission-card,
+    .reward-card {
+        grid-template-columns: 38px minmax(0,1fr);
+    }
+
+    .mission-icon,
+    .reward-icon {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+    }
 
     .mission-reward,
     .reward-value {
-
         grid-column: 2;
 
         justify-self: start;
 
-        margin-top: -4px;
+        margin-top: 2px;
+
+        text-align: left;
     }
 
+    .share-highlight #shareTaskBtn {
+        width: 100%;
+    }
 }
 
 
 /* =========================================================
-   19. REDUCED MOTION
+   ULTRA SMALL
 ========================================================= */
 
-@media (prefers-reduced-motion: reduce) {
+@media (max-width:330px) {
+
+    #app {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .brand-name {
+        font-size: 19px;
+    }
+
+    .header-actions {
+        gap: 4px;
+    }
+
+    .icon-button {
+        width: 39px;
+        height: 39px;
+    }
+
+    .balance-amount {
+        font-size: 39px;
+    }
+
+    .quick-actions {
+        gap: 5px;
+    }
+
+    .quick-card {
+        min-height: 91px;
+    }
+
+    .quick-icon {
+        font-size: 19px;
+    }
+
+    .mission-card,
+    .reward-card {
+        padding: 10px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion:reduce) {
 
     *,
     *::before,
     *::after {
-
-        animation-duration: 0.01ms !important;
-
+        animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
-
         scroll-behavior: auto !important;
-
-        transition-duration: 0.01ms !important;
+        transition-duration: .01ms !important;
     }
-
-}
-/* =========================================
-   CSS UPDATES — Shrink cards, adjust sections
-========================================= */
-
-/* PLAYER STATUS — Make cards smaller */
-.player-status {
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.status-card {
-  min-height: 85px;
-  padding: 16px;
-  gap: 6px;
-}
-
-.status-label {
-  font-size: 12px;
-  letter-spacing: 1px;
-}
-
-.status-value {
-  font-size: 22px;
-  font-weight: 900;
-}
-
-/* BALANCE CARD — Compact */
-.balance-card {
-  padding: 24px;
-  margin-bottom: 14px;
-}
-
-.balance-amount {
-  font-size: clamp(44px, 11vw, 60px);
-  line-height: 0.95;
-  letter-spacing: -2px;
-}
-
-.balance-currency {
-  font-size: 20px;
-}
-
-.income-rate {
-  margin-top: 14px;
-  font-size: 14px;
-}
-
-/* XP CARD */
-.xp-card {
-  padding: 18px;
-  margin-bottom: 14px;
-}
-
-.xp-title {
-  font-size: 14px;
-}
-
-.xp-value {
-  font-size: 13px;
-}
-
-.xp-track {
-  height: 8px;
-}
-
-/* REACTOR — Shrink tap circle */
-.reactor-section {
-  padding: 24px 20px 20px;
-  margin-bottom: 16px;
-}
-
-.reactor-label {
-  margin-bottom: 14px;
-  font-size: 13px;
-}
-
-.reactor {
-  width: 160px;
-  height: 160px;
-  margin: 0 auto 16px;
-}
-
-.reactor-core {
-  width: 100px;
-  height: 100px;
-  font-size: 40px;
-}
-
-.reactor::before {
-  inset: 6px;
-}
-
-.reactor::after {
-  inset: 22px;
-}
-
-/* COMBO */
-.combo-area {
-  max-width: 440px;
-  margin: 0 auto 14px;
-}
-
-.combo-label {
-  font-size: 13px;
-}
-
-.combo-value {
-  font-size: 16px;
-}
-
-.progress-track {
-  height: 7px;
-}
-
-/* TAP BUTTON */
-.tap-button {
-  min-height: 54px;
-  font-size: 16px;
-}
-
-/* QUICK ACTIONS */
-.quick-actions {
-  gap: 11px;
-  margin-bottom: 24px;
-}
-
-.quick-card {
-  min-height: 110px;
-  padding: 15px 9px;
-  gap: 6px;
-  border-radius: 18px;
-}
-
-.quick-icon {
-  font-size: 23px;
-}
-
-.quick-title {
-  font-size: 13px;
-}
-
-.quick-subtitle {
-  font-size: 10px;
-}
-
-/* MISSION/REWARD SECTIONS — adjust spacing */
-.missions-section,
-.rewards-section {
-  margin-bottom: 18px;
-}
-
-/* MISSION CARDS */
-.mission-card {
-  min-height: auto;
-  padding: 16px;
-  gap: 12px;
-  margin-bottom: 11px;
-  border-radius: 16px;
-}
-
-.mission-icon {
-  font-size: 24px;
-  min-width: 30px;
-}
-
-.mission-title {
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.mission-description {
-  font-size: 13px;
-  color: var(--text-soft);
-}
-
-.mission-reward {
-  text-align: right;
-}
-
-.mission-reward button {
-  padding: 8px 16px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--green), #18c975);
-  color: #03120b;
-  font-size: 14px;
-  font-weight: 850;
-  transition: transform 0.15s ease, filter 0.2s ease;
-}
-
-.mission-reward button:hover {
-  filter: brightness(1.1);
-}
-
-.mission-reward button:active {
-  transform: scale(0.95);
-}
-
-.mission-reward button:disabled {
-  background: rgba(200, 200, 200, 0.2);
-  color: var(--text-muted);
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-/* MISSION PROGRESS */
-.mission-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 8px;
-}
-
-.mission-progress-track {
-  width: 100%;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  overflow: hidden;
-}
-
-.mission-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--green), var(--cyan));
-  border-radius: inherit;
-  transition: width 0.3s ease;
-}
-
-.mission-progress > span {
-  font-size: 12px;
-  color: var(--text-soft);
-}
-
-/* WITHDRAWAL SECTION (placeholder) */
-.withdrawal-section {
-  margin-bottom: 18px;
-  padding: 24px;
-  border-radius: var(--radius-large);
-  background: linear-gradient(145deg, #0a1b2c, #071321);
-  border: 1px solid var(--border);
-}
-
-.withdrawal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.withdrawal-title {
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.withdrawal-icon {
-  font-size: 28px;
-}
-
-.coin-to-rs {
-  padding: 16px;
-  background: rgba(9, 24, 39, 0.8);
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.coin-to-rs-label {
-  font-size: 13px;
-  color: var(--text-soft);
-  margin-bottom: 6px;
-}
-
-.coin-to-rs-rate {
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--cyan);
-}
-
-.withdrawal-input-group {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.withdrawal-input {
-  flex: 1;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(9, 24, 39, 0.8);
-  border: 1px solid var(--border);
-  color: var(--text-main);
-  font-size: 14px;
-}
-
-.withdrawal-input::placeholder {
-  color: var(--text-muted);
-}
-
-.withdrawal-btn {
-  padding: 12px 20px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--blue), #1a66ff);
-  color: white;
-  font-weight: 850;
-  font-size: 14px;
-  transition: transform 0.15s ease, filter 0.2s ease;
-}
-
-.withdrawal-btn:hover {
-  filter: brightness(1.1);
-}
-
-.withdrawal-btn:active {
-  transform: scale(0.95);
-}
-
-.withdrawal-btn:disabled {
-  background: rgba(200, 200, 200, 0.2);
-  color: var(--text-muted);
-  cursor: not-allowed;
-  opacity: 0.5;
 }
