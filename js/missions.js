@@ -342,9 +342,12 @@
         </div>
 
         <div class="task-stat">
-          👥 ${referralCount} referrals
-        </div>
-      </div>
+  👥 ${referralCount} verified referrals
+</div>
+
+<div class="task-reward-preview">
+  🪙 1 Referral = 1,000 Coins
+</div>
 
       <div class="mission-reward">
         <button
