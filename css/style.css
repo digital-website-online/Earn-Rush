@@ -2083,3 +2083,9 @@ select:focus-visible {
     padding: 10px 12px;
   }
 }
+.task-reward-preview {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #39ff88;
+}
