@@ -1975,3 +1975,111 @@ select:focus-visible {
     transition: none !important;
   }
 }
+/* =========================================================
+   EARNRUSH — TWO TASK CARDS
+========================================================= */
+
+.earnrush-task-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 22px;
+}
+
+.earnrush-task-card {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.earnrush-task-card .mission-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-stat {
+  margin-top: 7px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cyan, #36f5ff);
+}
+
+.ad-reward-text {
+  color: #39ff88;
+}
+
+.task-action-btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 16px;
+  min-width: 105px;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    transform .18s ease,
+    filter .18s ease,
+    box-shadow .18s ease;
+}
+
+.task-action-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.task-action-btn:active {
+  transform: scale(.96);
+}
+
+.share-action-btn {
+  color: #06130c;
+  background: linear-gradient(
+    135deg,
+    #36f58b,
+    #18c975
+  );
+  box-shadow:
+    0 8px 22px rgba(24, 201, 117, .2);
+}
+
+.ad-action-btn {
+  color: #06131a;
+  background: linear-gradient(
+    135deg,
+    #36f5ff,
+    #18b9ff
+  );
+  box-shadow:
+    0 8px 22px rgba(24, 185, 255, .2);
+}
+
+.missions-subtitle {
+  margin: 8px 0 12px;
+  font-size: 17px;
+  font-weight: 950;
+  color: #fff;
+}
+
+.referral-tier-card {
+  width: 100%;
+}
+
+/* Mobile */
+
+@media (max-width: 650px) {
+  .earnrush-task-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .earnrush-task-card {
+    padding: 14px;
+  }
+
+  .task-action-btn {
+    min-width: 96px;
+    padding: 10px 12px;
+  }
+}
