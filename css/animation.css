@@ -1,38 +1,68 @@
+/* =========================================================
+   EARNRUSH — PREMIUM ANIMATION SYSTEM
+   Version 4.0
+========================================================= */
 
-/* =========================================
-   EARNRUSH — ANIMATIONS
-========================================= */
 
-/* Smooth reactor idle glow */
+/* =========================================================
+   1. GLOBAL MOTION VARIABLES
+========================================================= */
+
+:root {
+    --motion-fast: 0.16s;
+    --motion-normal: 0.28s;
+    --motion-smooth: 0.45s;
+    --motion-slow: 0.8s;
+}
+
+
+/* =========================================================
+   2. REACTOR IDLE SYSTEM
+========================================================= */
+
 .reactor-core {
-    animation: reactorPulse 2.2s ease-in-out infinite;
+    animation:
+        reactorPulse 2.4s ease-in-out infinite;
+    will-change: transform, box-shadow;
 }
 
 @keyframes reactorPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow:
-            0 0 30px rgba(57, 255, 136, 0.42),
-            0 0 80px rgba(40, 169, 255, 0.16);
+            0 0 28px rgba(57, 255, 136, 0.30),
+            0 0 65px rgba(39, 200, 255, 0.12),
+            inset 0 0 25px rgba(255, 255, 255, 0.06);
     }
 
     50% {
         box-shadow:
-            0 0 42px rgba(57, 255, 136, 0.58),
-            0 0 100px rgba(40, 169, 255, 0.22);
+            0 0 42px rgba(57, 255, 136, 0.52),
+            0 0 95px rgba(39, 200, 255, 0.22),
+            inset 0 0 32px rgba(255, 255, 255, 0.10);
     }
 }
 
 
-/* Reactor rings */
+/* =========================================================
+   3. REACTOR RINGS
+========================================================= */
+
 .reactor::before {
-    animation: ringRotate 8s linear infinite;
+    animation:
+        ringRotate 9s linear infinite;
+    will-change: transform;
 }
 
 .reactor::after {
-    animation: ringRotateReverse 12s linear infinite;
+    animation:
+        ringRotateReverse 13s linear infinite;
+    will-change: transform;
 }
 
 @keyframes ringRotate {
+
     from {
         transform: rotate(0deg);
     }
@@ -43,6 +73,7 @@
 }
 
 @keyframes ringRotateReverse {
+
     from {
         transform: rotate(360deg);
     }
@@ -53,81 +84,167 @@
 }
 
 
-/* Balance subtle glow */
+/* =========================================================
+   4. REACTOR ENERGY WAVE
+========================================================= */
+
+.reactor {
+    animation:
+        reactorFloat 4s ease-in-out infinite;
+}
+
+@keyframes reactorFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+
+/* =========================================================
+   5. BALANCE GLOW
+========================================================= */
+
 .balance-amount {
-    animation: balanceGlow 2.5s ease-in-out infinite;
+    animation:
+        balanceGlow 2.8s ease-in-out infinite;
 }
 
 @keyframes balanceGlow {
-    0%, 100% {
+
+    0%,
+    100% {
         text-shadow:
-            0 0 18px rgba(57, 255, 136, 0.18);
+            0 0 18px rgba(57, 255, 136, 0.15);
     }
 
     50% {
         text-shadow:
-            0 0 28px rgba(57, 255, 136, 0.34);
+            0 0 30px rgba(57, 255, 136, 0.34),
+            0 0 55px rgba(57, 255, 136, 0.10);
     }
 }
 
 
-/* Button breathing */
+/* =========================================================
+   6. TAP BUTTON ENERGY
+========================================================= */
+
 .tap-button {
-    animation: buttonGlow 2.5s ease-in-out infinite;
+    animation:
+        buttonGlow 2.6s ease-in-out infinite;
+    will-change: transform, box-shadow;
 }
 
 @keyframes buttonGlow {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow:
-            0 10px 30px rgba(57, 255, 136, 0.14);
+            0 10px 30px rgba(54, 245, 139, 0.14);
     }
 
     50% {
         box-shadow:
-            0 10px 38px rgba(57, 255, 136, 0.25);
+            0 14px 42px rgba(54, 245, 139, 0.28);
     }
 }
 
-
-/* Quick cards hover */
-.quick-card:hover {
+.tap-button:hover {
     transform: translateY(-2px);
-    border-color: rgba(40, 169, 255, 0.25);
+}
+
+.tap-button:active {
+    transform: scale(0.96);
 }
 
 
-/* Tap feedback class */
+/* =========================================================
+   7. QUICK ACTION MICRO MOTION
+========================================================= */
+
+.quick-card {
+    transition:
+        transform var(--motion-normal) ease,
+        border-color var(--motion-normal) ease,
+        box-shadow var(--motion-normal) ease;
+}
+
+.quick-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+        0 14px 35px rgba(0, 0, 0, 0.18);
+}
+
+.quick-card:active {
+    transform: scale(0.96);
+}
+
+
+/* =========================================================
+   8. MISSION CARD MOTION
+========================================================= */
+
+.mission-card,
+.reward-card {
+    transition:
+        transform var(--motion-normal) ease,
+        border-color var(--motion-normal) ease,
+        box-shadow var(--motion-normal) ease;
+}
+
+.mission-card:hover,
+.reward-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 16px 38px rgba(0, 0, 0, 0.18);
+}
+
+.mission-card:active,
+.reward-card:active {
+    transform: scale(0.985);
+}
+
+
+/* =========================================================
+   9. PROGRESS ANIMATION
+========================================================= */
+
+.xp-fill,
+.progress-fill,
+.mission-progress-fill,
+.reward-progress-fill {
+    transition:
+        width 0.55s cubic-bezier(.22, 1, .36, 1);
+}
+
+
+/* =========================================================
+   10. TAP POP
+========================================================= */
+
 .tap-pop {
-    animation: tapPop 0.18s ease-out;
+    animation:
+        tapPop 0.18s cubic-bezier(.2, .8, .2, 1);
 }
 
 @keyframes tapPop {
-    0% {
-        transform: scale(1);
-    }
 
-    50% {
-        transform: scale(0.91);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-
-/* Number gain animation */
-.balance-pop {
-    animation: balancePop 0.28s ease-out;
-}
-
-@keyframes balancePop {
     0% {
         transform: scale(1);
     }
 
     45% {
-        transform: scale(1.08);
+        transform: scale(0.89);
+    }
+
+    75% {
+        transform: scale(1.04);
     }
 
     100% {
@@ -136,39 +253,93 @@
 }
 
 
-/* Page entrance */
+/* =========================================================
+   11. BALANCE POP
+========================================================= */
+
+.balance-pop {
+    animation:
+        balancePop 0.30s cubic-bezier(.2, .8, .2, 1);
+}
+
+@keyframes balancePop {
+
+    0% {
+        transform: scale(1);
+    }
+
+    35% {
+        transform: scale(1.10);
+    }
+
+    65% {
+        transform: scale(0.98);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+/* =========================================================
+   12. SECTION ENTRANCE
+========================================================= */
+
 .game-header,
 .player-status,
 .balance-card,
+.xp-card,
 .reactor-section,
-.quick-actions {
-    animation: sectionEnter 0.6s ease both;
+.quick-actions,
+.missions-section,
+.rewards-section,
+.withdrawal-section {
+    animation:
+        sectionEnter 0.65s cubic-bezier(.22, 1, .36, 1) both;
 }
 
 .game-header {
-    animation-delay: 0.05s;
+    animation-delay: 0.04s;
 }
 
 .player-status {
-    animation-delay: 0.10s;
+    animation-delay: 0.08s;
 }
 
 .balance-card {
-    animation-delay: 0.16s;
+    animation-delay: 0.13s;
+}
+
+.xp-card {
+    animation-delay: 0.18s;
 }
 
 .reactor-section {
-    animation-delay: 0.22s;
+    animation-delay: 0.23s;
 }
 
 .quick-actions {
-    animation-delay: 0.28s;
+    animation-delay: 0.30s;
+}
+
+.missions-section {
+    animation-delay: 0.36s;
+}
+
+.rewards-section {
+    animation-delay: 0.42s;
+}
+
+.withdrawal-section {
+    animation-delay: 0.48s;
 }
 
 @keyframes sectionEnter {
+
     from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(18px);
     }
 
     to {
@@ -178,15 +349,238 @@
 }
 
 
-/* Accessibility */
+/* =========================================================
+   13. STAGGERED CARDS
+========================================================= */
+
+.mission-card:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.mission-card:nth-child(2) {
+    animation-delay: 0.10s;
+}
+
+.mission-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.mission-card:nth-child(4) {
+    animation-delay: 0.20s;
+}
+
+.mission-card:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.mission-card:nth-child(6) {
+    animation-delay: 0.30s;
+}
+
+.mission-card:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+
+/* =========================================================
+   14. REWARD POPUP
+========================================================= */
+
+.reward-popup {
+    animation:
+        rewardFloat 0.7s cubic-bezier(.22, 1, .36, 1) forwards;
+    pointer-events: none;
+}
+
+@keyframes rewardFloat {
+
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, 15px)
+            scale(0.72);
+    }
+
+    25% {
+        opacity: 1;
+        transform:
+            translate(-50%, 0)
+            scale(1.08);
+    }
+
+    65% {
+        opacity: 1;
+        transform:
+            translate(-50%, -18px)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -55px)
+            scale(1.08);
+    }
+}
+
+
+/* =========================================================
+   15. LEVEL-UP FLASH
+========================================================= */
+
+.level-up-flash {
+    animation:
+        levelFlash 0.7s ease-out;
+}
+
+@keyframes levelFlash {
+
+    0% {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    25% {
+        opacity: 1;
+        transform: scale(1.06);
+    }
+
+    60% {
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.02);
+    }
+}
+
+
+/* =========================================================
+   16. COMBO ACTIVATION
+========================================================= */
+
+.combo-active {
+    animation:
+        comboPulse 0.45s ease-out;
+}
+
+@keyframes comboPulse {
+
+    0% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    45% {
+        transform: scale(1.14);
+        filter: brightness(1.25);
+    }
+
+    100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+}
+
+
+/* =========================================================
+   17. BUTTON PRESS FEEDBACK
+========================================================= */
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+    transition-duration: 0.08s;
+}
+
+
+/* =========================================================
+   18. LOADING PULSE
+========================================================= */
+
+.loading-pulse {
+    animation:
+        loadingPulse 1.3s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+
+    0%,
+    100% {
+        opacity: 0.45;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   19. GLOW PULSE UTILITY
+========================================================= */
+
+.glow-pulse {
+    animation:
+        glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.12);
+    }
+}
+
+
+/* =========================================================
+   20. MOBILE OPTIMIZATION
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .reactor {
+        animation-duration: 4.5s;
+    }
+
+    .reactor-core {
+        animation-duration: 2.7s;
+    }
+
+    .balance-amount {
+        animation-duration: 3.2s;
+    }
+
+    .tap-button {
+        animation-duration: 3s;
+    }
+}
+
+
+/* =========================================================
+   21. REDUCED MOTION
+========================================================= */
+
 @media (prefers-reduced-motion: reduce) {
 
     *,
     *::before,
     *::after {
+
         animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
         animation-iteration-count: 1 !important;
+
+        scroll-behavior: auto !important;
+
         transition-duration: 0.01ms !important;
     }
-
 }
