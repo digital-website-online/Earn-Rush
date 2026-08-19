@@ -1391,68 +1391,94 @@ STEP 1 UI MICRO-INTERACTIONS
 })();
 </script>
 
-<!-- =========================================
-EARNRUSH MINI GAME OVERLAY STRUCTURE
-========================================== -->
-<div class="mg-overlay" id="miniGameOverlay">
-  <div class="mg-game">
-    
-    <!-- Top Bar -->
-    <div class="mg-topbar">
-      <button class="mg-back" id="mgClose">✕</button>
-      <div class="mg-balance">
-        🪙 Tokens: <span id="mgTokenBalance">0</span>
+  <!-- =======================================================
+     MINI GAME OVERLAY (Dual Panels & Live Feed)
+     ======================================================= -->
+  <div id="miniGameOverlay" class="mg-overlay">
+    <div class="mg-container">
+      <div class="mg-header">
+        <button id="mgClose" class="mg-back">← Back</button>
+        <h2>EarnRush Aviator</h2>
+        <div class="mg-wallet-badge">Tokens: <span id="mgTokenBalance">300</span></div>
       </div>
-    </div>
 
-    <!-- Main Game Area -->
-    <div class="mg-main">
+      <!-- Graph Screen -->
+      <div class="mg-screen">
+        <div class="mg-curve"></div>
+        <div id="mgRoundNumber" class="mg-round-tag">ROUND 1</div>
+        <div id="mgMultiplier" class="mg-multiplier">1.00x</div>
+        <div id="mgStatus" class="mg-status">Ready for next round</div>
+        <div id="mgPlane" class="mg-plane">✈️</div>
+      </div>
+
+      <!-- History Bar -->
       <div class="mg-history" id="mgHistory"></div>
 
-      <div class="mg-stage">
-        <div class="mg-grid"></div>
-        <div class="mg-cloud one"></div>
-        <div class="mg-cloud two"></div>
-        <div class="mg-flight-line"></div>
-        <div class="mg-plane" id="mgPlane">✈️</div>
-        
-        <div class="mg-multiplier" id="mgMultiplier">1.00x</div>
-        <div class="mg-status" id="mgStatus">Ready</div>
-
-        <div class="mg-players">
-          <div class="mg-player-box">
-            👥 Active: <b id="mgLivePlayers">120</b>
+      <!-- Dual Betting Panels (Panel 1 & Panel 2) -->
+      <div class="mg-betting-container">
+        <!-- Panel 1 -->
+        <div class="mg-controls" data-panel-id="1">
+          <div class="mg-bet-row-top">
+            <div class="mg-stepper">
+              <button class="mg-step-btn" data-action="minus" data-panel="1">-</button>
+              <input type="number" id="mgBetInput1" class="mg-step-input" value="100" min="100" max="10000">
+              <button class="mg-step-btn" data-action="plus" data-panel="1">+</button>
+            </div>
+            <div class="mg-token-buttons">
+              <button data-mg-token="100" data-panel="1">100</button>
+              <button data-mg-token="500" data-panel="1">500</button>
+              <button data-mg-token="1000" data-panel="1">1k</button>
+              <button data-mg-token="5000" data-panel="1">5k</button>
+            </div>
           </div>
+          <button id="mgStart1" class="mg-start" data-panel="1">BET (100)</button>
+        </div>
+
+        <!-- Panel 2 -->
+        <div class="mg-controls" data-panel-id="2">
+          <div class="mg-bet-row-top">
+            <div class="mg-stepper">
+              <button class="mg-step-btn" data-action="minus" data-panel="2">-</button>
+              <input type="number" id="mgBetInput2" class="mg-step-input" value="100" min="100" max="10000">
+              <button class="mg-step-btn" data-action="plus" data-panel="2">+</button>
+            </div>
+            <div class="mg-token-buttons">
+              <button data-mg-token="100" data-panel="2">100</button>
+              <button data-mg-token="500" data-panel="2">500</button>
+              <button data-mg-token="1000" data-panel="2">1k</button>
+              <button data-mg-token="5000" data-panel="2">5k</button>
+            </div>
+          </div>
+          <button id="mgStart2" class="mg-start" data-panel="2">BET (100)</button>
+        </div>
+      </div>
+
+      <!-- Tabs & Live Bets Feed -->
+      <div class="mg-tabs">
+        <button data-mg-tab="current" class="active">All Bets</button>
+        <button data-mg-tab="history">History</button>
+        <button data-mg-tab="statistics">Stats</button>
+      </div>
+
+      <div class="mg-panel-container">
+        <div data-mg-panel="current" class="mg-panel">
+          <div class="mg-live-bets-header">
+            <span>Active Players (<span id="mgLivePlayers">136</span>)</span>
+            <span>Total Bets</span>
+          </div>
+          <div class="mg-live-bets-list" id="mgLiveBetsList">
+            <!-- Dynamic Simulated Live Bets -->
+          </div>
+        </div>
+        <div data-mg-panel="history" class="mg-panel" style="display:none;">
+          <div class="mg-history-list" id="mgHistoryList"></div>
+        </div>
+        <div data-mg-panel="statistics" class="mg-panel" style="display:none;">
+          <div id="mgStatistics" class="mg-statistics"></div>
         </div>
       </div>
     </div>
-
-    <!-- Controls Panel -->
-    <div class="mg-controls">
-      <div class="mg-token-info">
-        <span>EarnRush Coins: <strong id="mgCoinBalance">0</strong></span>
-        <span id="mgConversionRate">1,000 Coins = 100 Tokens</span>
-      </div>
-
-      <div class="mg-control-row" style="margin-bottom: 8px;">
-        <input type="number" id="mgCoinConvert" class="mg-input" placeholder="Coins to convert (min 1000)">
-        <button class="mg-action" id="mgConvertCoins">Convert Coins</button>
-      </div>
-
-      <div class="mg-control-row">
-        <button class="mg-action cashout" id="mgStart">START ROUND</button>
-      </div>
-
-      <div class="mg-settings">
-        <button id="mgSoundToggle">🔊 Sound On</button>
-        <button id="mgAnimationToggle">✨ Animation On</button>
-        <button id="mgRules">Rules</button>
-        <button id="mgFairness">Fairness</button>
-      </div>
-    </div>
-
   </div>
-</div>
 
 <!-- Popup Modal -->
 <div class="mg-popup" id="mgPopup">
