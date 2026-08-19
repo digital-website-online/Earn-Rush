@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -768,9 +769,9 @@ QUICK ACTIONS
 </section>
 
 <!-- =========================================
-MINI GAME CARD
+MINI GAME CARD (Scrolls to mini game section)
 ========================================== -->
-<div class="mg-card" id="miniGameCard" style="margin: 15px 0; padding: 16px; border-radius: 18px; background: linear-gradient(145deg, rgba(10,28,45,0.96), rgba(6,18,31,0.96)); border: 1px solid rgba(39,200,255,0.20); cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+<div class="mg-card" id="miniGameCard" onclick="document.getElementById('miniGameSection').scrollIntoView({ behavior: 'smooth' });" style="margin: 15px 0; padding: 16px; border-radius: 18px; background: linear-gradient(145deg, rgba(10,28,45,0.96), rgba(6,18,31,0.96)); border: 1px solid rgba(39,200,255,0.20); cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
   <div class="mg-card-content" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
     <div class="mg-card-left">
       <span class="mg-card-label" style="font-size: 9px; font-weight: 950; color: var(--cyan); letter-spacing: 1px;">🚀 MINI GAME</span>
@@ -1028,8 +1029,8 @@ WITHDRAWAL SECTION
         id="bankSelect"
         style="
           width:100%;
-          padding:12px;
-          border-radius:12px;
+          padding:12
+border-radius:12px;
           background:rgba(9,24,39,0.8);
           border:1px solid var(--border);
           color:var(--text-main);
@@ -1269,8 +1270,10 @@ REWARDS SECTION
   </div>
 
 </section>
-  <!-- =========================================
-MINI GAME
+
+
+<!-- =========================================
+MINI GAME SECTION (Target for mini-game.js)
 ========================================== -->
 <section
   id="miniGameSection"
@@ -1305,180 +1308,73 @@ MINI GAME
 
 <!-- =========================================
 STEP 1 UI MICRO-INTERACTIONS
-Only targets the new UI elements.
-Does NOT modify referral/game/withdrawal logic.
 ========================================== -->
 <script>
 (function () {
   "use strict";
-   /* =========================================
-   LIVE PLAYER DISPLAY — SMOOTH COUNTER
-========================================== */
 
-const liveCounter =
-  document.getElementById("liveUsersCounter");
+  /* =========================================
+     LIVE PLAYER DISPLAY — SMOOTH COUNTER
+  ========================================== */
+  const liveCounter = document.getElementById("liveUsersCounter");
 
-if (liveCounter) {
+  if (liveCounter) {
+    let liveTimer = null;
+    let currentNumber = Math.floor(Math.random() * 51) + 200;
 
-  let liveTimer = null;
+    liveCounter.textContent = currentNumber;
 
-  let currentNumber =
-    Math.floor(Math.random() * 51) + 200;
+    const updateLiveCounter = function () {
+      const step = Math.floor(Math.random() * 2) + 1;
+      const direction = Math.random() < 0.55 ? 1 : -1;
+      let nextNumber = currentNumber + (step * direction);
 
+      nextNumber = Math.max(200, Math.min(350, nextNumber));
 
-  /* Initial number */
-  liveCounter.textContent =
-    currentNumber;
-
-
-  const updateLiveCounter = function () {
-
-    /* Only 1–2 players change */
-    const step =
-      Math.floor(Math.random() * 2) + 1;
-
-
-    /* Natural increase/decrease */
-    const direction =
-      Math.random() < 0.55 ? 1 : -1;
-
-
-    let nextNumber =
-      currentNumber +
-      (step * direction);
-
-
-    /* Keep number between 200–350 */
-    nextNumber =
-      Math.max(
-        200,
-        Math.min(350, nextNumber)
-      );
-
-
-    /* Boundary protection */
-    if (nextNumber === currentNumber) {
-
-      nextNumber =
-        currentNumber < 350
-          ? currentNumber + 1
-          : currentNumber - 1;
-    }
-
-
-    currentNumber =
-      nextNumber;
-
-
-    /* Smooth visual animation */
-    liveCounter.classList.remove(
-      "is-changing"
-    );
-
-    void liveCounter.offsetWidth;
-
-    liveCounter.textContent =
-      currentNumber;
-
-    liveCounter.classList.add(
-      "is-changing"
-    );
-  };
-
-
-  /*
-   * Change every 3–6 seconds.
-   * Never makes a large random jump.
-   */
-  function scheduleLiveUpdate() {
-
-    const delay =
-      Math.floor(
-        Math.random() * 3000
-      ) + 3000;
-
-
-    liveTimer =
-      window.setTimeout(() => {
-
-        updateLiveCounter();
-
-        scheduleLiveUpdate();
-
-      }, delay);
-  }
-
-
-  scheduleLiveUpdate();
-
-
-  window.addEventListener(
-    "beforeunload",
-    function () {
-
-      if (liveTimer) {
-        window.clearTimeout(
-          liveTimer
-        );
+      if (nextNumber === currentNumber) {
+        nextNumber = currentNumber < 350 ? currentNumber + 1 : currentNumber - 1;
       }
 
-    },
-    { once: true }
-  );
-   }
+      currentNumber = nextNumber;
 
-  
+      liveCounter.classList.remove("is-changing");
+      void liveCounter.offsetWidth;
+      liveCounter.textContent = currentNumber;
+      liveCounter.classList.add("is-changing");
+    };
 
-    /*
-     * Existing withdrawal.js may also update this
-     * same element. This interval is intentionally
-     * conservative and will be removed later when
-     * the live-counter logic is consolidated into
-     * withdrawal.js.
-     */
-    liveTimer = window.setInterval(
-      updateLiveCounter,
-      5200 + Math.floor(Math.random() * 3600)
-    );
+    function scheduleLiveUpdate() {
+      const delay = Math.floor(Math.random() * 3000) + 3000;
+      liveTimer = window.setTimeout(() => {
+        updateLiveCounter();
+        scheduleLiveUpdate();
+      }, delay);
+    }
+
+    scheduleLiveUpdate();
 
     window.addEventListener(
       "beforeunload",
       function () {
         if (liveTimer) {
-          window.clearInterval(liveTimer);
+          window.clearTimeout(liveTimer);
         }
       },
       { once: true }
     );
   }
 
-
   /* =========================================
      COIN DISPLAY MICRO ANIMATION
-     Does not change balance value.
-     Existing game.js remains responsible for
-     actual coin calculations.
   ========================================== */
-
-  const balanceElement =
-    document.getElementById("balance");
+  const balanceElement = document.getElementById("balance");
 
   if (balanceElement) {
-
-    const balanceObserver =
-      new MutationObserver(function () {
-
-        balanceElement.classList.remove(
-          "is-collecting"
-        );
-
-        void balanceElement.offsetWidth;
-
-        balanceElement.classList.add(
-          "is-collecting"
-        );
-
-      });
+    const balanceObserver = new MutationObserver(function () {
+      balanceElement.classList.remove("is-collecting");
+      void balanceElement.offsetWidth;
+      balanceElement.classList.add("is-collecting");
+    });
 
     balanceObserver.observe(
       balanceElement,
@@ -1495,54 +1391,13 @@ if (liveCounter) {
 
 
 <!-- =========================================
-JAVASCRIPT
-IMPORTANT:
-game.js must load before missions.js
-and rewards.js.
+JAVASCRIPT SCRIPTS
 ========================================== -->
-
 <script src="js/game.js"></script>
 <script src="js/missions.js"></script>
 <script src="js/sharing.js"></script>
 <script src="js/withdrawal.js"></script>
 <script src="js/mini-game.js"></script>
-
-<!-- Mini Game Overlay Container -->
-<div class="mg-overlay" id="miniGameOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,17,30,0.95); z-index: 99999; padding: 20px; box-sizing: border-box;">
-  <div class="mg-game" style="max-width: 400px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-    <div class="mg-topbar" style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px;">
-      <button class="mg-mg-back" id="mgClose" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer;">← Back</button>
-      <div class="mg-balance" style="color: var(--cyan); font-weight: 900;">Tokens: <span id="mgTokenBalance">0</span></div>
-    </div>
-    <div class="mg-stage" style="text-align: center; position: relative; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-      <div class="mg-multiplier" id="mgMultiplier" style="font-size: 42px; font-weight: 950; color: white; margin-bottom: 10px;">1.00x</div>
-      <div class="mg-plane" id="mgPlane" style="font-size: 45px; transition: transform 0.2s;">✈️</div>
-      <div class="mg-status" id="mgStatus" style="font-size: 14px; color: var(--text-soft); margin-top: 15px;">Ready to Launch</div>
-    </div>
-    <div class="mg-controls" style="padding-bottom: 20px;">
-      <button class="mg-action" id="mgStart" style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--blue), #1a66ff); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer;">Start Round</button>
-    </div>
-  </div>
-</div>
-  <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const miniGameCard = document.getElementById("miniGameCard");
-    const miniGameOverlay = document.getElementById("miniGameOverlay");
-    const mgClose = document.getElementById("mgClose");
-
-    if (miniGameCard && miniGameOverlay) {
-        miniGameCard.addEventListener("click", function() {
-            miniGameOverlay.style.display = "block";
-        });
-    }
-
-    if (mgClose && miniGameOverlay) {
-        mgClose.addEventListener("click", function() {
-            miniGameOverlay.style.display = "none";
-        });
-    }
-});
-  </script>
 
 </body>
 </html>
