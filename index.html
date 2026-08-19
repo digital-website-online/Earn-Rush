@@ -1389,6 +1389,77 @@ STEP 1 UI MICRO-INTERACTIONS
 })();
 </script>
 
+<!-- =========================================
+EARNRUSH MINI GAME OVERLAY STRUCTURE
+========================================== -->
+<div class="mg-overlay" id="miniGameOverlay">
+  <div class="mg-game">
+    
+    <!-- Top Bar -->
+    <div class="mg-topbar">
+      <button class="mg-back" id="mgClose">✕</button>
+      <div class="mg-balance">
+        🪙 Tokens: <span id="mgTokenBalance">0</span>
+      </div>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="mg-main">
+      <div class="mg-history" id="mgHistory"></div>
+
+      <div class="mg-stage">
+        <div class="mg-grid"></div>
+        <div class="mg-cloud one"></div>
+        <div class="mg-cloud two"></div>
+        <div class="mg-flight-line"></div>
+        <div class="mg-plane" id="mgPlane">✈️</div>
+        
+        <div class="mg-multiplier" id="mgMultiplier">1.00x</div>
+        <div class="mg-status" id="mgStatus">Ready</div>
+
+        <div class="mg-players">
+          <div class="mg-player-box">
+            👥 Active: <b id="mgLivePlayers">120</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="mg-controls">
+      <div class="mg-token-info">
+        <span>EarnRush Coins: <strong id="mgCoinBalance">0</strong></span>
+        <span id="mgConversionRate">1,000 Coins = 100 Tokens</span>
+      </div>
+
+      <div class="mg-control-row" style="margin-bottom: 8px;">
+        <input type="number" id="mgCoinConvert" class="mg-input" placeholder="Coins to convert (min 1000)">
+        <button class="mg-action" id="mgConvertCoins">Convert Coins</button>
+      </div>
+
+      <div class="mg-control-row">
+        <button class="mg-action cashout" id="mgStart">START ROUND</button>
+      </div>
+
+      <div class="mg-settings">
+        <button id="mgSoundToggle">🔊 Sound On</button>
+        <button id="mgAnimationToggle">✨ Animation On</button>
+        <button id="mgRules">Rules</button>
+        <button id="mgFairness">Fairness</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Popup Modal -->
+<div class="mg-popup" id="mgPopup">
+  <div class="mg-popup-box">
+    <h3>Notice</h3>
+    <p>Message text here...</p>
+    <button class="mg-popup-close" id="mgPopupClose">Close</button>
+  </div>
+</div>
 
 <!-- =========================================
 JAVASCRIPT SCRIPTS
