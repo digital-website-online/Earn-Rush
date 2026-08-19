@@ -2089,3 +2089,200 @@ select:focus-visible {
   font-weight: 900;
   color: #39ff88;
 }
+/* =========================================================
+   AVIATOR PROFESSIONAL REDESIGN - CSS
+   ========================================================= */
+
+/* Red Ray Background for Graph Screen */
+.mg-screen {
+  position: relative;
+  height: 220px;
+  background: radial-gradient(circle at 10% 90%, rgba(220, 38, 38, 0.25) 0%, rgba(15, 23, 42, 0.95) 60%),
+              linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);
+  border-radius: 16px;
+  margin: 10px 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Red Growth Curve Line */
+.mg-curve {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(to top right, rgba(239, 68, 68, 0.3), transparent);
+  clip-path: polygon(0 100%, 0 80%, 30% 65%, 60% 40%, 100% 10%);
+  z-index: 1;
+}
+
+.mg-multiplier {
+  font-size: 44px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+  z-index: 3;
+}
+
+.mg-multiplier.crashed {
+  color: #ef4444;
+}
+
+.mg-plane {
+  position: absolute;
+  font-size: 32px;
+  left: 15%;
+  bottom: 20%;
+  transition: left 0.1s linear, bottom 0.1s linear, transform 0.1s ease;
+  z-index: 2;
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8));
+}
+
+/* Dual Betting Panels Wrapper */
+.mg-betting-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.mg-controls {
+  background: #131c2e;
+  padding: 10px 14px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Bet Amount Controls (+ / - & Input) */
+.mg-bet-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mg-stepper {
+  display: flex;
+  align-items: center;
+  background: #0b1120;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mg-step-btn {
+  background: #1e293b;
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mg-step-input {
+  width: 60px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.mg-token-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.mg-token-buttons button {
+  background: #0b1120;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mg-token-buttons button.active {
+  background: #22c55e;
+  color: #000;
+  border-color: #22c55e;
+}
+
+.mg-start {
+  width: 100%;
+  padding: 10px;
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.mg-start.cashout {
+  background: #f59e0b;
+}
+
+.mg-start:disabled {
+  background: #334155;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Live Bets Feed Section (Bottom) */
+.mg-live-bets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 6px;
+}
+
+.mg-live-bets-list {
+  max-height: 110px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mg-live-bet-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #131c2e;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.mg-live-bet-item .user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mg-live-bet-item .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+}
