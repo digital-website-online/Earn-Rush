@@ -1,29 +1,21 @@
 /* =========================================================
-   EARNRUSH MINI GAME - ARCADE TOKEN ENGINE (PERFORMANCE PASS)
+   EARNRUSH MINI GAME - ARCADE TOKEN ENGINE (UPGRADED)
    -----------------------------------------------------------
    - Coins -> Arcade Tokens is ONE-WAY ONLY.
-   - Arcade Tokens are a closed-loop game currency: they cannot
-     be converted back to Coins and never touch the withdrawal
-     system. They exist purely for entertainment inside the
-     mini-game.
-   - "Active players" / "live bets" are simulated demo activity
-     for atmosphere only and are labeled as such in the UI.
+   - Arcade Tokens are a closed-loop game currency (never touch withdrawal).
+   - Continuous ambient plane animation in idle state.
    ========================================================= */
 
 (() => {
   "use strict";
 
-  // Guard against the script being included more than once (which
-  // previously caused duplicate listeners/timers and could corrupt
-  // the saved token balance).
   if (window.__earnRushMiniGameLoaded) return;
   window.__earnRushMiniGameLoaded = true;
 
   const CONFIG = {
-    MIN_BET: 100,
-    MAX_BET: 10000,
-    // 1,000 Coins = 100 Arcade Tokens  ->  10 Coins per Token
-    COINS_PER_TOKEN: 10,
+    MIN_BET: 10,
+    MAX_BET: 5000,
+    COINS_PER_TOKEN: 10, // 1,000 Coins = 100 Arcade Tokens
     MIN_CONVERT_COINS: 1000,
     START_MULTIPLIER: 1.00,
     DISPLAY_MAX_MULTIPLIER: 100,
@@ -48,10 +40,6 @@
 
   const DEMO_NAMES = ["Ali_Khan", "Zeeshan99", "FastRunner", "Ahmed_Dev", "User_771", "PixelPilot"];
 
-  /* ---------------------------------------------------------
-     STATE
-  --------------------------------------------------------- */
-
   const state = {
     open: false,
     round: "waiting",
@@ -70,54 +58,32 @@
     animationFrame: null,
     roundTimer: null,
     playerTimer: null,
-
-    // cached stage geometry for the current flight, measured once
-    // per round instead of every animation frame
     stageRect: null,
-
-    // last-painted values so we skip redundant DOM writes
     lastMultiplierText: "",
     lastPlaneX: null,
     lastPlaneY: null,
   };
 
-  /* ---------------------------------------------------------
-     PERSISTENCE (Arcade Tokens only — never touches Coins)
-  --------------------------------------------------------- */
-
   function loadSavedTokens() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      // A saved value of "0" is a perfectly valid, intentional
-      // balance and must NOT fall back to the default. Only an
-      // absent key (first-ever visit) uses the starter amount.
       if (saved !== null && saved !== "" && !isNaN(saved)) {
         return Math.max(0, Math.floor(Number(saved)));
       }
-    } catch (e) {
-      // localStorage unavailable (private mode, etc.) — fall through
-    }
-    return 300; // starter balance for brand-new players only
+    } catch (e) {}
+    return 300;
   }
 
   function saveTokensToStorage() {
     try {
       localStorage.setItem(STORAGE_KEY, String(state.gameTokens));
-    } catch (e) {
-      // storage unavailable — balance will just live in-memory for this session
-    }
+    } catch (e) {}
   }
-
-  /* ---------------------------------------------------------
-     DOM CACHE
-  --------------------------------------------------------- */
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const byId = id => document.getElementById(id);
 
-  // Populated once in init() so hot paths (the animation loop) never
-  // touch the DOM to look elements up.
   const dom = {};
 
   function cacheDom() {
@@ -128,8 +94,9 @@
     dom.plane = byId("mgPlane");
     dom.stage = dom.plane ? dom.plane.closest(".mg-screen") : null;
     dom.history = byId("mgHistory");
+    dom.historyBar = byId("mgHistoryBar");
     dom.tokenBalance = byId("mgTokenBalance");
-    dom.coinBalance = byId("mgCoinBalance") || byId("miniGameCoins");
+    dom.coinBalance = byId("mgCoinBalance") || byId("miniGameCoins") || byId("balance");
     dom.livePlayers = byId("mgLivePlayers");
     dom.liveBetsList = byId("mgLiveBetsList");
     dom.statistics = byId("mgStatistics");
@@ -144,10 +111,6 @@
     dom.convertMsg = byId("mgConvertMsg");
   }
 
-  /* ---------------------------------------------------------
-     BALANCE HELPERS
-  --------------------------------------------------------- */
-
   function getTokens() {
     return Math.max(0, Math.floor(Number(state.gameTokens) || 0));
   }
@@ -158,9 +121,6 @@
     updateWalletUI();
   }
 
-  // Reads the REAL, existing Coins balance. This is the single
-  // source of truth for Coins — the mini-game never keeps its own
-  // parallel Coins variable.
   function getEarnRushCoins() {
     try {
       if (window.EarnRushGame && typeof window.EarnRushGame.getCoins === "function") {
@@ -171,22 +131,30 @@
       }
       const stored = localStorage.getItem("earnrush_coins");
       if (stored !== null) return Number(stored) || 0;
+      const balanceEl = byId("balance");
+      if (balanceEl) {
+        const val = parseInt(balanceEl.textContent.replace(/,/g, ""), 10);
+        if (!isNaN(val)) return val;
+      }
     } catch (e) {}
     return 0;
   }
 
-  // Deducts Coins through the existing game API when available so
-  // there is one reliable source of truth. This is ONLY ever called
-  // with a positive amount from the converter (Coins -> Tokens is
-  // one-way, so Coins are only ever spent here, never added back).
   function spendEarnRushCoins(amount) {
     try {
       if (window.EarnRushGame && typeof window.EarnRushGame.addCoins === "function") {
         window.EarnRushGame.addCoins(-amount);
+        updateWalletUI();
         return true;
       }
       const current = getEarnRushCoins();
-      localStorage.setItem("earnrush_coins", String(Math.max(0, current - amount)));
+      const updated = Math.max(0, current - amount);
+      localStorage.setItem("earnrush_coins", String(updated));
+      const balanceEl = byId("balance");
+      if (balanceEl) {
+        balanceEl.textContent = updated.toLocaleString();
+      }
+      updateWalletUI();
       return true;
     } catch (e) {
       return false;
@@ -199,15 +167,11 @@
 
   function updateWalletUI() {
     if (dom.tokenBalance) dom.tokenBalance.textContent = fmt(getTokens());
-    if (dom.coinBalance) dom.coinBalance.textContent = fmt(getEarnRushCoins());
+    const realCoins = getEarnRushCoins();
+    if (dom.coinBalance) dom.coinBalance.textContent = fmt(realCoins);
+    const dashCoins = byId("mgDashCoins");
+    if (dashCoins) dashCoins.textContent = fmt(realCoins);
   }
-
-  /* ---------------------------------------------------------
-     CONVERTER — Coins -> Arcade Tokens (ONE WAY ONLY)
-     There is intentionally no Tokens -> Coins path anywhere in
-     this file. Arcade Tokens cannot be withdrawn or converted
-     back once earned/converted.
-  --------------------------------------------------------- */
 
   function updateConvertPreview() {
     if (!dom.convertInput || !dom.convertPreview) return;
@@ -269,10 +233,6 @@
     }
   }
 
-  /* ---------------------------------------------------------
-     OPEN / CLOSE
-  --------------------------------------------------------- */
-
   function openGame() {
     state.open = true;
     dom.overlay?.classList.add("active");
@@ -283,6 +243,7 @@
     renderHistory();
     renderStatistics();
     startLivePlayerTimer();
+    dom.stage?.classList.add("is-idle");
   }
 
   function closeGame() {
@@ -291,10 +252,6 @@
     document.body.classList.remove("mg-open");
     stopLivePlayerTimer();
   }
-
-  /* ---------------------------------------------------------
-     BET CONTROLS
-  --------------------------------------------------------- */
 
   function setupBetControls() {
     [1, 2].forEach(panelId => {
@@ -311,8 +268,6 @@
       const container = $(`[data-panel-id="${panelId}"]`);
       if (!container) return;
 
-      // Event delegation: one listener per panel instead of one per
-      // button, and it can't be attached twice by accident.
       container.addEventListener("click", (e) => {
         const stepBtn = e.target.closest(".mg-step-btn");
         if (stepBtn) {
@@ -367,12 +322,8 @@
   }
 
   function showTokenWarning() {
-    if (dom.status) dom.status.textContent = "Not enough Arcade Tokens — convert more Coins to play.";
+    if (dom.status) dom.status.textContent = "Not enough Arcade Tokens — convert Coins above.";
   }
-
-  /* ---------------------------------------------------------
-     FLIGHT / ANIMATION LOOP (performance-critical path)
-  --------------------------------------------------------- */
 
   function beginFlight() {
     state.round = "running";
@@ -381,11 +332,11 @@
     state.crashPoint = parseFloat((0.97 / (1 - Math.random())).toFixed(2));
     if (Math.random() < 0.03) state.crashPoint = 1.00;
 
+    dom.stage?.classList.remove("is-idle");
     if (dom.roundTag) dom.roundTag.textContent = `ROUND ${state.roundNumber}`;
     if (dom.status) dom.status.textContent = "Plane taking off...";
     dom.multiplier?.classList.remove("crashed");
 
-    // Measure stage geometry once per round — never inside the loop.
     state.stageRect = dom.stage ? dom.stage.getBoundingClientRect() : null;
     state.lastMultiplierText = "";
     state.lastPlaneX = null;
@@ -416,7 +367,6 @@
       const crashedThisFrame = state.multiplier >= state.crashPoint;
       if (crashedThisFrame) state.multiplier = state.crashPoint;
 
-      // Only touch the DOM while the overlay is actually visible.
       if (state.open) updateScreenUI();
 
       if (crashedThisFrame) {
@@ -433,7 +383,6 @@
     const val = Math.min(CONFIG.DISPLAY_MAX_MULTIPLIER, state.multiplier);
     const text = `${val.toFixed(2)}x`;
 
-    // Skip the write entirely if nothing actually changed on screen.
     if (dom.multiplier && text !== state.lastMultiplierText) {
       dom.multiplier.textContent = text;
       state.lastMultiplierText = text;
@@ -442,13 +391,10 @@
     if (dom.plane) {
       const pos = Math.min(75, (state.multiplier / 10) * 75);
       const rect = state.stageRect;
-      // Compute a transform offset from cached geometry (no layout
-      // read here) instead of writing to left/bottom every frame,
-      // which forces a reflow on every animation tick.
       const w = rect ? rect.width : 300;
-      const h = rect ? rect.height : 220;
-      const x = Math.round((pos / 75) * (w * 0.6));
-      const y = Math.round((pos / 75) * (h * 0.5));
+      const h = rect ? rect.height : 210;
+      const x = Math.round((pos / 75) * (w * 0.55));
+      const y = Math.round((pos / 75) * (h * 0.45));
 
       if (x !== state.lastPlaneX || y !== state.lastPlaneY) {
         dom.plane.style.transform = `translate3d(${x}px, ${-y}px, 0)`;
@@ -509,6 +455,7 @@
     if (dom.plane) {
       dom.plane.style.transform = "translate3d(0, 0, 0)";
     }
+    dom.stage?.classList.add("is-idle");
     state.lastPlaneX = null;
     state.lastPlaneY = null;
 
@@ -524,10 +471,6 @@
     });
   }
 
-  /* ---------------------------------------------------------
-     HISTORY / STATISTICS (rendered on demand, not every frame)
-  --------------------------------------------------------- */
-
   function addHistory(val) {
     state.history.unshift(val);
     state.history = state.history.slice(0, CONFIG.HISTORY_LIMIT);
@@ -535,21 +478,23 @@
   }
 
   function renderHistory() {
-    if (!dom.history) return;
-    if (state.history.length === 0) {
-      dom.history.innerHTML = `<div class="mg-history-item" style="width:100%; text-align:center; color:#888;">No rounds yet</div>`;
-      return;
+    if (dom.history) {
+      dom.history.innerHTML = state.history.length === 0 
+        ? `<div class="mg-history-item" style="width:100%; text-align:center; color:#888;">No rounds yet</div>`
+        : state.history.map(v => `<div class="mg-history-item ${v < 2 ? 'low' : v < 5 ? 'medium' : 'high'}">${v.toFixed(2)}x</div>`).join("");
     }
-    dom.history.innerHTML = state.history.map(v => `<div class="mg-history-item">${v.toFixed(2)}x</div>`).join("");
+    if (dom.historyBar) {
+      dom.historyBar.innerHTML = state.history.map(v => `<div class="mg-history-pill ${v < 2 ? 'low' : v < 5 ? 'medium' : 'high'}">${v.toFixed(2)}x</div>`).join("");
+    }
   }
 
   function renderStatistics() {
     if (!dom.statistics) return;
     dom.statistics.innerHTML = `
-      <div style="padding:10px; color:#fff;">
-        <div class="mg-statistics-title">In-game odds (arcade mechanic — for entertainment only, not real-money odds)</div>
+      <div style="padding:8px; color:#fff;">
+        <div class="mg-statistics-title">Arcade RTP Odds (Entertainment Only)</div>
         ${RTP_STATISTICS.map(s => `
-          <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px;">
+          <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:11px;">
             <span>Target: <b>${s.target.toFixed(2)}x</b></span>
             <span>Chance: <b>${s.probability}%</b></span>
           </div>
@@ -558,21 +503,15 @@
     `;
   }
 
-  // Simulated activity feed, clearly labeled as demo data — no real
-  // user data is read, generated, or displayed here.
   function renderLiveBets() {
     if (!dom.liveBetsList) return;
     dom.liveBetsList.innerHTML = DEMO_NAMES.map(name => `
-      <div class="mg-live-bet-item" style="display:flex; justify-content:space-between; padding:6px 10px; border-bottom:1px solid rgba(255,255,255,0.05);">
-        <div class="user" style="color:#fff;"><span class="dot" style="display:inline-block; width:6px; height:6px; background:#00ff88; border-radius:50%; margin-right:6px;"></span>${name} <span class="mg-demo-tag">DEMO</span></div>
-        <span style="color:#00ff88;">${Math.floor(Math.random() * 900 + 100)} Tokens</span>
+      <div style="display:flex; justify-content:space-between; padding:5px 8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:11px;">
+        <div style="color:#fff;"><span style="display:inline-block; width:6px; height:6px; background:#22c55e; border-radius:50%; margin-right:6px;"></span>${name} <span class="mg-demo-tag">DEMO</span></div>
+        <span style="color:#22c55e;">${Math.floor(Math.random() * 900 + 100)} Tokens</span>
       </div>
     `).join("");
   }
-
-  /* ---------------------------------------------------------
-     TABS
-  --------------------------------------------------------- */
 
   function setupTabs() {
     $$("[data-mg-tab]").forEach(btn => {
@@ -594,11 +533,6 @@
     });
   }
 
-  /* ---------------------------------------------------------
-     SIMULATED LIVE PLAYER COUNT (clearly demo data, timer only
-     runs while the game is actually open on screen)
-  --------------------------------------------------------- */
-
   function startLivePlayerTimer() {
     stopLivePlayerTimer();
     state.playerTimer = setInterval(() => {
@@ -616,10 +550,6 @@
     }
   }
 
-  /* ---------------------------------------------------------
-     INIT
-  --------------------------------------------------------- */
-
   function init() {
     cacheDom();
     setupBetControls();
@@ -635,8 +565,6 @@
 
     updateWalletUI();
 
-    // Release the animation frame / timers if the user navigates away,
-    // to avoid leaking a running rAF loop or interval.
     window.addEventListener("beforeunload", () => {
       cancelAnimationFrame(state.animationFrame);
       clearTimeout(state.roundTimer);
