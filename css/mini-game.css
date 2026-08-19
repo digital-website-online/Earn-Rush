@@ -477,3 +477,365 @@
     border-right:1px solid rgba(255,255,255,.06);
   }
 }
+/* =========================================================
+   EARNRUSH MINI GAME - FULL STYLING
+   ========================================================= */
+
+/* Body Lock when Game is Open */
+body.mg-open {
+  overflow: hidden !important;
+}
+
+/* Card Button in Dashboard */
+.mg-card {
+  background: linear-gradient(135deg, #101c29 0%, #1e293b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.mg-card:active {
+  transform: scale(0.98);
+}
+
+.mg-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mg-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Fullscreen Game Overlay */
+.mg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0b1120;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mg-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mg-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* Header */
+.mg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mg-back {
+  background: #1e293b;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.mg-header h2 {
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.mg-wallet-badge {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* Game Animation Screen */
+.mg-screen {
+  position: relative;
+  height: 220px;
+  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+  border-radius: 16px;
+  margin: 12px 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mg-round-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.mg-multiplier {
+  font-size: 42px;
+  font-weight: 900;
+  color: #22c55e;
+  transition: color 0.2s ease;
+  z-index: 2;
+}
+
+.mg-multiplier.crashed {
+  color: #ef4444;
+}
+
+.mg-status {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+  z-index: 2;
+}
+
+.mg-plane {
+  position: absolute;
+  font-size: 28px;
+  left: 15%;
+  bottom: 24%;
+  transition: left 0.1s linear, bottom 0.1s linear, transform 0.1s ease;
+  z-index: 1;
+}
+
+/* Controls & Betting */
+.mg-controls {
+  background: #1e293b;
+  padding: 14px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mg-bet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.mg-token-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.mg-token-buttons button {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+
+}
+
+.mg-token-buttons button.active {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+}
+
+.mg-start {
+  width: 100%;
+  padding: 14px;
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.mg-start:active {
+  transform: scale(0.98);
+}
+
+.mg-start.cashout {
+  background: #f59e0b;
+}
+
+.mg-start:disabled {
+  background: #475569;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Tabs System */
+.mg-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.mg-tabs button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.mg-tabs button.active {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+/* Tab Panels */
+.mg-panel-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.mg-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mg-history-item {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  background: #1e293b;
+}
+
+.mg-history-item.low { color: #38bdf8; }
+.mg-history-item.medium { color: #a855f7; }
+.mg-history-item.high { color: #eab308; }
+
+/* Statistics Tab UI */
+.mg-statistics-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.mg-statistics-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #1e293b;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.mg-statistics-row strong {
+  color: #22c55e;
+}
+
+.mg-statistics-row small {
+  color: #64748b;
+}
+
+/* Modal Popup */
+.mg-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.mg-popup.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mg-popup-content {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 16px;
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mg-popup-content h3 {
+  margin: 0 0 10px 0;
+  color: #38bdf8;
+}
+
+.mg-popup-content p {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.mg-popup-btn {
+  background: #38bdf8;
+  color: #0f172a;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
