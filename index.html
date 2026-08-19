@@ -1524,6 +1524,25 @@ and rewards.js.
     </div>
   </div>
 </div>
+  <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const miniGameCard = document.getElementById("miniGameCard");
+    const miniGameOverlay = document.getElementById("miniGameOverlay");
+    const mgClose = document.getElementById("mgClose");
+
+    if (miniGameCard && miniGameOverlay) {
+        miniGameCard.addEventListener("click", function() {
+            miniGameOverlay.style.display = "block";
+        });
+    }
+
+    if (mgClose && miniGameOverlay) {
+        mgClose.addEventListener("click", function() {
+            miniGameOverlay.style.display = "none";
+        });
+    }
+});
+  </script>
 
 </body>
 </html>
