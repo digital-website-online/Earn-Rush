@@ -1,5 +1,5 @@
 /* =========================================================
-   EARNRUSH MINI GAME - FULL DUAL BETS, CONVERTER & TABS ENGINE
+   EARNRUSH MINI GAME - PERMANENT BALANCE & DUAL BETS ENGINE
    ========================================================= */
 
 (() => {
@@ -16,27 +16,28 @@
     HISTORY_LIMIT: 12,
   };
 
+  const STORAGE_KEY = "earnrush_minigame_tokens_v2";
+
   const RTP_STATISTICS = [
-    { target: 1.20, probability: 80.8, payoutExample: 12.00 },
-    { target: 1.50, probability: 64.7, payoutExample: 15.00 },
-    { target: 2.00, probability: 48.5, payoutExample: 20.00 },
-    { target: 3.00, probability: 32.3, payoutExample: 30.00 },
-    { target: 5.00, probability: 19.4, payoutExample: 50.00 },
-    { target: 10.00, probability: 9.7, payoutExample: 100.00 },
-    { target: 20.00, probability: 4.85, payoutExample: 200.00 },
-    { target: 50.00, probability: 1.94, payoutExample: 500.00 },
-    { target: 100.00, probability: 0.97, payoutExample: 1000.00 }
+    { target: 1.20, probability: 80.8 },
+    { target: 1.50, probability: 64.7 },
+    { target: 2.00, probability: 48.5 },
+    { target: 3.00, probability: 32.3 },
+    { target: 5.00, probability: 19.4 },
+    { target: 10.00, probability: 9.7 },
+    { target: 20.00, probability: 4.85 },
+    { target: 50.00, probability: 1.94 },
+    { target: 100.00, probability: 0.97 }
   ];
 
   const state = {
     open: false,
-    round: "waiting", // waiting, running, finished
+    round: "waiting",
     roundNumber: 0,
     multiplier: 1.00,
     crashPoint: 1.00,
-    gameTokens: 300,
+    gameTokens: loadSavedTokens(),
 
-    // Dual Panel State
     bets: {
       1: { amount: 100, active: false, cashedOut: false },
       2: { amount: 100, active: false, cashedOut: false }
@@ -49,6 +50,22 @@
     playerTimer: null
   };
 
+  function loadSavedTokens() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved !== null && !isNaN(saved)) {
+        return Math.max(0, Math.floor(Number(saved)));
+      }
+    } catch (e) {}
+    return 300; // Default agar pehle kuch na ho
+  }
+
+  function saveTokensToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, String(state.gameTokens));
+    } catch (e) {}
+  }
+
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const byId = id => document.getElementById(id);
@@ -59,6 +76,7 @@
 
   function setTokens(val) {
     state.gameTokens = Math.max(0, Math.floor(Number(val) || 0));
+    saveTokensToStorage();
     updateWalletUI();
   }
 
@@ -73,7 +91,7 @@
       const stored = localStorage.getItem("earnrush_coins");
       if (stored !== null) return Number(stored) || 0;
     } catch (e) {}
-    return 2542.5;
+    return 2500;
   }
 
   function addEarnRushCoins(amount) {
@@ -98,7 +116,7 @@
     if (coinEl) coinEl.textContent = getEarnRushCoins().toLocaleString();
   }
 
-  // Conversion Logic
+  // Converter Logic
   function setupConversion() {
     const coinButton = byId("mgConvertCoins");
     if (coinButton) {
@@ -153,7 +171,6 @@
     document.body.classList.remove("mg-open");
   }
 
-  // Bet Controls for both Panels
   function setupBetControls() {
     [1, 2].forEach(panelId => {
       const input = byId(`mgGetInput${panelId}`) || byId(`mgBetInput${panelId}`);
@@ -420,7 +437,6 @@
     byId("mgStart1")?.addEventListener("click", () => startRoundForPanel(1));
     byId("mgStart2")?.addEventListener("click", () => startRoundForPanel(2));
 
-    // Live player dynamic ticker
     clearInterval(state.playerTimer);
     state.playerTimer = setInterval(() => {
       if (state.open) {
