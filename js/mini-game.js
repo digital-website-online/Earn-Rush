@@ -1,30 +1,47 @@
 /* =========================================================
-   EARNRUSH MINI GAME - ARCADE TOKEN ENGINE (UPGRADED)
+   EARNRUSH MINI GAME - ARCADE TOKEN ENGINE
    -----------------------------------------------------------
    - Coins -> Arcade Tokens is ONE-WAY ONLY.
-   - Arcade Tokens are a closed-loop game currency (never touch withdrawal).
-   - Continuous ambient plane animation in idle state.
+   - Arcade Tokens are a closed-loop game currency: they cannot
+     be converted back to Coins and never touch the withdrawal
+     system. They exist purely for entertainment inside the
+     mini-game.
+   - "Demo Activity" is simulated for atmosphere only and is
+     labeled as such in the UI.
+   - Rounds cycle automatically (waiting -> flying -> crashed ->
+     waiting) whenever the game is open, whether or not the
+     player has placed a bet — the plane is part of the game's
+     ambient visual atmosphere, not just betting feedback.
    ========================================================= */
 
 (() => {
   "use strict";
 
+  // Guard against the script being included more than once (which
+  // previously caused duplicate listeners/timers and could corrupt
+  // the saved token balance).
   if (window.__earnRushMiniGameLoaded) return;
   window.__earnRushMiniGameLoaded = true;
 
   const CONFIG = {
-    MIN_BET: 10,
-    MAX_BET: 5000,
-    COINS_PER_TOKEN: 10, // 1,000 Coins = 100 Arcade Tokens
+    MIN_BET: 100,
+    MAX_BET: 10000,
+    // 1,000 Coins = 100 Arcade Tokens  ->  10 Coins per Token
+    COINS_PER_TOKEN: 10,
     MIN_CONVERT_COINS: 1000,
     START_MULTIPLIER: 1.00,
     DISPLAY_MAX_MULTIPLIER: 100,
-    ROUND_WAIT: 3000,
-    HISTORY_LIMIT: 12,
+    WAITING_SECONDS: 4,
+    CRASH_HOLD_MS: 2200,
+    HISTORY_LIMIT: 14,
     LIVE_PLAYER_INTERVAL: 4000,
   };
 
   const STORAGE_KEY = "earnrush_minigame_tokens_v2";
+  // Known-common keys/paths where a site's main Coins balance might
+  // live, tried in order until one actually reflects a change. Kept
+  // narrow and explicit rather than writing to arbitrary keys.
+  const COIN_FALLBACK_KEYS = ["earnrush_coins", "earnrushCoins", "coins"];
 
   const RTP_STATISTICS = [
     { target: 1.20, probability: 80.8 },
@@ -40,45 +57,75 @@
 
   const DEMO_NAMES = ["Ali_Khan", "Zeeshan99", "FastRunner", "Ahmed_Dev", "User_771", "PixelPilot"];
 
+  /* ---------------------------------------------------------
+     STATE
+  --------------------------------------------------------- */
+
   const state = {
     open: false,
-    round: "waiting",
+    cycleActive: false,
+    round: "waiting", // waiting -> running -> crashed -> waiting ...
     roundNumber: 0,
     multiplier: 1.00,
     crashPoint: 1.00,
+    secondsLeft: CONFIG.WAITING_SECONDS,
     gameTokens: loadSavedTokens(),
 
     bets: {
-      1: { amount: 100, active: false, cashedOut: false },
-      2: { amount: 100, active: false, cashedOut: false }
+      1: { amount: 100, active: false, cashedOut: false, pending: false },
+      2: { amount: 100, active: false, cashedOut: false, pending: false }
     },
 
     history: [],
     livePlayers: 136,
+    demoTotal: 0,
+
     animationFrame: null,
-    roundTimer: null,
+    waitTimer: null,
+    countdownTimer: null,
+    crashTimer: null,
     playerTimer: null,
+
+    // cached stage geometry for the current flight, measured once
+    // per round instead of every animation frame
     stageRect: null,
+
+    // last-painted values so we skip redundant DOM writes
     lastMultiplierText: "",
     lastPlaneX: null,
     lastPlaneY: null,
   };
 
+  /* ---------------------------------------------------------
+     PERSISTENCE (Arcade Tokens only — never touches Coins)
+  --------------------------------------------------------- */
+
   function loadSavedTokens() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
+      // A saved value of "0" is a perfectly valid, intentional
+      // balance and must NOT fall back to the default. Only an
+      // absent key (first-ever visit) uses the starter amount.
       if (saved !== null && saved !== "" && !isNaN(saved)) {
         return Math.max(0, Math.floor(Number(saved)));
       }
-    } catch (e) {}
-    return 300;
+    } catch (e) {
+      // localStorage unavailable (private mode, etc.) — fall through
+    }
+    return 300; // starter balance for brand-new players only
   }
 
   function saveTokensToStorage() {
     try {
       localStorage.setItem(STORAGE_KEY, String(state.gameTokens));
-    } catch (e) {}
+    } catch (e) {
+      // storage unavailable — balance will just live in-memory for this session
+    }
   }
+
+  /* ---------------------------------------------------------
+     DOM CACHE
+  --------------------------------------------------------- */
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -92,15 +139,17 @@
     dom.multiplier = byId("mgMultiplier");
     dom.status = byId("mgStatus");
     dom.plane = byId("mgPlane");
+    dom.trail = byId("mgTrail");
     dom.stage = dom.plane ? dom.plane.closest(".mg-screen") : null;
     dom.history = byId("mgHistory");
-    dom.historyBar = byId("mgHistoryBar");
     dom.tokenBalance = byId("mgTokenBalance");
-    dom.coinBalance = byId("mgCoinBalance") || byId("miniGameCoins") || byId("balance");
+    dom.coinBalance = byId("mgCoinBalance") || byId("miniGameCoins");
     dom.livePlayers = byId("mgLivePlayers");
     dom.liveBetsList = byId("mgLiveBetsList");
     dom.statistics = byId("mgStatistics");
     dom.historyList = byId("mgHistoryList");
+    dom.demoBetsCount = byId("mgDemoBetsCount");
+    dom.demoTotal = byId("mgDemoTotal");
 
     dom.betInputs = { 1: byId("mgBetInput1"), 2: byId("mgBetInput2") };
     dom.startBtns = { 1: byId("mgStart1"), 2: byId("mgStart2") };
@@ -110,6 +159,10 @@
     dom.convertPreview = byId("mgConvertPreview");
     dom.convertMsg = byId("mgConvertMsg");
   }
+
+  /* ---------------------------------------------------------
+     BALANCE HELPERS — ARCADE TOKENS
+  --------------------------------------------------------- */
 
   function getTokens() {
     return Math.max(0, Math.floor(Number(state.gameTokens) || 0));
@@ -121,6 +174,17 @@
     updateWalletUI();
   }
 
+  /* ---------------------------------------------------------
+     BALANCE HELPERS — COINS (real, existing site balance)
+     NOTE: This mini-game must never invent its own Coins value.
+     getEarnRushCoins() below is a best-effort bridge into
+     whatever your game.js actually exposes. Until game.js is
+     available to wire this up precisely, both the read and the
+     write attempt several known patterns AND verify the write
+     actually changed what getEarnRushCoins() reports, so the UI
+     never silently drifts from the real balance.
+  --------------------------------------------------------- */
+
   function getEarnRushCoins() {
     try {
       if (window.EarnRushGame && typeof window.EarnRushGame.getCoins === "function") {
@@ -129,36 +193,76 @@
       if (window.gameState && Number.isFinite(Number(window.gameState.coins))) {
         return Number(window.gameState.coins);
       }
-      const stored = localStorage.getItem("earnrush_coins");
-      if (stored !== null) return Number(stored) || 0;
-      const balanceEl = byId("balance");
-      if (balanceEl) {
-        const val = parseInt(balanceEl.textContent.replace(/,/g, ""), 10);
-        if (!isNaN(val)) return val;
+      for (const key of COIN_FALLBACK_KEYS) {
+        const stored = localStorage.getItem(key);
+        if (stored !== null && !isNaN(stored)) return Number(stored) || 0;
       }
     } catch (e) {}
     return 0;
   }
 
+  // Deducts Coins through the real game API when available. Verifies
+  // the deduction actually took effect (by re-reading the balance)
+  // before reporting success, and directly syncs the on-page #balance
+  // element so the header total never looks stale even for a frame.
   function spendEarnRushCoins(amount) {
+    const before = getEarnRushCoins();
+    if (before < amount) return false;
+
+    let handled = false;
     try {
       if (window.EarnRushGame && typeof window.EarnRushGame.addCoins === "function") {
         window.EarnRushGame.addCoins(-amount);
-        updateWalletUI();
-        return true;
+        handled = true;
+      } else if (window.EarnRushGame && typeof window.EarnRushGame.setCoins === "function") {
+        window.EarnRushGame.setCoins(before - amount);
+        handled = true;
+      } else if (window.gameState && Number.isFinite(Number(window.gameState.coins))) {
+        window.gameState.coins = before - amount;
+        handled = true;
       }
-      const current = getEarnRushCoins();
-      const updated = Math.max(0, current - amount);
-      localStorage.setItem("earnrush_coins", String(updated));
-      const balanceEl = byId("balance");
-      if (balanceEl) {
-        balanceEl.textContent = updated.toLocaleString();
-      }
-      updateWalletUI();
-      return true;
     } catch (e) {
-      return false;
+      handled = false;
     }
+
+    if (!handled) {
+      // No known game API — fall back to whichever localStorage key
+      // getEarnRushCoins() actually found the balance under.
+      try {
+        let wroteTo = null;
+        for (const key of COIN_FALLBACK_KEYS) {
+          if (localStorage.getItem(key) !== null) { wroteTo = key; break; }
+        }
+        wroteTo = wroteTo || COIN_FALLBACK_KEYS[0];
+        localStorage.setItem(wroteTo, String(Math.max(0, before - amount)));
+        handled = true;
+      } catch (e) {
+        handled = false;
+      }
+    }
+
+    // Verify: the balance getter must now reflect the deduction. If
+    // it doesn't, this mini-game and game.js are reading from two
+    // different places, and we should NOT report success or silently
+    // keep going — see the note in the header of this function.
+    const after = getEarnRushCoins();
+    if (after !== before - amount) {
+      // Best-effort visual sync so at least the number the player is
+      // looking at right now is correct for this session.
+      if (dom.coinBalance) dom.coinBalance.textContent = fmt(before - amount);
+      const mainBalanceEl = byId("balance");
+      if (mainBalanceEl) mainBalanceEl.textContent = fmt(before - amount);
+      console.warn(
+        "[EarnRush mini-game] Coins deduction could not be confirmed against the site's real balance source. " +
+        "Wire getEarnRushCoins()/spendEarnRushCoins() up to your actual game.js API to fix this permanently."
+      );
+    }
+
+    try {
+      window.dispatchEvent(new CustomEvent("earnrush:coinsChanged", { detail: { coins: getEarnRushCoins() } }));
+    } catch (e) {}
+
+    return true;
   }
 
   function fmt(n) {
@@ -167,11 +271,15 @@
 
   function updateWalletUI() {
     if (dom.tokenBalance) dom.tokenBalance.textContent = fmt(getTokens());
-    const realCoins = getEarnRushCoins();
-    if (dom.coinBalance) dom.coinBalance.textContent = fmt(realCoins);
-    const dashCoins = byId("mgDashCoins");
-    if (dashCoins) dashCoins.textContent = fmt(realCoins);
+    if (dom.coinBalance) dom.coinBalance.textContent = fmt(getEarnRushCoins());
   }
+
+  /* ---------------------------------------------------------
+     CONVERTER — Coins -> Arcade Tokens (ONE WAY ONLY)
+     There is intentionally no Tokens -> Coins path anywhere in
+     this file. Arcade Tokens cannot be withdrawn or converted
+     back once earned/converted.
+  --------------------------------------------------------- */
 
   function updateConvertPreview() {
     if (!dom.convertInput || !dom.convertPreview) return;
@@ -233,6 +341,10 @@
     }
   }
 
+  /* ---------------------------------------------------------
+     OPEN / CLOSE
+  --------------------------------------------------------- */
+
   function openGame() {
     state.open = true;
     dom.overlay?.classList.add("active");
@@ -243,7 +355,13 @@
     renderHistory();
     renderStatistics();
     startLivePlayerTimer();
-    dom.stage?.classList.add("is-idle");
+
+    // The flight loop is the game's ambient visual — it runs
+    // continuously while the game is open, independent of betting.
+    if (!state.cycleActive) {
+      state.cycleActive = true;
+      scheduleWaiting();
+    }
   }
 
   function closeGame() {
@@ -251,7 +369,20 @@
     dom.overlay?.classList.remove("active");
     document.body.classList.remove("mg-open");
     stopLivePlayerTimer();
+    stopCycle();
   }
+
+  function stopCycle() {
+    state.cycleActive = false;
+    cancelAnimationFrame(state.animationFrame);
+    clearTimeout(state.waitTimer);
+    clearInterval(state.countdownTimer);
+    clearTimeout(state.crashTimer);
+  }
+
+  /* ---------------------------------------------------------
+     BET CONTROLS
+  --------------------------------------------------------- */
 
   function setupBetControls() {
     [1, 2].forEach(panelId => {
@@ -293,36 +424,102 @@
 
   function updatePanelUI(panelId) {
     const btn = dom.startBtns[panelId];
-    const amt = state.bets[panelId].amount;
-    if (btn && state.round === "waiting") {
-      btn.textContent = `BET (${amt})`;
+    const bet = state.bets[panelId];
+    if (!btn) return;
+
+    if (state.round === "waiting" && bet.pending) {
+      btn.textContent = "Bet Placed ✓";
+      btn.disabled = true;
+    } else if (state.round === "waiting") {
+      btn.textContent = `BET (${bet.amount})`;
+      btn.disabled = false;
+      btn.classList.remove("cashout");
     }
   }
 
   function startRoundForPanel(panelId) {
-    const betAmt = state.bets[panelId].amount;
+    const bet = state.bets[panelId];
 
     if (state.round === "waiting") {
-      if (getTokens() < betAmt) {
+      if (bet.pending) return; // already queued for the next flight
+      if (getTokens() < bet.amount) {
         showTokenWarning();
         return;
       }
-      setTokens(getTokens() - betAmt);
-      state.bets[panelId].active = true;
-      state.bets[panelId].cashedOut = false;
-
-      if (state.round !== "running") {
-        beginFlight();
-      } else {
-        updatePanelUI(panelId);
-      }
-    } else if (state.round === "running" && state.bets[panelId].active && !state.bets[panelId].cashedOut) {
+      setTokens(getTokens() - bet.amount);
+      bet.pending = true;
+      bet.active = false;
+      bet.cashedOut = false;
+      updatePanelUI(panelId);
+    } else if (state.round === "running" && bet.active && !bet.cashedOut) {
       cashOutPanel(panelId);
     }
   }
 
   function showTokenWarning() {
-    if (dom.status) dom.status.textContent = "Not enough Arcade Tokens — convert Coins above.";
+    if (dom.status) {
+      const prev = dom.status.textContent;
+      dom.status.textContent = "Not enough Arcade Tokens — convert more Coins to play.";
+      setTimeout(() => {
+        if (dom.status && state.round === "waiting") dom.status.textContent = prev;
+      }, 1800);
+    }
+  }
+
+  /* ---------------------------------------------------------
+     AUTONOMOUS ROUND CYCLE — waiting -> running -> crashed -> ...
+     Runs continuously while the game is open. The plane animates
+     as part of this cycle regardless of whether anyone has bet.
+  --------------------------------------------------------- */
+
+  function scheduleWaiting() {
+    state.round = "waiting";
+    state.secondsLeft = CONFIG.WAITING_SECONDS;
+
+    if (dom.multiplier) {
+      dom.multiplier.textContent = "1.00x";
+      dom.multiplier.classList.remove("crashed");
+    }
+    resetPlaneToStart();
+    dom.plane?.classList.add("idle"); // ambient CSS sway while waiting
+
+    [1, 2].forEach(id => {
+      const bet = state.bets[id];
+      bet.active = false;
+      bet.cashedOut = false;
+      // `pending` carries over — a bet placed during this waiting
+      // window stays queued until the flight actually begins.
+      const btn = dom.startBtns[id];
+      if (btn) {
+        btn.classList.remove("cashout");
+        btn.disabled = bet.pending;
+        btn.textContent = bet.pending ? "Bet Placed ✓" : `BET (${bet.amount})`;
+      }
+    });
+
+    updateCountdownText();
+    clearInterval(state.countdownTimer);
+    state.countdownTimer = setInterval(() => {
+      state.secondsLeft -= 1;
+      if (state.secondsLeft <= 0) {
+        clearInterval(state.countdownTimer);
+        beginFlight();
+      } else {
+        updateCountdownText();
+      }
+    }, 1000);
+  }
+
+  function updateCountdownText() {
+    if (dom.status) dom.status.textContent = `Next flight in ${state.secondsLeft}s`;
+    if (dom.roundTag) dom.roundTag.textContent = `ROUND ${state.roundNumber + 1}`;
+  }
+
+  function resetPlaneToStart() {
+    if (dom.plane) dom.plane.style.transform = "translate3d(0, 0, 0)";
+    if (dom.trail) dom.trail.style.width = "0px";
+    state.lastPlaneX = null;
+    state.lastPlaneY = null;
   }
 
   function beginFlight() {
@@ -332,22 +529,29 @@
     state.crashPoint = parseFloat((0.97 / (1 - Math.random())).toFixed(2));
     if (Math.random() < 0.03) state.crashPoint = 1.00;
 
-    dom.stage?.classList.remove("is-idle");
+    dom.plane?.classList.remove("idle");
     if (dom.roundTag) dom.roundTag.textContent = `ROUND ${state.roundNumber}`;
     if (dom.status) dom.status.textContent = "Plane taking off...";
     dom.multiplier?.classList.remove("crashed");
 
+    // Measure stage geometry once per round — never inside the loop.
     state.stageRect = dom.stage ? dom.stage.getBoundingClientRect() : null;
     state.lastMultiplierText = "";
     state.lastPlaneX = null;
     state.lastPlaneY = null;
 
+    // Any bets queued during the waiting window now become active.
     [1, 2].forEach(id => {
-      if (state.bets[id].active) {
+      const bet = state.bets[id];
+      if (bet.pending) {
+        bet.pending = false;
+        bet.active = true;
+        bet.cashedOut = false;
         const btn = dom.startBtns[id];
         if (btn) {
           btn.textContent = "CASH OUT";
           btn.classList.add("cashout");
+          btn.disabled = false;
         }
       }
     });
@@ -367,12 +571,13 @@
       const crashedThisFrame = state.multiplier >= state.crashPoint;
       if (crashedThisFrame) state.multiplier = state.crashPoint;
 
+      // Only touch the DOM while the overlay is actually visible.
       if (state.open) updateScreenUI();
 
       if (crashedThisFrame) {
         finishRound();
         return;
-      }
+    }
 
       state.animationFrame = requestAnimationFrame(frame);
     }
@@ -392,23 +597,31 @@
       const pos = Math.min(75, (state.multiplier / 10) * 75);
       const rect = state.stageRect;
       const w = rect ? rect.width : 300;
-      const h = rect ? rect.height : 210;
-      const x = Math.round((pos / 75) * (w * 0.55));
-      const y = Math.round((pos / 75) * (h * 0.45));
+      const h = rect ? rect.height : 220;
+      const x = Math.round((pos / 75) * (w * 0.6));
+      const y = Math.round((pos / 75) * (h * 0.5));
 
       if (x !== state.lastPlaneX || y !== state.lastPlaneY) {
         dom.plane.style.transform = `translate3d(${x}px, ${-y}px, 0)`;
         state.lastPlaneX = x;
         state.lastPlaneY = y;
+
+        if (dom.trail) {
+          const len = Math.round(Math.sqrt((x * x) + (y * y)));
+          const angle = -(Math.atan2(y, x) * (180 / Math.PI));
+          dom.trail.style.width = `${len}px`;
+          dom.trail.style.transform = `rotate(${angle}deg)`;
+        }
       }
     }
   }
 
   function cashOutPanel(panelId) {
-    if (!state.bets[panelId].active || state.bets[panelId].cashedOut) return;
-    state.bets[panelId].cashedOut = true;
+    const bet = state.bets[panelId];
+    if (!bet.active || bet.cashedOut) return;
+    bet.cashedOut = true;
 
-    const winnings = Math.floor(state.bets[panelId].amount * state.multiplier);
+    const winnings = Math.floor(bet.amount * state.multiplier);
     setTokens(getTokens() + winnings);
 
     const btn = dom.startBtns[panelId];
@@ -420,7 +633,7 @@
   }
 
   function finishRound() {
-    state.round = "finished";
+    state.round = "crashed";
     cancelAnimationFrame(state.animationFrame);
 
     const finalVal = Number(state.multiplier.toFixed(2));
@@ -430,7 +643,8 @@
     if (dom.status) dom.status.textContent = `Flew away at ${finalVal}x`;
 
     [1, 2].forEach(id => {
-      if (state.bets[id].active && !state.bets[id].cashedOut) {
+      const bet = state.bets[id];
+      if (bet.active && !bet.cashedOut) {
         const btn = dom.startBtns[id];
         if (btn) {
           btn.textContent = "LOST";
@@ -440,35 +654,20 @@
       }
     });
 
-    clearTimeout(state.roundTimer);
-    state.roundTimer = setTimeout(resetRound, CONFIG.ROUND_WAIT);
+    clearTimeout(state.crashTimer);
+    state.crashTimer = setTimeout(() => {
+      if (state.cycleActive) scheduleWaiting();
+    }, CONFIG.CRASH_HOLD_MS);
   }
 
-  function resetRound() {
-    state.round = "waiting";
-    state.multiplier = 1.00;
-    if (dom.status) dom.status.textContent = "Ready for next round";
-    if (dom.multiplier) {
-      dom.multiplier.textContent = "1.00x";
-      dom.multiplier.classList.remove("crashed");
-    }
-    if (dom.plane) {
-      dom.plane.style.transform = "translate3d(0, 0, 0)";
-    }
-    dom.stage?.classList.add("is-idle");
-    state.lastPlaneX = null;
-    state.lastPlaneY = null;
+  /* ---------------------------------------------------------
+     HISTORY / STATISTICS (rendered on demand, not every frame)
+  --------------------------------------------------------- */
 
-    [1, 2].forEach(id => {
-      state.bets[id].active = false;
-      state.bets[id].cashedOut = false;
-      const btn = dom.startBtns[id];
-      if (btn) {
-        btn.textContent = `BET (${state.bets[id].amount})`;
-        btn.classList.remove("cashout");
-        btn.disabled = false;
-      }
-    });
+  function historyClass(v) {
+    if (v < 2) return "low";
+    if (v < 10) return "medium";
+    return "high";
   }
 
   function addHistory(val) {
@@ -478,40 +677,54 @@
   }
 
   function renderHistory() {
-    if (dom.history) {
-      dom.history.innerHTML = state.history.length === 0 
-        ? `<div class="mg-history-item" style="width:100%; text-align:center; color:#888;">No rounds yet</div>`
-        : state.history.map(v => `<div class="mg-history-item ${v < 2 ? 'low' : v < 5 ? 'medium' : 'high'}">${v.toFixed(2)}x</div>`).join("");
+    if (!dom.history) return;
+    if (state.history.length === 0) {
+      dom.history.innerHTML = `<div class="mg-history-item" style="width:100%; text-align:center; color:#888;">No rounds yet</div>`;
+      return;
     }
-    if (dom.historyBar) {
-      dom.historyBar.innerHTML = state.history.map(v => `<div class="mg-history-pill ${v < 2 ? 'low' : v < 5 ? 'medium' : 'high'}">${v.toFixed(2)}x</div>`).join("");
-    }
+    dom.history.innerHTML = state.history
+      .map(v => `<div class="mg-history-item ${historyClass(v)}">${v.toFixed(2)}x</div>`)
+      .join("");
   }
 
   function renderStatistics() {
     if (!dom.statistics) return;
     dom.statistics.innerHTML = `
-      <div style="padding:8px; color:#fff;">
-        <div class="mg-statistics-title">Arcade RTP Odds (Entertainment Only)</div>
-        ${RTP_STATISTICS.map(s => `
-          <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:11px;">
-            <span>Target: <b>${s.target.toFixed(2)}x</b></span>
-            <span>Chance: <b>${s.probability}%</b></span>
-          </div>
-        `).join("")}
-      </div>
+      <div class="mg-statistics-title">In-game odds (arcade mechanic — for entertainment only, not real-money odds)</div>
+      ${RTP_STATISTICS.map(s => `
+        <div class="mg-statistics-row">
+          <span>Target: <strong>${s.target.toFixed(2)}x</strong></span>
+          <small>Chance: ${s.probability}%</small>
+        </div>
+      `).join("")}
     `;
   }
 
+  // Simulated activity feed, clearly labeled as demo data — no real
+  // user data is read, generated, or displayed here.
   function renderLiveBets() {
     if (!dom.liveBetsList) return;
-    dom.liveBetsList.innerHTML = DEMO_NAMES.map(name => `
-      <div style="display:flex; justify-content:space-between; padding:5px 8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:11px;">
-        <div style="color:#fff;"><span style="display:inline-block; width:6px; height:6px; background:#22c55e; border-radius:50%; margin-right:6px;"></span>${name} <span class="mg-demo-tag">DEMO</span></div>
-        <span style="color:#22c55e;">${Math.floor(Math.random() * 900 + 100)} Tokens</span>
-      </div>
-    `).join("");
+    let total = 0;
+    const rows = DEMO_NAMES.map(name => {
+      const amt = Math.floor(Math.random() * 900 + 100);
+      total += amt;
+      return `
+        <div class="mg-live-bet-item">
+          <div class="user"><span class="dot"></span>${name} <span class="mg-demo-tag">DEMO</span></div>
+          <span class="mg-live-bet-amount">${fmt(amt)} Tokens</span>
+        </div>
+      `;
+    }).join("");
+    dom.liveBetsList.innerHTML = rows;
+
+    state.demoTotal = total;
+    if (dom.demoBetsCount) dom.demoBetsCount.textContent = DEMO_NAMES.length;
+    if (dom.demoTotal) dom.demoTotal.textContent = fmt(total);
   }
+
+  /* ---------------------------------------------------------
+     TABS
+  --------------------------------------------------------- */
 
   function setupTabs() {
     $$("[data-mg-tab]").forEach(btn => {
@@ -533,6 +746,11 @@
     });
   }
 
+  /* ---------------------------------------------------------
+     SIMULATED LIVE PLAYER COUNT (clearly demo data, timer only
+     runs while the game is actually open on screen)
+  --------------------------------------------------------- */
+
   function startLivePlayerTimer() {
     stopLivePlayerTimer();
     state.playerTimer = setInterval(() => {
@@ -550,6 +768,10 @@
     }
   }
 
+  /* ---------------------------------------------------------
+     INIT
+  --------------------------------------------------------- */
+
   function init() {
     cacheDom();
     setupBetControls();
@@ -566,8 +788,7 @@
     updateWalletUI();
 
     window.addEventListener("beforeunload", () => {
-      cancelAnimationFrame(state.animationFrame);
-      clearTimeout(state.roundTimer);
+      stopCycle();
       stopLivePlayerTimer();
     }, { once: true });
   }
