@@ -376,6 +376,12 @@ if (overlay && !document.fullscreenElement && overlay.requestFullscreen) {
   function closeGame() {
     state.open = false;
     dom.overlay?.classList.remove("active");
+document.documentElement.classList.remove('mini-game-active');
+document.body.classList.remove('mini-game-active');
+
+if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+}
     document.body.classList.remove("mg-open");
     stopLivePlayerTimer();
     stopCycle();
