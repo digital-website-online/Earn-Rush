@@ -1439,11 +1439,11 @@ STEP 1 UI MICRO-INTERACTIONS
       <!-- History Bar -->
       <div class="mg-history" id="mgHistory"></div>
 
-      <!-- Dual Betting Panels (Panel 1 & Panel 2) -->
+      <!-- Dual Betting Panels (Panel 1 & Panel 2), stacked -->
       <div class="mg-betting-container">
         <!-- Panel 1 -->
         <div class="mg-controls" data-panel-id="1">
-          <div class="mg-bet-row-top">
+          <div class="mg-panel-left">
             <div class="mg-stepper">
               <button class="mg-step-btn" data-action="minus" data-panel="1">-</button>
               <input type="number" id="mgBetInput1" class="mg-step-input" value="100" min="100" max="10000">
@@ -1456,12 +1456,12 @@ STEP 1 UI MICRO-INTERACTIONS
               <button data-mg-token="5000" data-panel="1">5k</button>
             </div>
           </div>
-          <button id="mgStart1" class="mg-start" data-panel="1">BET (100)</button>
+          <button id="mgStart1" class="mg-start" data-panel="1">BET<br><span>100</span></button>
         </div>
 
         <!-- Panel 2 -->
         <div class="mg-controls" data-panel-id="2">
-          <div class="mg-bet-row-top">
+          <div class="mg-panel-left">
             <div class="mg-stepper">
               <button class="mg-step-btn" data-action="minus" data-panel="2">-</button>
               <input type="number" id="mgBetInput2" class="mg-step-input" value="100" min="100" max="10000">
@@ -1474,9 +1474,10 @@ STEP 1 UI MICRO-INTERACTIONS
               <button data-mg-token="5000" data-panel="2">5k</button>
             </div>
           </div>
-          <button id="mgStart2" class="mg-start" data-panel="2">BET (100)</button>
+          <button id="mgStart2" class="mg-start" data-panel="2">BET<br><span>100</span></button>
         </div>
       </div>
+
 
       <!-- Tabs & Live Bets Feed -->
       <div class="mg-tabs">
