@@ -69,6 +69,7 @@
     multiplier: 1.00,
     crashPoint: 1.00,
     secondsLeft: CONFIG.WAITING_SECONDS,
+    savedScrollY: 0,
     gameTokens: loadSavedTokens(),
 
     bets: {
@@ -176,36 +177,38 @@
 
   /* ---------------------------------------------------------
      BALANCE HELPERS — COINS (real, existing site balance)
-     NOTE: This mini-game must never invent its own Coins value.
-     The page's actual Coins logic lives in js/game.js (not part of
-     this file), but the visible balance is confirmed to always live
-     in the #balance element (see the "Existing #balance ID
-     preserved" comment in index.html). So #balance is used here as
-     the primary, guaranteed-correct read/write target — this is
-     what was actually broken before (Coins were being read/written
-     against a guessed variable/key that the page never used).
-     window.EarnRushGame / window.gameState are still tried first in
-     case game.js exposes a real API, but #balance is the reliable
-     fallback that will always reflect on screen immediately.
+     -----------------------------------------------------------
+     Confirmed against the actual js/game.js source:
+       - window.EarnRushGame.getCoins() returns the real gameState.coins
+       - window.EarnRushGame.getState() returns the LIVE gameState
+         object by reference (not a copy), so mutating .coins on it
+         mutates the game's actual internal state
+       - window.EarnRushGame.addCoins(amount) EARNS coins only — it
+         silently no-ops for amount <= 0 (`if (amount <= 0) return;`
+         in game.js), which is exactly why calling addCoins(-amount)
+         to "spend" coins was doing nothing. There is no deduct/
+         setCoins method exposed, so spending goes through
+         getState() instead.
+       - window.EarnRushGame.updateUI() repaints #balance and friends
+       - window.EarnRushGame.save() persists gameState to localStorage
+         under the "earnRushSave" key immediately (game.js also saves
+         on visibilitychange/pagehide/beforeunload, but saving right
+         away means a fast refresh right after converting can't lose it)
   --------------------------------------------------------- */
-
-  function parseCoinsFromBalanceEl() {
-    const el = byId("balance");
-    if (!el) return null;
-    const n = Number(String(el.textContent).replace(/[^\d.-]/g, ""));
-    return Number.isFinite(n) ? n : null;
-  }
 
   function getEarnRushCoins() {
     try {
       if (window.EarnRushGame && typeof window.EarnRushGame.getCoins === "function") {
         return Number(window.EarnRushGame.getCoins()) || 0;
       }
-      if (window.gameState && Number.isFinite(Number(window.gameState.coins))) {
-        return Number(window.gameState.coins);
+    } catch (e) {}
+    // Fallback only for pages where game.js hasn't loaded/isn't present.
+    try {
+      const el = byId("balance");
+      if (el) {
+        const n = Number(String(el.textContent).replace(/[^\d.-]/g, ""));
+        if (Number.isFinite(n)) return n;
       }
-      const fromBalance = parseCoinsFromBalanceEl();
-      if (fromBalance !== null) return fromBalance;
       for (const key of COIN_FALLBACK_KEYS) {
         const stored = localStorage.getItem(key);
         if (stored !== null && !isNaN(stored)) return Number(stored) || 0;
@@ -214,47 +217,51 @@
     return 0;
   }
 
-  // Deducts Coins through the real game API when available, and
-  // ALWAYS writes the result directly into #balance — the exact
-  // element the player is looking at — so the deduction is visible
-  // immediately regardless of what internal state game.js keeps.
+  // Deducts Coins by mutating the game's real, live state object
+  // (via getState(), which returns gameState by reference — not a
+  // clone) and then uses the game's own updateUI()/save() so this
+  // stays perfectly in sync with everything else on the page.
   function spendEarnRushCoins(amount) {
-    const before = getEarnRushCoins();
-    if (before < amount) return false;
-    const newBalance = Math.max(0, before - amount);
-
     try {
-      if (window.EarnRushGame && typeof window.EarnRushGame.addCoins === "function") {
-        window.EarnRushGame.addCoins(-amount);
-      } else if (window.EarnRushGame && typeof window.EarnRushGame.setCoins === "function") {
-        window.EarnRushGame.setCoins(newBalance);
-      } else if (window.gameState && Number.isFinite(Number(window.gameState.coins))) {
-        window.gameState.coins = newBalance;
+      if (window.EarnRushGame && typeof window.EarnRushGame.getState === "function") {
+        const gs = window.EarnRushGame.getState();
+        if (gs && Number.isFinite(Number(gs.coins))) {
+          if (Number(gs.coins) < amount) return false;
+          gs.coins = Number(gs.coins) - amount;
+
+          if (typeof window.EarnRushGame.updateUI === "function") {
+            window.EarnRushGame.updateUI();
+          } else {
+            const el = byId("balance");
+            if (el) el.textContent = fmt(gs.coins);
+          }
+          if (typeof window.EarnRushGame.save === "function") {
+            window.EarnRushGame.save();
+          }
+
+          if (dom.coinBalance) dom.coinBalance.textContent = fmt(gs.coins);
+          return true;
+        }
       }
     } catch (e) {}
 
-    // Always sync the visible element directly — this is the fix for
-    // the reported bug where Coins never actually decreased.
-    const mainBalanceEl = byId("balance");
-    if (mainBalanceEl) mainBalanceEl.textContent = fmt(newBalance);
-    if (dom.coinBalance) dom.coinBalance.textContent = fmt(newBalance);
-
-    // Best-effort persistence: write to whichever fallback key already
-    // exists, so a refresh doesn't lose the deduction if game.js
-    // happens to read its balance back out of localStorage.
+    // Fallback only for pages where game.js hasn't loaded/isn't present.
+    const before = getEarnRushCoins();
+    if (before < amount) return false;
+    const newBalance = Math.max(0, before - amount);
     try {
+      const mainBalanceEl = byId("balance");
+      if (mainBalanceEl) mainBalanceEl.textContent = fmt(newBalance);
+      if (dom.coinBalance) dom.coinBalance.textContent = fmt(newBalance);
       let wroteTo = null;
       for (const key of COIN_FALLBACK_KEYS) {
         if (localStorage.getItem(key) !== null) { wroteTo = key; break; }
       }
       localStorage.setItem(wroteTo || COIN_FALLBACK_KEYS[0], String(newBalance));
-    } catch (e) {}
-
-    try {
-      window.dispatchEvent(new CustomEvent("earnrush:coinsChanged", { detail: { coins: newBalance } }));
-    } catch (e) {}
-
-    return true;
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   function fmt(n) {
@@ -346,12 +353,41 @@
      OPEN / CLOSE
   --------------------------------------------------------- */
 
+  // Real Fullscreen API is unreliable on iOS Safari for arbitrary
+  // elements (it's the previous source of the black-screen glitch
+  // when forced) — so this only ever attempts it on Android, purely
+  // as a progressive enhancement. The fixed full-viewport overlay
+  // (.mg-overlay) already looks and behaves fullscreen everywhere,
+  // so if this fails or isn't supported, nothing is lost.
+  function requestImmersiveFullscreenIfSafe() {
+    try {
+      const ua = navigator.userAgent || "";
+      const isIOS = /iPad|iPhone|iPod/.test(ua) ||
+        (ua.includes("Macintosh") && navigator.maxTouchPoints > 1);
+      if (isIOS) return;
+      if (!dom.overlay || !dom.overlay.requestFullscreen) return;
+      if (document.fullscreenElement) return;
+      dom.overlay.requestFullscreen().catch(() => {
+        // Silently ignore — the overlay is already a full-viewport
+        // immersive experience without real fullscreen.
+      });
+    } catch (e) {
+      // Fullscreen API unsupported entirely — nothing to do.
+    }
+  }
+
   function openGame() {
     state.open = true;
     dom.overlay?.classList.add("active");
-document.documentElement.classList.add('mini-game-active');
-document.body.classList.add('mini-game-active');
 
+    // Save the exact scroll position and pin the body there via CSS
+    // (position:fixed at that offset) — the reliable cross-browser
+    // way to stop background scroll/touch, since iOS Safari doesn't
+    // consistently honor overflow:hidden on body by itself.
+    state.savedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.documentElement.style.setProperty("--mg-scroll-y", `${state.savedScrollY}px`);
+    document.documentElement.classList.add("mini-game-active");
+    document.body.classList.add("mini-game-active");
 
     document.body.classList.add("mg-open");
     updateWalletUI();
@@ -360,6 +396,7 @@ document.body.classList.add('mini-game-active');
     renderHistory();
     renderStatistics();
     startLivePlayerTimer();
+    requestImmersiveFullscreenIfSafe();
 
     // The flight loop is the game's ambient visual — it runs
     // continuously while the game is open, independent of betting.
@@ -372,12 +409,23 @@ document.body.classList.add('mini-game-active');
   function closeGame() {
     state.open = false;
     dom.overlay?.classList.remove("active");
-document.documentElement.classList.remove('mini-game-active');
-document.body.classList.remove('mini-game-active');
 
-if (document.fullscreenElement && document.exitFullscreen) {
-    document.exitFullscreen().catch(() => {});
-}
+    document.documentElement.classList.remove("mini-game-active");
+    document.body.classList.remove("mini-game-active");
+    document.documentElement.style.removeProperty("--mg-scroll-y");
+    // Restore the exact scroll position now that body is unpinned.
+    // Two rAFs so this runs after the class-removal reflow settles,
+    // instead of racing it (which is what causes a visible "jump").
+    const restoreY = state.savedScrollY || 0;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, restoreY);
+      });
+    });
+
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
     document.body.classList.remove("mg-open");
     stopLivePlayerTimer();
     stopCycle();
