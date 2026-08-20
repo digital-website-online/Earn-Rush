@@ -860,3 +860,28 @@ button {
         min-width: 0;
     }
 }
+/* =========================================
+   MINI GAME — RESPONSIVE VIEWPORT
+   ========================================= */
+
+@media (max-height: 700px) {
+    .mg-overlay .mg-container {
+        height: 100dvh;
+        max-height: 100dvh;
+    }
+
+    .mg-overlay .mg-screen {
+        height: clamp(180px, 34dvh, 240px);
+    }
+}
+
+@media (min-height: 701px) {
+    .mg-overlay .mg-container {
+        height: 100dvh;
+        max-height: 100dvh;
+    }
+
+    .mg-overlay .mg-screen {
+        height: clamp(210px, 34dvh, 280px);
+    }
+}
