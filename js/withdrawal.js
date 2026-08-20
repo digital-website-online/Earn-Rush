@@ -403,7 +403,7 @@
 
           const rs =
             (
-              coins * 0.01
+              coins * 0.001
             ).toFixed(2);
 
 
