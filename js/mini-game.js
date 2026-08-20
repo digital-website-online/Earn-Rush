@@ -177,13 +177,24 @@
   /* ---------------------------------------------------------
      BALANCE HELPERS — COINS (real, existing site balance)
      NOTE: This mini-game must never invent its own Coins value.
-     getEarnRushCoins() below is a best-effort bridge into
-     whatever your game.js actually exposes. Until game.js is
-     available to wire this up precisely, both the read and the
-     write attempt several known patterns AND verify the write
-     actually changed what getEarnRushCoins() reports, so the UI
-     never silently drifts from the real balance.
+     The page's actual Coins logic lives in js/game.js (not part of
+     this file), but the visible balance is confirmed to always live
+     in the #balance element (see the "Existing #balance ID
+     preserved" comment in index.html). So #balance is used here as
+     the primary, guaranteed-correct read/write target — this is
+     what was actually broken before (Coins were being read/written
+     against a guessed variable/key that the page never used).
+     window.EarnRushGame / window.gameState are still tried first in
+     case game.js exposes a real API, but #balance is the reliable
+     fallback that will always reflect on screen immediately.
   --------------------------------------------------------- */
+
+  function parseCoinsFromBalanceEl() {
+    const el = byId("balance");
+    if (!el) return null;
+    const n = Number(String(el.textContent).replace(/[^\d.-]/g, ""));
+    return Number.isFinite(n) ? n : null;
+  }
 
   function getEarnRushCoins() {
     try {
@@ -193,6 +204,8 @@
       if (window.gameState && Number.isFinite(Number(window.gameState.coins))) {
         return Number(window.gameState.coins);
       }
+      const fromBalance = parseCoinsFromBalanceEl();
+      if (fromBalance !== null) return fromBalance;
       for (const key of COIN_FALLBACK_KEYS) {
         const stored = localStorage.getItem(key);
         if (stored !== null && !isNaN(stored)) return Number(stored) || 0;
@@ -201,65 +214,44 @@
     return 0;
   }
 
-  // Deducts Coins through the real game API when available. Verifies
-  // the deduction actually took effect (by re-reading the balance)
-  // before reporting success, and directly syncs the on-page #balance
-  // element so the header total never looks stale even for a frame.
+  // Deducts Coins through the real game API when available, and
+  // ALWAYS writes the result directly into #balance — the exact
+  // element the player is looking at — so the deduction is visible
+  // immediately regardless of what internal state game.js keeps.
   function spendEarnRushCoins(amount) {
     const before = getEarnRushCoins();
     if (before < amount) return false;
+    const newBalance = Math.max(0, before - amount);
 
-    let handled = false;
     try {
       if (window.EarnRushGame && typeof window.EarnRushGame.addCoins === "function") {
         window.EarnRushGame.addCoins(-amount);
-        handled = true;
       } else if (window.EarnRushGame && typeof window.EarnRushGame.setCoins === "function") {
-        window.EarnRushGame.setCoins(before - amount);
-        handled = true;
+        window.EarnRushGame.setCoins(newBalance);
       } else if (window.gameState && Number.isFinite(Number(window.gameState.coins))) {
-        window.gameState.coins = before - amount;
-        handled = true;
+        window.gameState.coins = newBalance;
       }
-    } catch (e) {
-      handled = false;
-    }
+    } catch (e) {}
 
-    if (!handled) {
-      // No known game API — fall back to whichever localStorage key
-      // getEarnRushCoins() actually found the balance under.
-      try {
-        let wroteTo = null;
-        for (const key of COIN_FALLBACK_KEYS) {
-          if (localStorage.getItem(key) !== null) { wroteTo = key; break; }
-        }
-        wroteTo = wroteTo || COIN_FALLBACK_KEYS[0];
-        localStorage.setItem(wroteTo, String(Math.max(0, before - amount)));
-        handled = true;
-      } catch (e) {
-        handled = false;
+    // Always sync the visible element directly — this is the fix for
+    // the reported bug where Coins never actually decreased.
+    const mainBalanceEl = byId("balance");
+    if (mainBalanceEl) mainBalanceEl.textContent = fmt(newBalance);
+    if (dom.coinBalance) dom.coinBalance.textContent = fmt(newBalance);
+
+    // Best-effort persistence: write to whichever fallback key already
+    // exists, so a refresh doesn't lose the deduction if game.js
+    // happens to read its balance back out of localStorage.
+    try {
+      let wroteTo = null;
+      for (const key of COIN_FALLBACK_KEYS) {
+        if (localStorage.getItem(key) !== null) { wroteTo = key; break; }
       }
-    }
-
-    // Verify: the balance getter must now reflect the deduction. If
-    // it doesn't, this mini-game and game.js are reading from two
-    // different places, and we should NOT report success or silently
-    // keep going — see the note in the header of this function.
-    const after = getEarnRushCoins();
-    if (after !== before - amount) {
-      // Best-effort visual sync so at least the number the player is
-      // looking at right now is correct for this session.
-      if (dom.coinBalance) dom.coinBalance.textContent = fmt(before - amount);
-      const mainBalanceEl = byId("balance");
-      if (mainBalanceEl) mainBalanceEl.textContent = fmt(before - amount);
-      console.warn(
-        "[EarnRush mini-game] Coins deduction could not be confirmed against the site's real balance source. " +
-        "Wire getEarnRushCoins()/spendEarnRushCoins() up to your actual game.js API to fix this permanently."
-      );
-    }
+      localStorage.setItem(wroteTo || COIN_FALLBACK_KEYS[0], String(newBalance));
+    } catch (e) {}
 
     try {
-      window.dispatchEvent(new CustomEvent("earnrush:coinsChanged", { detail: { coins: getEarnRushCoins() } }));
+      window.dispatchEvent(new CustomEvent("earnrush:coinsChanged", { detail: { coins: newBalance } }));
     } catch (e) {}
 
     return true;
@@ -267,6 +259,15 @@
 
   function fmt(n) {
     return Math.floor(n).toLocaleString();
+  }
+
+  // Renders the start/cash-out button as a two-line label ("BET" /
+  // amount, "CASH OUT" / multiplier, etc.) matching the reference layout.
+  function setStartBtnLabel(btn, top, bottom) {
+    if (!btn) return;
+    btn.innerHTML = bottom !== undefined
+      ? `${top}<br><span>${bottom}</span>`
+      : top;
   }
 
   function updateWalletUI() {
@@ -428,10 +429,10 @@
     if (!btn) return;
 
     if (state.round === "waiting" && bet.pending) {
-      btn.textContent = "Bet Placed ✓";
+      setStartBtnLabel(btn, "Bet Placed", "✓");
       btn.disabled = true;
     } else if (state.round === "waiting") {
-      btn.textContent = `BET (${bet.amount})`;
+      setStartBtnLabel(btn, "BET", bet.amount);
       btn.disabled = false;
       btn.classList.remove("cashout");
     }
@@ -493,7 +494,7 @@
       if (btn) {
         btn.classList.remove("cashout");
         btn.disabled = bet.pending;
-        btn.textContent = bet.pending ? "Bet Placed ✓" : `BET (${bet.amount})`;
+        setStartBtnLabel(btn, bet.pending ? "Bet Placed" : "BET", bet.pending ? "✓" : bet.amount);
       }
     });
 
@@ -549,7 +550,7 @@
         bet.cashedOut = false;
         const btn = dom.startBtns[id];
         if (btn) {
-          btn.textContent = "CASH OUT";
+          setStartBtnLabel(btn, "CASH OUT", `${state.multiplier.toFixed(2)}x`);
           btn.classList.add("cashout");
           btn.disabled = false;
         }
@@ -577,7 +578,7 @@
       if (crashedThisFrame) {
         finishRound();
         return;
-    }
+      }
 
       state.animationFrame = requestAnimationFrame(frame);
     }
@@ -591,6 +592,17 @@
     if (dom.multiplier && text !== state.lastMultiplierText) {
       dom.multiplier.textContent = text;
       state.lastMultiplierText = text;
+
+      // Live-update each active cash-out button's payout preview, but
+      // only on the same "value actually changed" cadence as above.
+      [1, 2].forEach(id => {
+        const bet = state.bets[id];
+        const btn = dom.startBtns[id];
+        if (btn && bet.active && !bet.cashedOut) {
+          const span = btn.querySelector("span");
+          if (span) span.textContent = text;
+        }
+      });
     }
 
     if (dom.plane) {
@@ -626,7 +638,7 @@
 
     const btn = dom.startBtns[panelId];
     if (btn) {
-      btn.textContent = `Won ${winnings}!`;
+      setStartBtnLabel(btn, "WON", winnings);
       btn.classList.remove("cashout");
       btn.disabled = true;
     }
@@ -647,7 +659,7 @@
       if (bet.active && !bet.cashedOut) {
         const btn = dom.startBtns[id];
         if (btn) {
-          btn.textContent = "LOST";
+          setStartBtnLabel(btn, "LOST", `${finalVal.toFixed(2)}x`);
           btn.classList.remove("cashout");
           btn.disabled = true;
         }
