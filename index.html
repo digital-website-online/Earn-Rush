@@ -1428,11 +1428,12 @@ STEP 1 UI MICRO-INTERACTIONS
 
       <!-- Graph Screen -->
       <div class="mg-screen">
-        <div class="mg-curve"></div>
         <div id="mgRoundNumber" class="mg-round-tag">ROUND 1</div>
         <div id="mgMultiplier" class="mg-multiplier">1.00x</div>
-        <div id="mgStatus" class="mg-status">Ready for next round</div>
+        <div id="mgStatus" class="mg-status">Next flight in 4s</div>
+        <div id="mgTrail" class="mg-trail"></div>
         <div id="mgPlane" class="mg-plane">✈️</div>
+        <div class="mg-demo-badge">🎮 <span id="mgLivePlayers">136</span> demo</div>
       </div>
 
       <!-- History Bar -->
@@ -1487,8 +1488,12 @@ STEP 1 UI MICRO-INTERACTIONS
       <div class="mg-panel-container">
         <div data-mg-panel="current" class="mg-panel">
           <div class="mg-live-bets-header">
-            <span>Demo Activity (<span id="mgLivePlayers">136</span>)</span>
-            <span>Total Bets</span>
+            <span>Demo Activity</span>
+            <span>Amount</span>
+          </div>
+          <div class="mg-stats-strip">
+            <span><strong id="mgDemoBetsCount">0</strong> demo bets shown</span>
+            <span>Total shown: <strong id="mgDemoTotal">0</strong> Tokens</span>
           </div>
           <div class="mg-demo-note">🎮 Simulated game activity for atmosphere only — not real players or real bets.</div>
           <div class="mg-live-bets-list" id="mgLiveBetsList">
