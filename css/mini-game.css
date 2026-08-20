@@ -766,3 +766,10 @@ body.mini-game-active {
     height: 100%;
     overscroll-behavior: none;
 }
+
+/* Black-screen flash aur glitch ko rokne ke liye hardware acceleration */
+#miniGameOverlay {
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    background-color: #0b0e14; /* Isse transparent transition ke waqt black flash nahi hota */
+}
