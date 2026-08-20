@@ -1,5 +1,5 @@
 /* =========================================================
-   EARNRUSH MINI GAME - FULL STYLING (AVIATOR ARCADE UPGRADE)
+   EARNRUSH MINI GAME - FULL STYLING
    ========================================================= */
 
 /* Body Lock when Game is Open */
@@ -45,8 +45,8 @@ body.mg-open {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #05111e;
-  z-index: 99999;
+  background: #0b1120;
+  z-index: 9999;
   display: flex;
   flex-direction: column;
   opacity: 0;
@@ -63,7 +63,7 @@ body.mg-open {
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-width: 480px;
+  max-width: 500px;
   margin: 0 auto;
   width: 100%;
   padding: 12px;
@@ -76,14 +76,14 @@ body.mg-open {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mg-back {
   background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: none;
   color: #fff;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 8px;
   font-size: 12px;
   cursor: pointer;
@@ -92,231 +92,214 @@ body.mg-open {
 
 .mg-header h2 {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
   color: #fff;
-  letter-spacing: 0.5px;
 }
 
 .mg-wallet-badge {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-  padding: 6px 12px;
+  background: rgba(255, 215, 90, 0.12);
+  color: #ffd75a;
+  padding: 6px 11px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 900;
-  border: 1px solid rgba(56, 189, 248, 0.25);
-}
-
-/* Top Recent Results / Multiplier Strip */
-.mg-history-bar {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 8px 0;
-  scrollbar-width: none;
-}
-.mg-history-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.mg-history-pill {
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 11px;
   font-weight: 800;
-  background: rgba(30, 41, 59, 0.9);
-  white-space: nowrap;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 215, 90, 0.28);
+  text-shadow: 0 0 12px rgba(255, 215, 90, 0.25);
 }
-.mg-history-pill.low { color: #38bdf8; }
-.mg-history-pill.medium { color: #a855f7; }
-.mg-history-pill.high { color: #eab308; }
 
-/* Game Animation Screen (Immersive Dark Flight Area) */
+/* Game Animation Screen — dark, layered, premium */
 .mg-screen {
   position: relative;
-  height: 210px;
-  background: radial-gradient(circle at 50% 30%, rgba(39, 200, 255, 0.12) 0%, rgba(10, 22, 38, 0.95) 70%),
-              linear-gradient(135deg, #0b1524 0%, #050d18 100%);
-  border-radius: 16px;
-  margin: 8px 0;
+  height: 240px;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(56, 189, 248, 0.10), transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(239, 68, 68, 0.08), transparent 60%),
+    linear-gradient(180deg, #101a2c 0%, #070c15 100%);
+  border-radius: 18px;
+  margin: 12px 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(39, 200, 255, 0.18);
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.35);
+}
+
+/* Subtle rising grid for depth, static — no per-frame cost */
+.mg-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 70%);
+  mask-image: linear-gradient(180deg, transparent, #000 70%);
+  pointer-events: none;
 }
 
 .mg-round-tag {
   position: absolute;
-  top: 10px;
+  top: 12px;
   left: 12px;
   font-size: 10px;
-  color: #38bdf8;
-  font-weight: 900;
-  letter-spacing: 1px;
+  color: #64748b;
+  font-weight: 800;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
+  z-index: 5;
 }
 
 .mg-multiplier {
-  font-size: 44px;
-  font-weight: 950;
-  color: #ffffff;
-  text-shadow: 0 0 20px rgba(39, 200, 255, 0.4);
-  transition: color 0.2s ease;
-  z-index: 2;
+  font-size: 46px;
+  font-weight: 900;
+  color: #22c55e;
   letter-spacing: -1px;
+  text-shadow: 0 0 26px rgba(34, 197, 94, 0.35);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+  z-index: 3;
 }
 
 .mg-multiplier.crashed {
   color: #ef4444;
-  text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+  text-shadow: 0 0 26px rgba(239, 68, 68, 0.4);
+  animation: mgCrashPulse 0.3s ease;
+}
+
+@keyframes mgCrashPulse {
+  0% { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 
 .mg-status {
-  font-size: 11px;
+  font-size: 12px;
   color: #94a3b8;
-  margin-top: 2px;
-  z-index: 2;
-  font-weight: 700;
+  margin-top: 4px;
+  z-index: 3;
+  font-weight: 600;
 }
 
-/* Ambient Flight Path & Plane */
-.mg-flight-path {
+/* Flight trail — grows/rotates purely via transform+width, written
+   directly from JS alongside the plane, no layout cost. */
+.mg-trail {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+  left: 15%;
+  bottom: 24%;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0), #ff3b5c 70%, #ff8a9a);
+  border-radius: 4px;
+  transform-origin: left center;
   z-index: 1;
-}
-
-.mg-flight-path svg {
-  width: 100%;
-  height: 100%;
+  pointer-events: none;
 }
 
 .mg-plane {
   position: absolute;
-  font-size: 28px;
-  left: 12%;
-  bottom: 20%;
+  font-size: 30px;
+  left: 15%;
+  bottom: 24%;
+  /* Animated purely via transform (translate3d), written directly each
+     animation frame from JS — no CSS transition here, since a transition
+     would fight with the per-frame rAF updates and cost extra paint work. */
   transform: translate3d(0, 0, 0);
   will-change: transform;
-  z-index: 3;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  z-index: 2;
 }
 
-/* Ambient idle animation when waiting */
-.mg-screen.is-idle .mg-plane {
-  animation: mgAmbientHover 2.2s ease-in-out infinite alternate;
+/* Ambient idle sway while waiting for the next flight — purely CSS,
+   so the plane always feels alive even with zero bets placed. This
+   class is removed the instant a flight begins, handing control back
+   to the per-frame JS transform. */
+.mg-plane.idle {
+  animation: mgPlaneIdle 2.6s ease-in-out infinite;
 }
 
-@keyframes mgAmbientHover {
-  0% { transform: translate3d(0, 0, 0) rotate(-2deg); }
-  100% { transform: translate3d(12px, -8px, 0) rotate(4deg); }
+@keyframes mgPlaneIdle {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+  50% { transform: translate3d(4px, -6px, 0) rotate(3deg); }
 }
 
-/* Controls & Two-Panel Betting Layout */
-.mg-controls-wrapper {
+@media (prefers-reduced-motion: reduce) {
+  .mg-plane.idle { animation: none; }
+}
+
+/* Simulated activity badge on the graph corner */
+.mg-demo-badge {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 38vh;
-  overflow-y: auto;
-  padding-right: 2px;
-}
-
-.mg-bet-panel {
-  background: linear-gradient(145deg, rgba(16, 28, 41, 0.95), rgba(10, 18, 30, 0.95));
-  padding: 10px 12px;
-  border-radius: 14px;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(8, 14, 24, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  font-weight: 800;
+  color: #cbd5e1;
+  z-index: 5;
+}
+
+/* Controls & Betting */
+.mg-controls {
+  background: linear-gradient(180deg, #16233699, #0f1826);
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .mg-bet-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.mg-bet-input-wrap {
-  display: flex;
-  align-items: center;
-  background: #050e18;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-  width: 130px;
-}
-
-.mg-step-btn {
-  background: #1e293b;
-  border: none;
-  color: #fff;
-  width: 30px;
-  height: 34px;
-  font-weight: 900;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.mg-step-btn:active {
-  background: #38bdf8;
-  color: #050e18;
-}
-
-.mg-bet-input {
-  width: 50px;
-  background: transparent;
-  border: none;
-  color: #fff;
-  text-align: center;
-  font-weight: 900;
-  font-size: 13px;
-  outline: none;
+  font-size: 12px;
+  color: #cbd5e1;
 }
 
 .mg-token-buttons {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .mg-token-buttons button {
-  background: #0b1524;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #cbd5e1;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 10px;
-  font-weight: 800;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
   cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.mg-token-buttons button:hover {
+.mg-token-buttons button.active {
+  background: #38bdf8;
+  color: #0f172a;
   border-color: #38bdf8;
-  color: #38bdf8;
 }
 
 .mg-start {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 900;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
   cursor: pointer;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.25);
-  transition: all 0.2s ease;
+  box-shadow: 0 8px 18px rgba(34, 197, 94, 0.22);
+  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
 
 .mg-start:active {
@@ -325,24 +308,161 @@ body.mg-open {
 
 .mg-start.cashout {
   background: linear-gradient(135deg, #f59e0b, #d97706);
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 8px 18px rgba(245, 158, 11, 0.25);
+  animation: mgCashoutPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes mgCashoutPulse {
+  0%, 100% { box-shadow: 0 8px 18px rgba(245, 158, 11, 0.25); }
+  50% { box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45); }
 }
 
 .mg-start:disabled {
-  background: #334155;
-  color: #94a3b8;
-  cursor: not-allowed;
+  background: #475569;
   box-shadow: none;
+  cursor: not-allowed;
   opacity: 0.7;
+  animation: none;
 }
 
-/* Tabs System */
+/* Dual betting panels, side by side */
+.mg-betting-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.mg-bet-row-top {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Numeric stepper: - [ amount ] + */
+.mg-stepper {
+  display: flex;
+  align-items: stretch;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0b1420;
+}
+
+.mg-step-btn {
+  flex: 0 0 34px;
+  border: none;
+  background: #16233a;
+  color: #cbd5e1;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mg-step-btn:active {
+  background: #22344f;
+}
+
+.mg-step-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 0 4px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.mg-step-input::-webkit-outer-spin-button,
+.mg-step-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Recent results / activity */
+.mg-live-bets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 2px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.mg-demo-note {
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.06);
+  font-size: 10px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.mg-stats-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: #101c29;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.mg-stats-strip strong {
+  color: #38bdf8;
+}
+
+.mg-live-bet-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+  transition: background 0.15s ease;
+}
+
+.mg-live-bet-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mg-live-bet-item .user {
+  display: flex;
+  align-items: center;
+  color: #e2e8f0;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.mg-live-bet-item .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00ff88;
+  box-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
+}
+
+.mg-live-bet-amount {
+  color: #22c55e;
+  font-weight: 800;
+}
 .mg-tabs {
   display: flex;
-  gap: 6px;
-  margin-top: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 6px;
+  gap: 8px;
+  margin-top: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
 }
 
 .mg-tabs button {
@@ -351,12 +471,10 @@ body.mg-open {
   border: none;
   color: #64748b;
   padding: 6px;
-  font-size: 11px;
-  font-weight: 900;
+  font-size: 12px;
+  font-weight: bold;
   cursor: pointer;
   border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .mg-tabs button.active {
@@ -368,8 +486,7 @@ body.mg-open {
 .mg-panel-container {
   flex: 1;
   overflow-y: auto;
-  margin-top: 6px;
-  max-height: 160px;
+  margin-top: 8px;
 }
 
 .mg-history {
@@ -379,23 +496,98 @@ body.mg-open {
 }
 
 .mg-history-item {
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 5px 9px;
+  border-radius: 7px;
   font-size: 11px;
   font-weight: 800;
-  background: #1e293b;
+  background: #131f30;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .mg-history-item.low { color: #38bdf8; }
 .mg-history-item.medium { color: #a855f7; }
-.mg-history-item.high { color: #eab308; }
+.mg-history-item.high { color: #f472b6; text-shadow: 0 0 10px rgba(244, 114, 182, 0.35); }
 
 /* Statistics Tab UI */
 .mg-statistics-title {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: bold;
   color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.mg-statistics-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #1e293b;
+  border-radius: 8px;
   margin-bottom: 6px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.mg-statistics-row strong {
+  color: #22c55e;
+}
+
+.mg-statistics-row small {
+  color: #64748b;
+}
+
+/* Modal Popup */
+.mg-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.mg-popup.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mg-popup-content {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 16px;
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mg-popup-content h3 {
+  margin: 0 0 10px 0;
+  color: #38bdf8;
+}
+
+.mg-popup-content p {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.mg-popup-btn {
+  background: #38bdf8;
+  color: #0f172a;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 /* =========================================================
@@ -403,9 +595,9 @@ body.mg-open {
    ========================================================= */
 
 .mg-convert-bar {
-  margin: 6px 0;
-  padding: 10px 12px;
-  border-radius: 12px;
+  margin: 10px 0 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
   background: #101c29;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -414,37 +606,37 @@ body.mg-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .mg-convert-label {
   font-size: 11px;
   color: #94a3b8;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .mg-convert-coins {
-  font-size: 13px;
+  font-size: 14px;
   color: #ffd75a;
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .mg-convert-row {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .mg-convert-input {
   flex: 1;
   min-width: 0;
-  height: 36px;
+  height: 40px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  background: #050e18;
+  border-radius: 10px;
+  background: #0b1420;
   color: #fff;
-  padding: 0 10px;
+  padding: 0 12px;
   outline: none;
-  font: 800 12px Arial, sans-serif;
+  font: 700 13px Arial, sans-serif;
 }
 
 .mg-convert-input:focus {
@@ -452,30 +644,34 @@ body.mg-open {
 }
 
 .mg-convert-btn {
-  height: 36px;
-  padding: 0 14px;
+  height: 40px;
+  padding: 0 16px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #12bff2, #087dce);
   color: #fff;
-  font-weight: 900;
-  font-size: 12px;
+  font-weight: 800;
+  font-size: 13px;
   cursor: pointer;
   white-space: nowrap;
 }
 
+.mg-convert-btn:active {
+  transform: scale(0.97);
+}
+
 .mg-convert-preview {
-  margin-top: 4px;
-  font-size: 10px;
+  margin-top: 6px;
+  font-size: 11px;
   color: #64748b;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .mg-convert-msg {
-  min-height: 12px;
-  margin: 2px 0 0;
-  font-size: 10px;
-  font-weight: 800;
+  min-height: 14px;
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .mg-convert-msg.is-error {
@@ -486,13 +682,37 @@ body.mg-open {
   color: #22c55e;
 }
 
+.mg-convert-note {
+  margin: 6px 0 0;
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   SIMULATED / DEMO ACTIVITY LABELING
+   The "active players" and "live bets" feed are simulated
+   for atmosphere only — this makes that explicit in the UI
+   rather than presenting fabricated activity as real users.
+   ========================================================= */
+
+.mg-demo-note {
+  padding: 6px 10px;
+  font-size: 10px;
+  color: #64748b;
+  font-style: italic;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .mg-demo-tag {
   display: inline-block;
   margin-left: 4px;
-  padding: 1px 4px;
+  padding: 1px 5px;
   border-radius: 4px;
   background: rgba(148, 163, 184, 0.15);
   color: #94a3b8;
   font-size: 8px;
   font-weight: 800;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
 }
