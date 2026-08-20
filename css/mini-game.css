@@ -251,9 +251,17 @@ body.mg-open {
   padding: 14px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.mg-panel-left {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  justify-content: center;
 }
 
 .mg-bet-row {
@@ -273,11 +281,12 @@ body.mg-open {
   background: #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   cursor: pointer;
+  flex: 1;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
@@ -288,18 +297,25 @@ body.mg-open {
 }
 
 .mg-start {
-  width: 100%;
-  padding: 14px;
+  width: 132px;
+  padding: 8px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #fff;
   border: none;
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 800;
+  line-height: 1.5;
   cursor: pointer;
   letter-spacing: 0.5px;
   box-shadow: 0 8px 18px rgba(34, 197, 94, 0.22);
   transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.mg-start span {
+  display: block;
+  font-size: 17px;
+  font-weight: 900;
 }
 
 .mg-start:active {
@@ -325,18 +341,12 @@ body.mg-open {
   animation: none;
 }
 
-/* Dual betting panels, side by side */
+/* Dual betting panels, stacked vertically (matches reference layout) */
 .mg-betting-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 4px;
-}
-
-.mg-bet-row-top {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 4px;
 }
 
 /* Numeric stepper: - [ amount ] + */
