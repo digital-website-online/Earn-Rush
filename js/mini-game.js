@@ -352,11 +352,7 @@
 document.documentElement.classList.add('mini-game-active');
 document.body.classList.add('mini-game-active');
 
-const overlay = document.getElementById('miniGameOverlay');
 
-if (overlay && !document.fullscreenElement && overlay.requestFullscreen) {
-    overlay.requestFullscreen().catch(() => {});
-}
     document.body.classList.add("mg-open");
     updateWalletUI();
     updateConvertPreview();
