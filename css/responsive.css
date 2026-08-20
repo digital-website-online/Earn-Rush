@@ -862,26 +862,24 @@ button {
 }
 /* =========================================
    MINI GAME — RESPONSIVE VIEWPORT
+   -----------------------------------------
+   .mg-container sizing/scrolling is now owned solely by
+   mini-game.css (.mg-overlay / .mg-container) — no longer
+   duplicated here, since two files disagreeing on the same
+   property was the actual cause of the previous "wrong file
+   wins" bug (mini-game.css loads after this file, so its fixed
+   height was silently overriding this media query every time).
+
+   The one thing still worth doing responsively is trimming the
+   graph a little on genuinely short viewports so more of the
+   betting controls are visible before the user needs to scroll.
+   Uses the #miniGameOverlay id for specificity so it reliably
+   wins regardless of stylesheet load order, instead of fighting
+   the cascade again.
    ========================================= */
 
 @media (max-height: 700px) {
-    .mg-overlay .mg-container {
-        height: 100dvh;
-        max-height: 100dvh;
-    }
-
-    .mg-overlay .mg-screen {
-        height: clamp(180px, 34dvh, 240px);
-    }
-}
-
-@media (min-height: 701px) {
-    .mg-overlay .mg-container {
-        height: 100dvh;
-        max-height: 100dvh;
-    }
-
-    .mg-overlay .mg-screen {
-        height: clamp(210px, 34dvh, 280px);
+    #miniGameOverlay .mg-screen {
+        height: clamp(170px, 30dvh, 220px);
     }
 }
