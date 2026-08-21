@@ -469,6 +469,24 @@ HEADER
 
   <div class="header-actions">
 
+    <div id="authGuestActions" class="auth-guest-actions">
+      <button
+        type="button"
+        id="authLoginBtn"
+        class="auth-header-btn secondary"
+      >
+        LOGIN
+      </button>
+
+      <button
+        type="button"
+        id="authSignupBtn"
+        class="auth-header-btn primary"
+      >
+        CREATE ACCOUNT
+      </button>
+    </div>
+
     <div class="header-icons">
       <button
         class="icon-button"
@@ -491,24 +509,6 @@ HEADER
         aria-expanded="false"
       >
         ⚙️
-      </button>
-    </div>
-
-    <div id="authGuestActions" class="auth-guest-actions">
-      <button
-        type="button"
-        id="authLoginBtn"
-        class="auth-header-btn secondary"
-      >
-        LOGIN
-      </button>
-
-      <button
-        type="button"
-        id="authSignupBtn"
-        class="auth-header-btn primary"
-      >
-        CREATE ACCOUNT
       </button>
     </div>
 
@@ -909,14 +909,6 @@ MINI GAME CARD (Scrolls to mini game section)
   </div>
 </div>
 
-<!-- =========================================
-WITHDRAWAL SECTION
-========================================== -->
-<section
-  id="withdrawalSection"
-  style="
-    margin-bottom:20px;
-    padding:20px;
     border-radius:18px;
     background:linear-gradient(145deg,rgba(10,28,45,0.96),rgba(6,18,31,0.96));
     border:1px solid var(--border);
@@ -1499,7 +1491,7 @@ STEP 1 UI MICRO-INTERACTIONS
     );
   }
 
-  /* =========================================
+    /* =========================================
      COIN DISPLAY MICRO ANIMATION
   ========================================== */
   const balanceElement = document.getElementById("balance");
