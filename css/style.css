@@ -195,6 +195,9 @@ select:focus-visible {
     font-weight: 950;
     letter-spacing: -1px;
     white-space: nowrap;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .header-actions {
