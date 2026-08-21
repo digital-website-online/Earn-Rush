@@ -139,9 +139,11 @@ select:focus-visible {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
+    gap: 12px;
 
     margin-bottom: 24px;
+
+    min-width: 0;
 }
 
 .brand {
@@ -149,6 +151,7 @@ select:focus-visible {
     align-items: center;
     gap: 12px;
     min-width: 0;
+    flex: 1;
 }
 
 .brand-mark {
@@ -198,36 +201,108 @@ select:focus-visible {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
 }
 
-.icon-button {
-    width: 48px;
-    height: 48px;
 
-    display: grid;
-    place-items: center;
+/* =========================================================
+   AUTH HEADER
+========================================================= */
 
-    border-radius: 15px;
+.auth-guest-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+}
 
-    background: rgba(9,24,39,.86);
-    border: 1px solid var(--border);
+.auth-header-btn {
+    min-height: 42px;
 
-    font-size: 20px;
+    padding: 0 13px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .6px;
+    white-space: nowrap;
+
+    border: 1px solid var(--border-strong);
 
     transition:
         transform .18s ease,
         background .18s ease,
-        border-color .18s ease;
+        border-color .18s ease,
+        box-shadow .18s ease;
 }
 
-.icon-button:hover {
+.auth-header-btn:hover {
     transform: translateY(-2px);
-    background: var(--bg-card-light);
-    border-color: var(--border-strong);
 }
 
-.icon-button:active {
-    transform: scale(.93);
+.auth-header-btn:active {
+    transform: scale(.96);
+}
+
+.auth-header-btn.secondary {
+    background: rgba(9,24,39,.9);
+    color: var(--text-main);
+}
+
+.auth-header-btn.primary {
+    color: #04111b;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--green),
+            var(--cyan)
+        );
+
+    border-color: transparent;
+
+    box-shadow:
+        0 7px 24px rgba(39,200,255,.15);
+}
+
+.auth-user-chip {
+    min-width: 0;
+    max-width: 150px;
+    min-height: 42px;
+
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(13,39,57,.98),
+            rgba(7,22,36,.98)
+        );
+
+    border: 1px solid rgba(39,200,255,.24);
+
+    color: var(--text-main);
+
+    font-size: 11px;
+    font-weight: 850;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.18);
 }
 
 
@@ -301,10 +376,7 @@ select:focus-visible {
 
 .status-value.gold {
     color: var(--gold);
-}
-
-
-/* =========================================================
+} =========================================================
    BALANCE
 ========================================================= */
 
