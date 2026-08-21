@@ -41,23 +41,21 @@ body.mg-open {
 /* Fullscreen Game Overlay */
 .mg-overlay {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100vh;   /* fallback for browsers without dvh support */
-  height: 100dvh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: #0b1120;
   z-index: 9999;
   display: flex;
   flex-direction: column;
   opacity: 0;
-  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
 
 .mg-overlay.active {
   opacity: 1;
-  visibility: visible;
   pointer-events: auto;
 }
 
@@ -69,20 +67,7 @@ body.mg-open {
   margin: 0 auto;
   width: 100%;
   padding: 12px;
-  padding-top: calc(12px + env(safe-area-inset-top));
-  padding-bottom: calc(12px + env(safe-area-inset-bottom));
-  padding-left: calc(12px + env(safe-area-inset-left));
-  padding-right: calc(12px + env(safe-area-inset-right));
   box-sizing: border-box;
-  /* The content (graph + converter + two bet panels + tabs + list) can
-     be taller than the viewport on short iPhones. Instead of clipping
-     it (the old overflow:hidden here caused the "bunched up" look on
-     iOS), let this column scroll while the page behind it stays
-     locked via html/body.mini-game-active. Nothing is ever cut off. */
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
 }
 
 /* Header */
@@ -747,23 +732,33 @@ body.mg-open {
    ========================================= */
 
 #miniGameOverlay {
-    /* Sizing/positioning is handled by .mg-overlay above. This block
-       only adds what .mg-overlay doesn't already cover, so there's
-       one source of truth instead of two competing height rules. */
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
     overscroll-behavior: none;
+    touch-action: none;
 }
 
-/* NOTE ON THE BLACK-SCREEN FLASH:
-   The actual cause was HERE — `transform: translateZ(0)` combined
-   with `will-change: transform, opacity` forced this full-viewport,
-   solid-background overlay onto its own GPU compositing layer at the
-   exact moment its opacity was toggled by JS (e.g. right as the
-   converter re-rendered). On iOS Safari that combination is a known
-   trigger for a visible flash of the raw layer background before the
-   content paints — i.e. the "fix" was causing the bug. It has been
-   removed rather than papered over. The overlay now transitions via
-   opacity/visibility only (see .mg-overlay above), which is enough
-   for a smooth fade without forcing layer promotion. */
+#miniGameOverlay .mg-container {
+    width: 100%;
+    height: 100%;
+    min-height: 100dvh;
+    max-height: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#miniGameOverlay .mg-screen {
+    width: 100%;
+    height: clamp(180px, 34dvh, 280px);
+    min-height: 180px;
+    max-height: 280px;
+    flex-shrink: 1;
+}
 
 html.mini-game-active,
 body.mini-game-active {
@@ -772,15 +767,24 @@ body.mini-game-active {
     overscroll-behavior: none;
 }
 
-/* iOS Safari does not reliably honor overflow:hidden on body to stop
-   background scrolling/touch — the widely-used reliable technique is
-   pinning body in place with position:fixed at its current scroll
-   offset (set via --mg-scroll-y from JS) and restoring scrollTo() on
-   close. See openGame()/closeGame() in mini-game.js. */
-body.mini-game-active {
-    position: fixed;
-    top: calc(-1 * var(--mg-scroll-y, 0px));
-    left: 0;
-    right: 0;
-    width: 100%;
+/* NOTE: A previous pass added
+     transform: translateZ(0); will-change: transform, opacity;
+   plus an opaque background-color directly on #miniGameOverlay to
+   "fix" the black-flash bug. That was the actual cause: forcing a
+   solid-background full-viewport element onto its own GPU layer at
+   the exact moment its opacity was toggled by JS (e.g. right as the
+   converter re-rendered) is a known trigger for a visible flash of
+   the raw layer background before the content paints on iOS Safari
+   — i.e. the "fix" was causing the bug. It has been removed rather
+   than papered over. The overlay now transitions via opacity/
+   visibility only (see .mg-overlay base rule), which is enough for
+   a smooth fade without forcing layer promotion.
+   [This exact regression was reintroduced once already by a stale
+   file re-copy and has been removed again — see conversation.] */
+
+#miniGameOverlay {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
