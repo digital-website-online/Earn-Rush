@@ -493,7 +493,22 @@ HEADER
       ⚙️
     </button>
 
-    <button type="button" id="authUserChip" class="auth-user-chip" hidden></button>
+    <div id="authGuestActions" class="auth-guest-actions">
+  <button type="button" id="authLoginBtn" class="auth-header-btn secondary">
+    LOGIN
+  </button>
+
+  <button type="button" id="authSignupBtn" class="auth-header-btn primary">
+    CREATE ACCOUNT
+  </button>
+</div>
+
+<button
+  type="button"
+  id="authUserChip"
+  class="auth-user-chip"
+  hidden
+></button>
 
     <button type="button" id="adminPanelBtn" class="icon-button" aria-label="Admin" hidden>🛡️</button>
   </div>
