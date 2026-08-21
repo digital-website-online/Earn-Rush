@@ -1655,10 +1655,19 @@ select:focus-visible {
 
     .game-header {
         margin-bottom: 20px;
+        flex-wrap: wrap;
     }
 
     .brand {
+        flex: 1 1 auto;
         gap: 9px;
+    }
+
+    .header-actions {
+        flex: 1 1 100%;
+        justify-content: space-between;
+        margin-top: 10px;
+        gap: 6px;
     }
 
     .brand-mark {
@@ -1672,10 +1681,6 @@ select:focus-visible {
 
     .brand-name {
         font-size: 23px;
-    }
-
-    .header-actions {
-        gap: 6px;
     }
 
     .icon-button {
