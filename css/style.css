@@ -2675,3 +2675,41 @@ select:focus-visible {
         font-size: 21px;
     }
 }
+/* =========================================================
+   HEADER — AUTH / ICON SPACING FIX
+========================================================= */
+
+.game-header {
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.brand {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.brand-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-actions {
+    flex: 0 0 auto;
+    min-width: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.auth-guest-actions {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.auth-header-btn {
+    position: relative;
+    z-index: 3;
+}
