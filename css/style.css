@@ -1654,40 +1654,53 @@ select:focus-visible {
     }
 
     .game-header {
-        margin-bottom: 20px;
-        flex-wrap: wrap;
+        margin-bottom: 18px;
+        flex-wrap: nowrap;
+        gap: 6px;
     }
 
     .brand {
         flex: 1 1 auto;
-        gap: 9px;
-    }
-
-    .header-actions {
-        flex: 1 1 100%;
-        justify-content: space-between;
-        margin-top: 10px;
+        min-width: 0;
         gap: 6px;
     }
 
-    .brand-mark {
-        width: 49px;
-        height: 49px;
-        flex-basis: 49px;
+    .header-actions {
+        flex: 0 0 auto;
+        gap: 4px;
+    }
 
-        border-radius: 15px;
-        font-size: 23px;
+    .brand-mark {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+
+        border-radius: 11px;
+        font-size: 17px;
     }
 
     .brand-name {
-        font-size: 23px;
+        font-size: 16px;
+        letter-spacing: -.4px;
     }
 
     .icon-button {
-        width: 45px;
-        height: 45px;
-        border-radius: 14px;
-        font-size: 18px;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .auth-guest-actions {
+        gap: 4px;
+    }
+
+    .auth-header-btn {
+        min-height: 34px;
+        padding: 0 7px;
+        border-radius: 9px;
+        font-size: 7.5px;
+        letter-spacing: .3px;
     }
 
     .status-card {
@@ -1833,19 +1846,25 @@ select:focus-visible {
     }
 
     .brand-mark {
-        width: 45px;
-        height: 45px;
-        flex-basis: 45px;
-        font-size: 21px;
+        width: 32px;
+        height: 32px;
+        flex-basis: 32px;
+        font-size: 15px;
     }
 
     .brand-name {
-        font-size: 21px;
+        font-size: 14px;
     }
 
     .icon-button {
-        width: 42px;
-        height: 42px;
+        width: 31px;
+        height: 31px;
+    }
+
+    .auth-header-btn {
+        min-height: 31px;
+        padding: 0 5px;
+        font-size: 7px;
     }
 
     .player-status {
@@ -1933,16 +1952,22 @@ select:focus-visible {
     }
 
     .brand-name {
-        font-size: 19px;
+        font-size: 12px;
     }
 
     .header-actions {
-        gap: 4px;
+        gap: 3px;
     }
 
     .icon-button {
-        width: 39px;
-        height: 39px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .auth-header-btn {
+        min-height: 28px;
+        padding: 0 4px;
+        font-size: 6.5px;
     }
 
     .balance-amount {
