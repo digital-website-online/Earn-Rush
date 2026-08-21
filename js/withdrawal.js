@@ -4,6 +4,12 @@
 (() => {
   "use strict";
 
+  // Single source of truth for the coin economy on this page.
+  // 1,000 Coins = Rs 1  ->  RATE = 0.001
+  // Minimum withdrawal = 50,000 Coins = Rs 50
+  const COIN_TO_RS_RATE = 0.001;
+  const MIN_WITHDRAW_COINS = 50000;
+
   /* =====================================================
      LIVE USERS COUNTER — SMOOTH NUMBER WHEEL
   ===================================================== */
@@ -403,7 +409,7 @@
 
           const rs =
             (
-              coins * 0.001
+              coins * COIN_TO_RS_RATE
             ).toFixed(2);
 
 
@@ -414,11 +420,11 @@
           if (withdrawBtn) {
 
             withdrawBtn.disabled =
-              coins < 500;
+              coins < MIN_WITHDRAW_COINS;
 
 
             if (
-              coins < 500
+              coins < MIN_WITHDRAW_COINS
             ) {
 
               withdrawBtn.style.opacity =
@@ -450,7 +456,19 @@
 
       withdrawBtn.addEventListener(
         "click",
-        () => {
+        async () => {
+
+          // Auth gate — smallest possible addition ahead of the
+          // existing validation below, which is otherwise untouched.
+          // A guest must sign in/create an account before a real
+          // withdrawal can be created against their profile.
+          if (window.EarnRushAuth && !window.EarnRushAuth.getUser()) {
+            window.EarnRushAuth.requireAuth();
+            return;
+          }
+
+          // Prevent double submission while a request is in flight.
+          if (withdrawBtn.disabled) return;
 
           const state =
             window.EarnRushGame?.getState();
@@ -468,12 +486,12 @@
           /* VALIDATION */
 
           if (
-            coins < 500
+            coins < MIN_WITHDRAW_COINS
           ) {
 
             showErrorPopup(
-              "Minimum 500 coins required",
-              "Enter at least 500 coins to withdraw"
+              "Minimum 50,000 coins required",
+              "Enter at least 50,000 coins to withdraw"
             );
 
             return;
@@ -491,6 +509,18 @@
 
             return;
           }
+
+
+          // Cash amount is derived server-side-equivalent here from
+          // the trusted coin count only — never read from any input
+          // or variable a caller could set directly, so this can't be
+          // used to submit an arbitrary cash_amount alongside a
+          // smaller coins value. (True enforcement still requires the
+          // Supabase-side function in Task B to recompute this again
+          // and reject any client-supplied cash_amount — see report.)
+          const cashAmount = Number(
+            (coins * COIN_TO_RS_RATE).toFixed(2)
+          );
 
 
           const accountType =
@@ -560,51 +590,150 @@
           }
 
 
-          /* LOADING */
+          /* REAL WITHDRAWAL — calls the existing create_withdrawal
+             RPC with its exact, verified signature. The database is
+             authoritative: it re-validates auth, minimum, balance,
+             and computes cash_amount itself (1,000 coins = Rs 1).
+             The client-side checks above are for responsive UX only. */
+
+          const paymentMethod =
+            accountType; // "easypaisa" | "jazzcash" | "bank" — matches p_payment_method, a plain required text field
+
+          const paymentAccount =
+            accountType === "bank"
+              ? `${document.getElementById("bankSelect")?.value || ""} - ${accountNumber}`
+              : accountNumber;
 
           showLoading();
+          withdrawBtn.disabled = true;
 
-          withdrawBtn.disabled =
-            true;
-
-
-          /*
-           * Verification delay
-           */
-          setTimeout(() => {
-
-            withdrawBtn.disabled =
-              false;
+          try {
+            const { data: withdrawal, error } =
+              await window.supabase.rpc("create_withdrawal", {
+                p_coins: coins,
+                p_payment_method: paymentMethod,
+                p_payment_account: paymentAccount
+              });
 
             hideLoading();
+            withdrawBtn.disabled = false;
 
-
-            const msg =
-              document.getElementById(
-                "withdrawMessage"
-              );
-
-
-            if (msg) {
-
-              msg.textContent =
-                "⏳ Aap abhi eligible nahi hain. Admin approval pending.";
-
-
-              msg.className =
-                "withdraw-message pending show";
-
-
-              msg.style.display =
-                "block";
+            if (error) {
+              // The RPC's own raised exceptions are already
+              // human-readable ("Minimum withdrawal is 50,000
+              // coins", "Insufficient coin balance", etc.) — surface
+              // them directly rather than a generic message.
+              showErrorPopup("Withdrawal Failed", error.message);
+              return;
             }
 
-          }, Math.random() * 2000 + 8000);
+            const msg =
+              document.getElementById("withdrawMessage");
+
+            if (msg) {
+              msg.textContent =
+                `✅ Withdrawal request submitted — Rs ${withdrawal.cash_amount} ` +
+                `for ${withdrawal.coins.toLocaleString()} coins is now ${withdrawal.status}.`;
+              msg.className = "withdraw-message pending show";
+              msg.style.display = "block";
+            }
+
+            if (coinsInput) coinsInput.value = "";
+            if (rsDisplay) rsDisplay.textContent = "= 0 Rs";
+
+            await refreshCoinBalance();
+            await loadWithdrawalHistory();
+
+          } catch (err) {
+            hideLoading();
+            withdrawBtn.disabled = false;
+            showErrorPopup(
+              "Withdrawal Failed",
+              err?.message || "Something went wrong. Please try again."
+            );
+          }
 
         }
       );
     }
   }
+
+
+  /* =====================================================
+     REFRESH COIN BALANCE — after a successful withdrawal, re-read
+     the real profile balance from Supabase (authoritative) rather
+     than assuming the local deduction math.
+  ===================================================== */
+
+  async function refreshCoinBalance() {
+    const user = window.EarnRushAuth?.getUser();
+    if (!user || !window.supabase) return;
+
+    const { data, error } = await window.supabase
+      .from("profiles")
+      .select("coins")
+      .eq("id", user.id)
+      .single();
+
+    if (error || !data) return;
+
+    const balanceEl = document.getElementById("balance");
+    if (balanceEl) balanceEl.textContent = data.coins.toLocaleString();
+  }
+
+
+  /* =====================================================
+     WITHDRAWAL HISTORY — plain authenticated select; RLS ("Users
+     can view own withdrawals") restricts this to the caller's own
+     rows at the database level, so there is no need to fetch
+     everything and filter client-side.
+  ===================================================== */
+
+  async function loadWithdrawalHistory() {
+    const listEl = document.getElementById("withdrawHistoryList");
+    if (!listEl) return;
+
+    const user = window.EarnRushAuth?.getUser();
+    if (!user || !window.supabase) {
+      listEl.innerHTML = `<div class="panel-empty-text" style="padding:14px;text-align:center;">Log in to see your withdrawal history.</div>`;
+      return;
+    }
+
+    const { data, error } = await window.supabase
+      .from("withdrawals")
+      .select("id, coins, cash_amount, payment_method, status, created_at, transaction_reference, admin_note")
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (error) {
+      listEl.innerHTML = `<div class="panel-empty-text" style="padding:14px;text-align:center;">Couldn't load history: ${error.message}</div>`;
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      listEl.innerHTML = `<div class="panel-empty-text" style="padding:14px;text-align:center;">No withdrawals yet.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = data.map(w => `
+      <div class="withdraw-history-item">
+        <div class="withdraw-history-row">
+          <strong>${w.coins.toLocaleString()} 🪙 → Rs ${w.cash_amount}</strong>
+          <span class="withdraw-status-badge status-${w.status}">${w.status}</span>
+        </div>
+        <div class="withdraw-history-meta">
+          ${w.payment_method} • ${new Date(w.created_at).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
+          ${w.transaction_reference ? ` • Ref: ${w.transaction_reference}` : ""}
+        </div>
+        ${w.admin_note ? `<div class="withdraw-history-note">${w.admin_note}</div>` : ""}
+      </div>
+    `).join("");
+  }
+
+  window.EarnRushWithdrawal = {
+    loadWithdrawalHistory,
+    refreshCoinBalance
+  };
 
 
   /* =====================================================
@@ -755,6 +884,11 @@
       initLiveCounter();
 
       initWithdrawal();
+
+      // Load history immediately if a session already exists
+      // (e.g. returning logged-in user); auth.js also triggers this
+      // again once sign-in/sign-up resolves for a fresh session.
+      loadWithdrawalHistory();
 
     }
   );
