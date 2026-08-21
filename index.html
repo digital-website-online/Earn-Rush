@@ -473,20 +473,112 @@ HEADER
     <button
       class="icon-button"
       type="button"
+      id="notifBellBtn"
       aria-label="Notifications"
+      aria-haspopup="true"
+      aria-expanded="false"
     >
       🔔
+      <span id="notifBadge" class="notif-badge" hidden>0</span>
     </button>
 
     <button
       class="icon-button"
       type="button"
+      id="settingsBtn"
       aria-label="Settings"
+      aria-haspopup="true"
+      aria-expanded="false"
     >
       ⚙️
     </button>
+
+    <button type="button" id="authUserChip" class="auth-user-chip" hidden></button>
+
+    <button type="button" id="adminPanelBtn" class="icon-button" aria-label="Admin" hidden>🛡️</button>
   </div>
 </header>
+
+<!-- =========================================
+ADMIN WITHDRAWALS PANEL (built/wired by js/admin.js)
+Only ever shown after a REAL public.is_admin() RPC check succeeds —
+never based on any client-side/localStorage flag.
+========================================== -->
+<div id="adminOverlay" class="panel-overlay" hidden>
+  <div id="adminPanel" class="slide-panel admin-panel" role="dialog" aria-label="Admin — Withdrawals">
+    <div class="slide-panel-header">
+      <h3>Withdrawal Requests</h3>
+      <button type="button" id="adminCloseBtn" class="icon-button" aria-label="Close">✕</button>
+    </div>
+    <div id="adminList" class="slide-panel-body">
+      <!-- Populated by js/admin.js -->
+    </div>
+  </div>
+</div>
+
+<!-- =========================================
+AUTH MODAL (login / signup) — built/wired by js/auth.js
+========================================== -->
+<div id="authOverlay" class="panel-overlay auth-overlay" hidden>
+  <div id="authPanel" class="auth-modal" role="dialog" aria-label="Account">
+    <div class="slide-panel-header">
+      <h3>Your Account</h3>
+      <button type="button" id="authCloseBtn" class="icon-button" aria-label="Close">✕</button>
+    </div>
+
+    <div class="auth-tabs">
+      <button type="button" id="authTabLogin" class="auth-tab active">Login</button>
+      <button type="button" id="authTabSignup" class="auth-tab">Create Account</button>
+    </div>
+
+    <p class="auth-note">An account is required to withdraw. Your Coins keep earning either way.</p>
+
+    <div id="authError" class="auth-error" hidden></div>
+
+    <form id="authLoginForm" class="auth-form">
+      <input type="email" id="authLoginEmail" placeholder="Email" required autocomplete="email">
+      <input type="password" id="authLoginPassword" placeholder="Password" required autocomplete="current-password">
+      <button type="submit" class="auth-submit-btn">Log In</button>
+    </form>
+
+    <form id="authSignupForm" class="auth-form" hidden>
+      <input type="text" id="authSignupName" placeholder="Name" required autocomplete="name">
+      <input type="email" id="authSignupEmail" placeholder="Email" required autocomplete="email">
+      <input type="password" id="authSignupPassword" placeholder="Password (min 6 characters)" required autocomplete="new-password">
+      <button type="submit" class="auth-submit-btn">Create Account</button>
+    </form>
+  </div>
+</div>
+
+<!-- =========================================
+NOTIFICATIONS PANEL (built/wired by js/notifications.js)
+========================================== -->
+<div id="notifOverlay" class="panel-overlay" hidden>
+  <div id="notifPanel" class="slide-panel" role="dialog" aria-label="Notifications">
+    <div class="slide-panel-header">
+      <h3>Notifications</h3>
+      <button type="button" id="notifCloseBtn" class="icon-button" aria-label="Close notifications">✕</button>
+    </div>
+    <div id="notifList" class="slide-panel-body">
+      <!-- Populated by js/notifications.js -->
+    </div>
+  </div>
+</div>
+
+<!-- =========================================
+SETTINGS PANEL (built/wired by js/settings.js)
+========================================== -->
+<div id="settingsOverlay" class="panel-overlay" hidden>
+  <div id="settingsPanel" class="slide-panel" role="dialog" aria-label="Settings">
+    <div class="slide-panel-header">
+      <h3>Settings</h3>
+      <button type="button" id="settingsCloseBtn" class="icon-button" aria-label="Close settings">✕</button>
+    </div>
+    <div id="settingsList" class="slide-panel-body">
+      <!-- Populated by js/settings.js -->
+    </div>
+  </div>
+</div>
 
 
 <!-- =========================================
@@ -1201,6 +1293,14 @@ border-radius:12px;
     "
   ></div>
 
+  <!-- WITHDRAWAL HISTORY (built/wired by js/withdrawal.js) -->
+  <div class="withdraw-history-section">
+    <div class="withdraw-history-title">Your Withdrawal History</div>
+    <div id="withdrawHistoryList">
+      <div class="panel-empty-text" style="padding:14px;text-align:center;">Log in to see your withdrawal history.</div>
+    </div>
+  </div>
+
 </section>
 
 
@@ -1523,10 +1623,27 @@ STEP 1 UI MICRO-INTERACTIONS
 <!-- =========================================
 JAVASCRIPT SCRIPTS
 ========================================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/game.js"></script>
 <script src="js/missions.js"></script>
-<script src="js/sharing.js"></script>
+<!-- js/sharing.js intentionally NOT loaded — it duplicated missions.js's
+     own referral tracking/tier rendering almost line-for-line (same
+     localStorage keys, same /api/check-referral polling, same tier
+     values, same #missionsList target) via a separate #referralTiers
+     wrapper missions.js's own #earnRushTasks wrapper never knew about.
+     That's the actual cause of both the duplicate referral list AND
+     the "sometimes above, sometimes below" positioning bug — two
+     independent async renders racing to insert into the same
+     container. missions.js already has everything sharing.js did,
+     plus the Ad task and XP rewards on claim, so it's the one
+     authoritative source now. The file itself is left in the repo for
+     reference; only the <script> tag was removed. -->
 <script src="js/withdrawal.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/admin.js"></script>
 <script src="js/mini-game.js"></script>
 
 </body>
