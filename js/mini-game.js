@@ -353,28 +353,16 @@
      OPEN / CLOSE
   --------------------------------------------------------- */
 
-  // Real Fullscreen API is unreliable on iOS Safari for arbitrary
-  // elements (it's the previous source of the black-screen glitch
-  // when forced) — so this only ever attempts it on Android, purely
-  // as a progressive enhancement. The fixed full-viewport overlay
-  // (.mg-overlay) already looks and behaves fullscreen everywhere,
-  // so if this fails or isn't supported, nothing is lost.
-  function requestImmersiveFullscreenIfSafe() {
-    try {
-      const ua = navigator.userAgent || "";
-      const isIOS = /iPad|iPhone|iPod/.test(ua) ||
-        (ua.includes("Macintosh") && navigator.maxTouchPoints > 1);
-      if (isIOS) return;
-      if (!dom.overlay || !dom.overlay.requestFullscreen) return;
-      if (document.fullscreenElement) return;
-      dom.overlay.requestFullscreen().catch(() => {
-        // Silently ignore — the overlay is already a full-viewport
-        // immersive experience without real fullscreen.
-      });
-    } catch (e) {
-      // Fullscreen API unsupported entirely — nothing to do.
-    }
-  }
+  // NOTE: A real requestFullscreen() call for Android was tried here
+  // in a previous pass and has been removed. Fullscreen API
+  // transitions are a documented source of a black compositor frame
+  // on Android Chrome while the browser swaps to fullscreen
+  // compositing — i.e. it risked reintroducing the exact black-flash
+  // bug this project is trying to eliminate, and there's no way to
+  // verify it's safe without a real device. The fixed full-viewport
+  // .mg-overlay already looks and behaves fullscreen on every
+  // platform without touching the Fullscreen API at all, so nothing
+  // is lost by not using it.
 
   function openGame() {
     state.open = true;
@@ -396,7 +384,6 @@
     renderHistory();
     renderStatistics();
     startLivePlayerTimer();
-    requestImmersiveFullscreenIfSafe();
 
     // The flight loop is the game's ambient visual — it runs
     // continuously while the game is open, independent of betting.
