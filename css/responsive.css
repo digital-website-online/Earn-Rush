@@ -876,6 +876,8 @@ button {
    Uses the #miniGameOverlay id for specificity so it reliably
    wins regardless of stylesheet load order, instead of fighting
    the cascade again.
+   [This exact regression was reintroduced once already by a stale
+   file re-copy and has been removed again — see conversation.]
    ========================================= */
 
 @media (max-height: 700px) {
