@@ -44,14 +44,14 @@
   const COIN_FALLBACK_KEYS = ["earnrush_coins", "earnrushCoins", "coins"];
 
   const RTP_STATISTICS = [
-    { target: 1.20, probability: 80.8 },
-    { target: 1.50, probability: 64.7 },
-    { target: 2.00, probability: 48.5 },
-    { target: 3.00, probability: 32.3 },
-    { target: 5.00, probability: 19.4 },
-    { target: 10.00, probability: 9.7 },
-    { target: 20.00, probability: 4.85 },
-    { target: 50.00, probability: 1.94 },
+    { target: 5.70, probability: 80.8 },
+    { target: 6.50, probability: 64.7 },
+    { target: 7.00, probability: 48.5 },
+    { target: 9.00, probability: 32.3 },
+    { target: 10.00, probability: 19.4 },
+    { target: 12.00, probability: 9.7 },
+    { target: 29.00, probability: 4.85 },
+    { target: 59.00, probability: 1.94 },
     { target: 100.00, probability: 0.97 }
   ];
 
