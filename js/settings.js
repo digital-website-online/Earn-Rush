@@ -212,9 +212,7 @@
     },
 
     {
-      title: "NOTIFICATIONS",
-      icon: "🔔",
-      items: [
+      
         {
           key: "notificationsEnabled",
           icon: "🔔",
