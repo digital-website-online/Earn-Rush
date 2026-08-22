@@ -24,13 +24,13 @@
   window.__earnRushMiniGameLoaded = true;
 
   const CONFIG = {
-    MIN_BET: 100,
-    MAX_BET: 10000,
+    MIN_BET: 16,
+    MAX_BET: 16000,
     // 1,000 Coins = 100 Arcade Tokens  ->  10 Coins per Token
     COINS_PER_TOKEN: 10,
-    MIN_CONVERT_COINS: 1000,
-    START_MULTIPLIER: 1.00,
-    DISPLAY_MAX_MULTIPLIER: 100,
+    MIN_CONVERT_COINS: 10,
+    START_MULTIPLIER: 1.15,
+    DISPLAY_MAX_MULTIPLIER: 1000,
     WAITING_SECONDS: 4,
     CRASH_HOLD_MS: 2200,
     HISTORY_LIMIT: 14,
