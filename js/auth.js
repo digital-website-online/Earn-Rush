@@ -1,8 +1,8 @@
 /* =========================================================
    EARNRUSH — AUTH
    -----------------------------------------------------------
-   Authentication, session persistence and account UI.
-   Supabase email/password auth only.
+   Uses ONLY the standard, documented Supabase Auth client API
+   plus plain table reads/updates on `profiles`.
    ========================================================= */
 
 (() => {
@@ -20,32 +20,33 @@
     return window.EarnRushUI?.auth || null;
   }
 
+
   /* ---------------------------------------------------------
-     PROFILE
+     PROFILE — plain table read/update
   --------------------------------------------------------- */
 
   async function loadProfile(userId) {
-    if (!userId || !window.supabase) return null;
-
     const { data, error } = await window.supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .maybeSingle();
+      .single();
 
     if (error) {
       console.error(
         "[EarnRush Auth] Failed to load profile:",
         error.message
       );
+
       return null;
     }
 
     return data;
   }
 
+
   async function ensureProfileName(userId, name) {
-    if (!userId || !name) return;
+    if (!name) return;
 
     const { error } = await window.supabase
       .from("profiles")
@@ -55,38 +56,60 @@
 
     if (error) {
       console.warn(
-        "[EarnRush Auth] Could not save profile name:",
+        "[EarnRush Auth] Could not backfill profile name:",
         error.message
       );
     }
   }
 
+
   /* ---------------------------------------------------------
-     GUEST PROGRESS
+     SYNC DATABASE COINS → GAME
+  --------------------------------------------------------- */
+
+  function syncProfileCoinsToGame(profile) {
+    if (!profile) return;
+
+    if (profile.coins == null) return;
+
+    if (
+      window.EarnRushGame &&
+      typeof window.EarnRushGame.setCoinsFromServer === "function"
+    ) {
+      window.EarnRushGame.setCoinsFromServer(
+        profile.coins
+      );
+    }
+  }
+
+
+  /* ---------------------------------------------------------
+     GUEST PROGRESS CLAIMING
   --------------------------------------------------------- */
 
   function getOrCreateGuestId() {
     let id = localStorage.getItem(GUEST_ID_KEY);
 
     if (!id) {
-      if (
-        window.crypto &&
-        typeof window.crypto.randomUUID === "function"
-      ) {
-        id = window.crypto.randomUUID();
-      } else {
-        id =
-          "guest-" +
-          Date.now().toString(36) +
-          "-" +
-          Math.random().toString(36).slice(2);
-      }
+      id = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : "10000000-1000-4000-8000-100000000000".replace(
+            /[018]/g,
+            c =>
+              (
+                c ^
+                (crypto.getRandomValues(new Uint8Array(1))[0] &
+                  15 >>
+                    (c / 4))
+              ).toString(16)
+          );
 
       localStorage.setItem(GUEST_ID_KEY, id);
     }
 
     return id;
   }
+
 
   async function claimGuestProgress() {
     try {
@@ -120,46 +143,19 @@
       }
 
       return !!data;
-    } catch (error) {
+    } catch (e) {
       console.warn(
         "[EarnRush Auth] claim_guest_session error:",
-        error
+        e
       );
 
       return false;
     }
   }
 
-  /* ---------------------------------------------------------
-     ACCOUNT STATE
-  --------------------------------------------------------- */
-
-  async function setAuthenticatedUser(user) {
-    if (!user) {
-      currentUser = null;
-      currentProfile = null;
-      renderUserChip();
-      return;
-    }
-
-    currentUser = user;
-
-    currentProfile = await loadProfile(user.id);
-
-    renderUserChip();
-
-    window.EarnRushWithdrawal?.loadWithdrawalHistory();
-    window.EarnRushWithdrawal?.refreshCoinBalance();
-  }
-
-  function clearAuthenticatedUser() {
-    currentUser = null;
-    currentProfile = null;
-    renderUserChip();
-  }
 
   /* ---------------------------------------------------------
-     SIGNUP
+     AUTH ACTIONS
   --------------------------------------------------------- */
 
   async function handleSignup(e) {
@@ -201,9 +197,7 @@
         email,
         password,
         options: {
-          data: {
-            name
-          }
+          data: { name }
         }
       });
 
@@ -212,59 +206,38 @@
       return;
     }
 
-    /*
-      IMPORTANT:
-      If Supabase requires email confirmation,
-      signUp() returns a user but NO active session.
-    */
+    if (data.user) {
+      currentUser = data.user;
 
-    if (!data?.user) {
-      ui?.showError(
-        "Account could not be created. Please try again."
+      currentProfile =
+        await loadProfile(data.user.id);
+
+      await ensureProfileName(
+        data.user.id,
+        name
       );
-      return;
-    }
 
-    if (!data.session) {
+      await claimGuestProgress();
+
+      /*
+       * Reload profile after guest claim so the latest
+       * server-side coin balance becomes authoritative.
+       */
+      currentProfile =
+        await loadProfile(data.user.id);
+
+      syncProfileCoinsToGame(currentProfile);
+
+      onAuthResolved();
+    } else {
       ui?.showError(
-        "Account created successfully. Please check your email and confirm your account before logging in."
+        "Check your email to confirm your account, then log in."
       );
 
       ui?.setMode("login");
-
-      const loginEmail =
-        document.getElementById("authLoginEmail");
-
-      if (loginEmail) {
-        loginEmail.value = email;
-      }
-
-      return;
     }
-
-    /*
-      Email confirmation is not required,
-      so the user already has an active session.
-    */
-
-    currentUser = data.user;
-
-    await ensureProfileName(
-      data.user.id,
-      name
-    );
-
-    currentProfile =
-      await loadProfile(data.user.id);
-
-    await claimGuestProgress();
-
-    onAuthResolved();
   }
 
-  /* ---------------------------------------------------------
-     LOGIN
-  --------------------------------------------------------- */
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -299,48 +272,26 @@
       return;
     }
 
-    if (!data?.session || !data?.user) {
-      ui?.showError(
-        "Login could not be completed. Please try again."
-      );
-      return;
-    }
-
     currentUser = data.user;
 
     currentProfile =
       await loadProfile(data.user.id);
 
+    syncProfileCoinsToGame(currentProfile);
+
     onAuthResolved();
   }
 
-  /* ---------------------------------------------------------
-     LOGOUT
-  --------------------------------------------------------- */
 
   async function handleLogout() {
-    const { error } =
-      await window.supabase.auth.signOut();
+    await window.supabase.auth.signOut();
 
-    if (error) {
-      console.error(
-        "[EarnRush Auth] Logout failed:",
-        error.message
-      );
+    currentUser = null;
+    currentProfile = null;
 
-      getUI()?.showError(
-        "Could not log out. Please try again."
-      );
-
-      return;
-    }
-
-    clearAuthenticatedUser();
+    renderUserChip();
   }
 
-  /* ---------------------------------------------------------
-     AUTH RESOLVED
-  --------------------------------------------------------- */
 
   function onAuthResolved() {
     getUI()?.close();
@@ -359,8 +310,9 @@
     }
   }
 
+
   /* ---------------------------------------------------------
-     ACCOUNT HEADER
+     ACCOUNT HEADER STATE
   --------------------------------------------------------- */
 
   function renderUserChip() {
@@ -369,6 +321,7 @@
       currentProfile
     );
   }
+
 
   /* ---------------------------------------------------------
      INIT
@@ -381,6 +334,7 @@
       console.error(
         "[EarnRush Auth] EarnRushUI.auth is not available. Make sure ui.js loads before auth.js."
       );
+
       return;
     }
 
@@ -409,55 +363,63 @@
       console.error(
         "[EarnRush Auth] Supabase client not available — check script load order."
       );
+
       return;
     }
 
+
     /*
-      Restore existing session after refresh.
+      Restore existing Supabase session after refresh.
     */
 
-    const { data, error } =
+    const { data } =
       await window.supabase.auth.getSession();
 
-    if (error) {
-      console.error(
-        "[EarnRush Auth] Session restore failed:",
-        error.message
-      );
+    if (data?.session?.user) {
+      currentUser = data.session.user;
 
-      clearAuthenticatedUser();
-    } else if (data?.session?.user) {
-      await setAuthenticatedUser(
-        data.session.user
-      );
+      currentProfile =
+        await loadProfile(
+          currentUser.id
+        );
+
+      syncProfileCoinsToGame(currentProfile);
+
+      renderUserChip();
+
+      window.EarnRushWithdrawal?.loadWithdrawalHistory();
+
+      window.EarnRushWithdrawal?.refreshCoinBalance();
     } else {
-      clearAuthenticatedUser();
+      currentUser = null;
+      currentProfile = null;
+
+      renderUserChip();
     }
 
+
     /*
-      Listen for future authentication changes.
+      Listen for future auth changes.
     */
 
     window.supabase.auth.onAuthStateChange(
-      (event, session) => {
-        /*
-          Do not immediately reload profile inside
-          the Supabase auth callback. Schedule it after
-          the current auth event has completed.
-        */
+      async (_event, session) => {
+        currentUser =
+          session?.user || null;
 
-        setTimeout(async () => {
-          if (session?.user) {
-            await setAuthenticatedUser(
-              session.user
-            );
-          } else {
-            clearAuthenticatedUser();
-          }
-        }, 0);
+        currentProfile = currentUser
+          ? await loadProfile(
+              currentUser.id
+            )
+          : null;
+
+        syncProfileCoinsToGame(currentProfile);
+
+        renderUserChip();
       }
     );
   }
+
 
   /* ---------------------------------------------------------
      PUBLIC API
@@ -474,6 +436,7 @@
 
     requireAuth() {
       window.pendingWithdrawAfterAuth = true;
+
       getUI()?.open("login");
     },
 
@@ -487,6 +450,7 @@
 
     logout: handleLogout
   };
+
 
   if (document.readyState === "loading") {
     document.addEventListener(
