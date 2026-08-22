@@ -1,14 +1,6 @@
 /* =========================================================
    EARNRUSH — PREMIUM SETTINGS v2
-   ---------------------------------------------------------
-   Functional:
-   • Sound Effects
-   • Game Animations
-   • Notifications
-   • Vibration
-   • Reduce Motion
-   • Persistent Preferences
-   • Reset Preferences
+   Functional + Premium UI Structure
 ========================================================= */
 
 (() => {
@@ -148,6 +140,7 @@
       oscillator.stop(
         audioCtx.currentTime + 0.09
       );
+
     } catch {}
   }
 
@@ -186,54 +179,69 @@
   ===================================================== */
 
   const sections = [
+
     {
       title: "GAME EXPERIENCE",
       icon: "🎮",
+
       items: [
+
         {
           key: "soundEnabled",
           icon: "🔊",
           label: "Sound Effects",
           desc: "Play subtle sounds while tapping."
         },
+
         {
           key: "animationsEnabled",
           icon: "✨",
           label: "Game Animations",
           desc: "Enable tap, reactor and coin effects."
         },
+
         {
           key: "vibrationEnabled",
           icon: "📳",
           label: "Vibration",
           desc: "Use haptic feedback when supported."
         }
+
       ]
     },
 
     {
-      
+      title: "NOTIFICATIONS",
+      icon: "🔔",
+
+      items: [
+
         {
           key: "notificationsEnabled",
           icon: "🔔",
           label: "Notifications",
           desc: "Show notification alerts and unread badges."
         }
+
       ]
     },
 
     {
       title: "ACCESSIBILITY",
       icon: "♿",
+
       items: [
+
         {
           key: "reduceMotion",
           icon: "🎞️",
           label: "Reduce Motion",
           desc: "Minimize animations across the app."
         }
+
       ]
     }
+
   ];
 
   /* =====================================================
@@ -264,11 +272,13 @@
 
     let html = `
       <div class="settings-hero">
+
         <div class="settings-hero-icon">
           ⚙️
         </div>
 
         <div class="settings-hero-content">
+
           <div class="settings-hero-title">
             Customize EarnRush
           </div>
@@ -276,14 +286,19 @@
           <div class="settings-hero-desc">
             Control your gameplay experience and preferences.
           </div>
+
         </div>
+
       </div>
     `;
 
     sections.forEach(section => {
+
       html += `
         <div class="settings-section">
+
           <div class="settings-section-title">
+
             <span class="settings-section-icon">
               ${section.icon}
             </span>
@@ -291,10 +306,12 @@
             <span>
               ${section.title}
             </span>
+
           </div>
       `;
 
       section.items.forEach(item => {
+
         html += `
           <div class="settings-row">
 
@@ -318,22 +335,30 @@
 
           </div>
         `;
+
       });
 
       html += `
         </div>
       `;
+
     });
+
+    /* APP SECTION */
 
     html += `
       <div class="settings-section settings-app-section">
 
         <div class="settings-section-title">
+
           <span class="settings-section-icon">
             ℹ️
           </span>
 
-          <span>APP</span>
+          <span>
+            APP
+          </span>
+
         </div>
 
         <div class="settings-row settings-row-static">
@@ -393,11 +418,13 @@
       "true"
     );
 
-    requestAnimationFrame(() => {
-      dom.panel?.classList.add("settings-panel-open");
-    });
-
     render();
+
+    requestAnimationFrame(() => {
+      dom.panel?.classList.add(
+        "settings-panel-open"
+      );
+    });
   }
 
   function closePanel() {
@@ -408,7 +435,14 @@
     );
 
     setTimeout(() => {
-      dom.overlay.hidden = true;
+      if (
+        dom.panel &&
+        !dom.panel.classList.contains(
+          "settings-panel-open"
+        )
+      ) {
+        dom.overlay.hidden = true;
+      }
     }, 180);
 
     dom.settingsBtn?.setAttribute(
@@ -484,7 +518,8 @@
 
           if (!(key in prefs)) return;
 
-          prefs[key] = !prefs[key];
+          prefs[key] =
+            !prefs[key];
 
           savePrefs();
           applyEffects();
@@ -519,7 +554,9 @@
           ) {
             window.EarnRushNotifications.refresh();
           }
+
         }
+
       }
     );
   }
@@ -547,22 +584,31 @@
   ===================================================== */
 
   function init() {
+
     cacheDom();
+
     applyEffects();
+
     setupEvents();
+
     wireTapFeedback();
+
   }
 
   if (
     document.readyState === "loading"
   ) {
+
     document.addEventListener(
       "DOMContentLoaded",
       init,
       { once: true }
     );
+
   } else {
+
     init();
+
   }
 
 })();
