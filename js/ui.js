@@ -309,3 +309,389 @@
     }
   };
 })();
+/* ---------------------------------------------------------
+   GAME UI
+   --------------------------------------------------------- */
+
+(() => {
+  "use strict";
+
+  window.EarnRushUI = window.EarnRushUI || {};
+
+  const UI = window.EarnRushUI;
+
+  UI.game = {
+    dom: {},
+
+    cacheDom() {
+      this.dom.coins = document.getElementById("balance");
+      this.dom.level = document.getElementById("levelValue");
+      this.dom.reactorCore = document.getElementById("reactorCore");
+      this.dom.tapButton = document.getElementById("tapButton");
+
+      this.dom.progressFill =
+        document.querySelector(".progress-fill");
+
+      this.dom.comboValue =
+        document.querySelector(".combo-value");
+
+      this.dom.xpBar =
+        document.getElementById("xpBar");
+
+      this.dom.xpText =
+        document.getElementById("xpText");
+
+      this.dom.streak =
+        document.getElementById("streakValue");
+    },
+
+    formatNumber(value) {
+      const number = Number(value) || 0;
+
+      return number.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    },
+
+    updateCoins(value) {
+      if (!this.dom.coins) return;
+
+      this.dom.coins.textContent =
+        this.formatNumber(value);
+    },
+
+    updateLevel(value) {
+      if (!this.dom.level) return;
+
+      this.dom.level.textContent =
+        String(value).padStart(2, "0");
+    },
+
+    updateCombo(value) {
+      if (!this.dom.comboValue) return;
+
+      this.dom.comboValue.textContent =
+        `🔥 x${value}`;
+    },
+
+    updateComboProgress(value) {
+      if (!this.dom.progressFill) return;
+
+      const progress = Math.max(
+        0,
+        Math.min(100, Number(value) || 0)
+      );
+
+      this.dom.progressFill.style.width =
+        `${progress}%`;
+    },
+
+    updateXP(current, required) {
+      const needed = Math.max(
+        1,
+        Number(required) || 1
+      );
+
+      const xp = Math.max(
+        0,
+        Number(current) || 0
+      );
+
+      const percentage = Math.min(
+        100,
+        (xp / needed) * 100
+      );
+
+      if (this.dom.xpBar) {
+        this.dom.xpBar.style.width =
+          `${percentage}%`;
+      }
+
+      if (this.dom.xpText) {
+        this.dom.xpText.textContent =
+          `${xp} / ${needed} XP`;
+      }
+    },
+
+    updateStreak(value) {
+      if (!this.dom.streak) return;
+
+      this.dom.streak.textContent =
+        `🔥 ${value} Day`;
+    },
+
+    update({
+      coins,
+      level,
+      combo,
+      comboProgress,
+      xp,
+      xpToNextLevel,
+      streak
+    }) {
+      this.updateCoins(coins);
+      this.updateLevel(level);
+      this.updateCombo(combo);
+      this.updateComboProgress(comboProgress);
+      this.updateXP(xp, xpToNextLevel);
+      this.updateStreak(streak);
+    },
+
+    reactorEffect() {
+      if (!this.dom.reactorCore) return;
+
+      this.dom.reactorCore.classList.remove(
+        "tap-pop"
+      );
+
+      void this.dom.reactorCore.offsetWidth;
+
+      this.dom.reactorCore.classList.add(
+        "tap-pop"
+      );
+    },
+
+    coinsEffect() {
+      if (!this.dom.coins) return;
+
+      this.dom.coins.classList.remove(
+        "balance-pop"
+      );
+
+      void this.dom.coins.offsetWidth;
+
+      this.dom.coins.classList.add(
+        "balance-pop"
+      );
+    },
+
+    createRewardPopup(amount, type = "coins") {
+      const value = Number(amount) || 0;
+
+      const popup =
+        document.createElement("div");
+
+      const icon =
+        type === "coins"
+          ? "🪙"
+          : "💰";
+
+      popup.textContent =
+        `+${this.formatNumber(value)} ${icon}`;
+
+      popup.className =
+        "earnrush-reward-popup";
+
+      Object.assign(
+        popup.style,
+        {
+          position: "fixed",
+          left: "50%",
+          top: "45%",
+          transform:
+            "translate(-50%, -50%)",
+          color: "#39ff88",
+          fontSize: "22px",
+          fontWeight: "900",
+          pointerEvents: "none",
+          zIndex: "9999",
+          textShadow:
+            "0 0 15px rgba(57,255,136,.5)"
+        }
+      );
+
+      document.body.appendChild(popup);
+
+      if (typeof popup.animate === "function") {
+        const animation =
+          popup.animate(
+            [
+              {
+                opacity: 0,
+                transform:
+                  "translate(-50%, -30%) scale(.7)"
+              },
+              {
+                opacity: 1,
+                transform:
+                  "translate(-50%, -50%) scale(1)"
+              },
+              {
+                opacity: 0,
+                transform:
+                  "translate(-50%, -100%) scale(1.15)"
+              }
+            ],
+            {
+              duration: 700,
+              easing: "ease-out"
+            }
+          );
+
+        animation.onfinish = () => {
+          popup.remove();
+        };
+      } else {
+        setTimeout(
+          () => popup.remove(),
+          700
+        );
+      }
+    },
+
+    showMessage(text) {
+      const oldMessage =
+        document.querySelector(
+          ".earnrush-game-message"
+        );
+
+      if (oldMessage) {
+        oldMessage.remove();
+      }
+
+      const message =
+        document.createElement("div");
+
+      message.className =
+        "earnrush-game-message";
+
+      message.textContent =
+        String(text);
+
+      Object.assign(
+        message.style,
+        {
+          position: "fixed",
+          left: "50%",
+          top: "18%",
+          transform:
+            "translateX(-50%)",
+          padding: "12px 20px",
+          borderRadius: "14px",
+          background: "#0b1625",
+          border:
+            "1px solid rgba(57,255,136,.35)",
+          color: "#ffffff",
+          fontWeight: "900",
+          zIndex: "10000",
+          pointerEvents: "none",
+          whiteSpace: "nowrap",
+          maxWidth:
+            "calc(100vw - 30px)",
+          textAlign: "center"
+        }
+      );
+
+      document.body.appendChild(message);
+
+      if (typeof message.animate === "function") {
+        const animation =
+          message.animate(
+            [
+              {
+                opacity: 0,
+                transform:
+                  "translate(-50%, -10px)"
+              },
+              {
+                opacity: 1,
+                transform:
+                  "translate(-50%, 0)"
+              },
+              {
+                opacity: 0,
+                transform:
+                  "translate(-50%, -10px)"
+              }
+            ],
+            {
+              duration: 1200,
+              easing: "ease-out"
+            }
+          );
+
+        animation.onfinish = () => {
+          message.remove();
+        };
+      } else {
+        setTimeout(
+          () => message.remove(),
+          1200
+        );
+      }
+    },
+
+    showTapTapLockPopup({
+      onComplete,
+      onUnavailable
+    } = {}) {
+      const existing =
+        document.getElementById(
+          "tapTapLockPopup"
+        );
+
+      if (existing) {
+        existing.remove();
+      }
+
+      const popup =
+        document.createElement("div");
+
+      popup.id =
+        "tapTapLockPopup";
+
+      popup.className =
+        "error-popup";
+
+      popup.innerHTML = `
+        <div class="error-popup-icon">🔒</div>
+
+        <div class="error-popup-title">
+          Tap-Tap Locked
+        </div>
+
+        <div class="error-popup-message">
+          Watch 1 short ad to unlock Tap-Tap again.
+        </div>
+
+        <button
+          class="error-popup-btn primary"
+          type="button"
+          id="tapTapWatchAdBtn"
+        >
+          Watch Ad to Unlock
+        </button>
+
+        <button
+          class="error-popup-btn"
+          type="button"
+          id="tapTapClosePopupBtn"
+        >
+          Close
+        </button>
+      `;
+
+      document.body.appendChild(popup);
+
+      document
+        .getElementById("tapTapWatchAdBtn")
+        ?.addEventListener("click", () => {
+          onComplete?.(popup);
+        });
+
+      document
+        .getElementById("tapTapClosePopupBtn")
+        ?.addEventListener("click", () => {
+          popup.remove();
+        });
+
+      return popup;
+    },
+
+    init() {
+      this.cacheDom();
+    }
+  };
+
+})();
