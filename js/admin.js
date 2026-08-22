@@ -17,7 +17,7 @@
   if (window.__earnRushAdminLoaded) return;
   window.__earnRushAdminLoaded = true;
 
-  const STATUS_OPTIONS = ["processing", "paid", "rejected"];
+  const STATUS_OPTIONS = ["pending", "processing", "paid", "rejected"];
 
   function getUI() {
     return window.EarnRushUI?.admin || null;
