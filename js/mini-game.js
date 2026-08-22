@@ -29,7 +29,7 @@
     // 1,000 Coins = 100 Arcade Tokens  ->  10 Coins per Token
     COINS_PER_TOKEN: 10,
     MIN_CONVERT_COINS: 10,
-    START_MULTIPLIER: 9.15,
+    START_MULTIPLIER: 1.15,
     DISPLAY_MAX_MULTIPLIER: 1000,
     WAITING_SECONDS: 4,
     CRASH_HOLD_MS: 2200,
@@ -44,14 +44,14 @@
   const COIN_FALLBACK_KEYS = ["earnrush_coins", "earnrushCoins", "coins"];
 
   const RTP_STATISTICS = [
-    { target: 5.70, probability: 80.8 },
-    { target: 6.50, probability: 64.7 },
-    { target: 7.00, probability: 48.5 },
-    { target: 9.00, probability: 32.3 },
-    { target: 10.00, probability: 19.4 },
-    { target: 12.00, probability: 9.7 },
-    { target: 29.00, probability: 4.85 },
-    { target: 59.00, probability: 1.94 },
+    { target: 1.70, probability: 80.8 },
+    { target: 2.50, probability: 64.7 },
+    { target: 3.00, probability: 48.5 },
+    { target: 4.00, probability: 32.3 },
+    { target: 5.00, probability: 19.4 },
+    { target: 6.00, probability: 9.7 },
+    { target: 7.00, probability: 4.85 },
+    { target: 8.00, probability: 1.94 },
     { target: 100.00, probability: 0.97 }
   ];
 
