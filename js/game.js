@@ -10,8 +10,6 @@
     const SAVE_KEY = "earnRushSave";
     const SAVE_VERSION = 5;
 
-    // Maximum coins earnable via Tap-Tap before it locks and requires
-    // a rewarded ad to unlock again.
     const TAP_TAP_LIMIT = 2000;
 
     const defaultState = {
@@ -29,9 +27,6 @@
         totalTaps: 0,
         baseCoinsPerTap: 1,
 
-        // Tap-Tap earning cap: tracks coins earned specifically via
-        // tapping (separate from the overall coin balance) so it can
-        // be capped and reset independently via the ad-unlock flow.
         tapTapEarned: 0,
         tapTapUnlocked: true,
 
@@ -72,10 +67,6 @@
                 return createDefaultState();
             }
 
-            /*
-             * Keep old progress if the version is compatible.
-             * This avoids unnecessary data loss during normal upgrades.
-             */
             if (
                 parsed.saveVersion &&
                 parsed.saveVersion > SAVE_VERSION
@@ -132,15 +123,7 @@
 
 
     /* =====================================================
-       REWARDED-AD PROVIDER INTERFACE (Tap-Tap unlock)
-       -----------------------------------------------------
-       No real ad SDK is connected yet. This is a clean, gated
-       placeholder: it does NOT simulate a completed ad. Wire a real
-       provider later by reassigning window.EarnRushAds.showRewardedAd
-       to a function that calls onComplete() only after that
-       provider's own "ad fully watched" callback fires.
-       Do not call onComplete() from here — that would fake a
-       completion the user never actually watched.
+       REWARDED-AD PROVIDER INTERFACE
     ===================================================== */
 
     if (!window.EarnRushAds) {
@@ -188,10 +171,6 @@
     }
 
 
-    /*
-     * Small debounce prevents localStorage being written
-     * excessively during rapid gameplay.
-     */
     function queueSave() {
 
         clearTimeout(saveTimer);
@@ -337,9 +316,6 @@
 
     /* =====================================================
        TAP-TAP LOCK
-       -----------------------------------------------------
-       UI popup is handled by ui.js.
-       Game logic remains here.
     ===================================================== */
 
     function showTapTapLockPopup() {
@@ -350,7 +326,7 @@
             onComplete: (popup) => {
 
                 window.EarnRushAds.showRewardedAd(
-                    /* onComplete */ () => {
+                    () => {
 
                         gameState.tapTapEarned = 0;
                         gameState.tapTapUnlocked = true;
@@ -364,7 +340,7 @@
                         );
                     },
 
-                    /* onUnavailable */ () => {
+                    () => {
 
                         popup.remove();
 
@@ -387,10 +363,6 @@
 
     function performTap(event) {
 
-        /*
-         * Prevent accidental double triggering when
-         * reactorCore is inside/clicked through tapButton.
-         */
         if (event) {
             event.preventDefault();
             event.stopPropagation();
@@ -405,7 +377,6 @@
         });
 
 
-        /* Tap-Tap earning cap */
         if (
             !gameState.tapTapUnlocked ||
             gameState.tapTapEarned >= TAP_TAP_LIMIT
@@ -564,29 +535,29 @@
 
 
     /* =====================================================
-   EVENTS
-   ===================================================== */
+       EVENTS
+    ===================================================== */
 
-function bindTapEvents() {
+    function bindTapEvents() {
 
-    if (!gameUI?.dom) return;
+        if (!gameUI?.dom) return;
 
-    const reactor = gameUI.dom.reactorCore;
-    const tapButton = gameUI.dom.tapButton;
+        const reactor = gameUI.dom.reactorCore;
+        const tapButton = gameUI.dom.tapButton;
 
-    if (reactor) {
-        reactor.onclick = performTap;
+        if (reactor) {
+            reactor.onclick = performTap;
+        }
+
+        if (tapButton && tapButton !== reactor) {
+            tapButton.onclick = performTap;
+        }
     }
 
-    if (tapButton && tapButton !== reactor) {
-        tapButton.onclick = performTap;
-    }
-}
+    bindTapEvents();
 
-bindTapEvents();
- 
-   /*
-=====================================================
+
+    /* =====================================================
        SAVE WHEN PAGE LEAVES / HIDES
     ===================================================== */
 
@@ -657,6 +628,23 @@ bindTapEvents();
 
             updateUI();
 
+            saveGame();
+        },
+
+
+        /*
+         * Sync the visible/local game balance with the
+         * authoritative Supabase profile balance.
+         */
+        setCoinsFromServer(amount) {
+
+            const coins =
+                safeNumber(amount);
+
+            gameState.coins =
+                Math.max(0, coins);
+
+            updateUI();
             saveGame();
         },
 
