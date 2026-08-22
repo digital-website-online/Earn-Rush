@@ -181,7 +181,9 @@
   const sections = [
 
     
-
+{
+      title: "GAME EXPERIENCE",
+      icon: "🎮",
       items: [
 
         {
