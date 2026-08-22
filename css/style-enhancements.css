@@ -963,3 +963,714 @@ html.no-game-animations .reward-card {
   opacity: 0.6;
   cursor: not-allowed;
 }
+/* =========================================================
+   EARNRUSH — PREMIUM SETTINGS UI v2
+========================================================= */
+
+#settingsPanel {
+  width: min(430px, 94vw);
+  max-height: min(760px, 90vh);
+  overflow: hidden;
+
+  border-radius: 24px;
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(39, 200, 255, 0.14),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(38, 99, 255, 0.08),
+      transparent 36%
+    ),
+    linear-gradient(
+      160deg,
+      #0b1e30,
+      #06111d 72%
+    );
+
+  border: 1px solid rgba(39, 200, 255, 0.17);
+
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045);
+
+  transform: translateY(12px);
+  opacity: 0.96;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+#settingsPanel.settings-panel-open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+#settingsPanel .slide-panel-header {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 19px 17px 17px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 24, 40, 0.94),
+      rgba(7, 18, 31, 0.72)
+    );
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.06);
+}
+
+#settingsPanel .slide-panel-header::after {
+  content: "";
+
+  position: absolute;
+
+  left: 17px;
+  bottom: -1px;
+
+  width: 62px;
+  height: 2px;
+
+  border-radius: 99px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--blue),
+      var(--cyan)
+    );
+
+  box-shadow:
+    0 0 12px rgba(39, 200, 255, 0.35);
+}
+
+#settingsPanel .slide-panel-header h3 {
+  margin: 0;
+
+  color: var(--text-main);
+
+  font-size: 20px;
+  line-height: 1;
+
+  font-weight: 950;
+
+  letter-spacing: -0.5px;
+}
+
+#settingsCloseBtn {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 12px;
+
+  color: var(--text-soft);
+
+  background:
+    rgba(255, 255, 255, 0.045);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+#settingsCloseBtn:hover {
+  color: var(--cyan);
+
+  background:
+    rgba(39, 200, 255, 0.09);
+
+  transform: rotate(90deg);
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+#settingsList {
+  padding: 13px;
+
+  overflow-y: auto;
+
+  max-height:
+    calc(90vh - 73px);
+
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(39, 200, 255, 0.22)
+    transparent;
+}
+
+#settingsList::-webkit-scrollbar {
+  width: 4px;
+}
+
+#settingsList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#settingsList::-webkit-scrollbar-thumb {
+  background:
+    rgba(39, 200, 255, 0.22);
+
+  border-radius: 99px;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.settings-hero {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 17px;
+  padding: 15px;
+
+  overflow: hidden;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(39, 200, 255, 0.09),
+      rgba(38, 99, 255, 0.045)
+    );
+
+  border:
+    1px solid rgba(39, 200, 255, 0.12);
+}
+
+.settings-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 90px;
+  height: 90px;
+
+  right: -35px;
+  top: -40px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(39, 200, 255, 0.08);
+
+  filter: blur(18px);
+
+  pointer-events: none;
+}
+
+.settings-hero-icon {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 13px;
+
+  font-size: 19px;
+
+  background:
+    rgba(39, 200, 255, 0.10);
+
+  border:
+    1px solid rgba(39, 200, 255, 0.16);
+
+  box-shadow:
+    0 0 20px rgba(39, 200, 255, 0.08);
+}
+
+.settings-hero-title {
+  color: var(--text-main);
+
+  font-size: 13px;
+
+  font-weight: 950;
+
+  letter-spacing: 0.1px;
+}
+
+.settings-hero-desc {
+  margin-top: 4px;
+
+  color: var(--text-muted);
+
+  font-size: 9px;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.settings-section {
+  margin-bottom: 16px;
+}
+
+.settings-section-title {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin:
+    0 5px 8px;
+
+  color:
+    var(--text-muted);
+
+  font-size: 9px;
+
+  line-height: 1;
+
+  font-weight: 950;
+
+  letter-spacing: 1.1px;
+
+  text-transform: uppercase;
+}
+
+.settings-section-icon {
+  font-size: 11px;
+
+  filter:
+    drop-shadow(
+      0 0 5px
+      rgba(39, 200, 255, 0.2)
+    );
+}
+
+
+/* =========================================================
+   ROW
+========================================================= */
+
+.settings-row {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  min-height: 64px;
+
+  margin-bottom: 7px;
+
+  padding: 10px 11px;
+
+  border-radius: 15px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.055);
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.settings-row:last-child {
+  margin-bottom: 0;
+}
+
+.settings-row:hover {
+  transform: translateY(-1px);
+
+  background:
+    rgba(39, 200, 255, 0.045);
+
+  border-color:
+    rgba(39, 200, 255, 0.13);
+}
+
+.settings-row:active {
+  transform: scale(0.992);
+}
+
+
+/* =========================================================
+   ROW ICON
+========================================================= */
+
+.settings-row-icon {
+  width: 37px;
+  height: 37px;
+
+  flex: 0 0 37px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+
+  font-size: 16px;
+
+  background:
+    rgba(255, 255, 255, 0.035);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.055);
+}
+
+
+/* =========================================================
+   TEXT
+========================================================= */
+
+.settings-row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-label {
+  color:
+    var(--text-main);
+
+  font-size: 12px;
+
+  line-height: 1.25;
+
+  font-weight: 900;
+}
+
+.settings-row-desc {
+  margin-top: 4px;
+
+  color:
+    var(--text-muted);
+
+  font-size: 9px;
+
+  line-height: 1.35;
+}
+
+
+/* =========================================================
+   TOGGLE
+========================================================= */
+
+.settings-toggle {
+  position: relative;
+
+  width: 46px;
+  height: 26px;
+
+  flex: 0 0 46px;
+
+  padding: 2px;
+
+  border-radius: 999px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.09);
+
+  background:
+    rgba(255, 255, 255, 0.09);
+
+  cursor: pointer;
+
+  transition:
+    background 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.settings-toggle-knob {
+  display: block;
+
+  width: 20px;
+  height: 20px;
+
+  border-radius: 50%;
+
+  background:
+    #9ca9b7;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4);
+
+  transition:
+    transform 0.23s
+      cubic-bezier(.2,.8,.2,1),
+    background 0.2s ease;
+}
+
+.settings-toggle.on {
+  background:
+    linear-gradient(
+      135deg,
+      var(--blue),
+      var(--cyan)
+    );
+
+  border-color:
+    rgba(39, 200, 255, 0.42);
+
+  box-shadow:
+    0 0 16px
+    rgba(39, 200, 255, 0.16);
+}
+
+.settings-toggle.on .settings-toggle-knob {
+  transform:
+    translateX(20px);
+
+  background:
+    #ffffff;
+}
+
+
+/* =========================================================
+   APP INFO
+========================================================= */
+
+.settings-app-section {
+  margin-bottom: 4px;
+}
+
+.settings-row-static {
+  background:
+    rgba(39, 200, 255, 0.035);
+
+  border-color:
+    rgba(39, 200, 255, 0.10);
+}
+
+.settings-row-static
+.settings-row-icon {
+  background:
+    rgba(39, 200, 255, 0.08);
+
+  border-color:
+    rgba(39, 200, 255, 0.11);
+}
+
+.settings-version-badge {
+  padding:
+    5px 8px;
+
+  border-radius:
+    999px;
+
+  color:
+    var(--cyan);
+
+  background:
+    rgba(39, 200, 255, 0.08);
+
+  border:
+    1px solid rgba(39, 200, 255, 0.13);
+
+  font-size: 8px;
+
+  font-weight: 950;
+
+  letter-spacing: .4px;
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+.settings-reset-btn {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  margin-top: 8px;
+
+  padding: 12px;
+
+  border-radius: 13px;
+
+  color:
+    #ff7d8c;
+
+  background:
+    rgba(255, 82, 102, 0.045);
+
+  border:
+    1px solid rgba(255, 82, 102, 0.14);
+
+  font-size: 10px;
+
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.settings-reset-btn span {
+  font-size: 14px;
+}
+
+.settings-reset-btn:hover {
+  background:
+    rgba(255, 82, 102, 0.085);
+
+  border-color:
+    rgba(255, 82, 102, 0.25);
+}
+
+.settings-reset-btn:active {
+  transform:
+    scale(0.985);
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.settings-footer {
+  padding:
+    10px 4px 2px;
+
+  color:
+    var(--text-muted);
+
+  font-size: 8px;
+
+  line-height: 1.4;
+
+  text-align: center;
+
+  opacity: .72;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  #settingsPanel {
+    width:
+      calc(100vw - 16px);
+
+    max-height:
+      91vh;
+
+    border-radius:
+      22px;
+  }
+
+  #settingsList {
+    padding:
+      11px;
+  }
+
+  .settings-hero {
+    padding:
+      13px;
+  }
+
+  .settings-hero-icon {
+    width: 39px;
+    height: 39px;
+    flex-basis: 39px;
+  }
+
+  .settings-row {
+    min-height:
+      62px;
+
+    padding:
+      9px 10px;
+  }
+
+  .settings-row-icon {
+    width: 35px;
+    height: 35px;
+    flex-basis: 35px;
+  }
+
+  .settings-row-label {
+    font-size:
+      11px;
+  }
+
+  .settings-row-desc {
+    font-size:
+      8px;
+  }
+
+  .settings-toggle {
+    width:
+      44px;
+
+    flex-basis:
+      44px;
+  }
+
+  .settings-toggle.on
+  .settings-toggle-knob {
+    transform:
+      translateX(18px);
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+html.reduce-motion
+.settings-row,
+html.reduce-motion
+.settings-toggle,
+html.reduce-motion
+.settings-panel-open,
+html.no-game-animations
+.settings-row {
+  transition: none !important;
+}
