@@ -1,27 +1,15 @@
 /* =========================================================
-   EARNRUSH — SETTINGS
-   -----------------------------------------------------------
-   Every toggle here has a real, working effect:
-     - soundEnabled       -> gates a tiny WebAudio tap tone
-                              (no external asset — nothing was
-                              already wired up to gate, so this
-                              adds a minimal real sound instead
-                              of a fake toggle)
-     - animationsEnabled  -> toggles .no-game-animations on <html>,
-                              which mutes the tap/reactor/coin
-                              flourish animations in animation.css
-     - notificationsEnabled -> read by notifications.js to decide
-                              whether to show the unread badge
-     - vibrationEnabled   -> gates navigator.vibrate() on tap,
-                              added as its OWN listener here rather
-                              than editing game.js's performTap()
-     - reduceMotion       -> toggles .reduce-motion on <html>,
-                              reusing the same rules the existing
-                              prefers-reduced-motion media query
-                              already defines
-   Preferences persist under PREFS_KEY, separate from gameState —
-   "reset" here only clears these, never coins/progress.
-   ========================================================= */
+   EARNRUSH — PREMIUM SETTINGS v2
+   ---------------------------------------------------------
+   Functional:
+   • Sound Effects
+   • Game Animations
+   • Notifications
+   • Vibration
+   • Reduce Motion
+   • Persistent Preferences
+   • Reset Preferences
+========================================================= */
 
 (() => {
   "use strict";
@@ -42,209 +30,523 @@
       : false
   };
 
+  let prefs = loadPrefs();
+  let audioCtx = null;
+
+  const dom = {};
+
+  /* =====================================================
+     STORAGE
+  ===================================================== */
+
   function loadPrefs() {
     try {
       const raw = localStorage.getItem(PREFS_KEY);
       const parsed = raw ? JSON.parse(raw) : {};
-      return { ...defaults, ...parsed };
-    } catch (e) {
+
+      return {
+        ...defaults,
+        ...(parsed && typeof parsed === "object" ? parsed : {})
+      };
+    } catch {
       return { ...defaults };
     }
   }
 
   function savePrefs() {
     try {
-      localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-    } catch (e) {}
+      localStorage.setItem(
+        PREFS_KEY,
+        JSON.stringify(prefs)
+      );
+    } catch {}
   }
 
-  let prefs = loadPrefs();
-
-  const dom = {};
+  /* =====================================================
+     DOM
+  ===================================================== */
 
   function cacheDom() {
-    dom.settingsBtn = document.getElementById("settingsBtn");
-    dom.overlay = document.getElementById("settingsOverlay");
-    dom.panel = document.getElementById("settingsPanel");
-    dom.list = document.getElementById("settingsList");
-    dom.closeBtn = document.getElementById("settingsCloseBtn");
+    dom.settingsBtn =
+      document.getElementById("settingsBtn");
+
+    dom.overlay =
+      document.getElementById("settingsOverlay");
+
+    dom.panel =
+      document.getElementById("settingsPanel");
+
+    dom.list =
+      document.getElementById("settingsList");
+
+    dom.closeBtn =
+      document.getElementById("settingsCloseBtn");
   }
 
-  /* ---------------------------------------------------------
-     APPLY EFFECTS — the part that makes each toggle real
-  --------------------------------------------------------- */
+  /* =====================================================
+     APPLY PREFERENCES
+  ===================================================== */
 
   function applyEffects() {
-    document.documentElement.classList.toggle("no-game-animations", !prefs.animationsEnabled);
-    document.documentElement.classList.toggle("reduce-motion", !!prefs.reduceMotion);
+    document.documentElement.classList.toggle(
+      "no-game-animations",
+      !prefs.animationsEnabled
+    );
+
+    document.documentElement.classList.toggle(
+      "reduce-motion",
+      !!prefs.reduceMotion
+    );
   }
 
-  /* ---------------------------------------------------------
-     TAP SOUND — minimal WebAudio tone, no external asset
-  --------------------------------------------------------- */
-
-  let audioCtx = null;
+  /* =====================================================
+     SOUND
+  ===================================================== */
 
   function playTapSound() {
     if (!prefs.soundEnabled) return;
-    try {
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
 
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.1);
-    } catch (e) {
-      // WebAudio unsupported — silently skip, sound is non-essential.
-    }
+    try {
+      const AudioContext =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if (!AudioContext) return;
+
+      audioCtx =
+        audioCtx || new AudioContext();
+
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+
+      const oscillator =
+        audioCtx.createOscillator();
+
+      const gain =
+        audioCtx.createGain();
+
+      oscillator.type = "sine";
+      oscillator.frequency.value = 880;
+
+      gain.gain.setValueAtTime(
+        0.07,
+        audioCtx.currentTime
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioCtx.currentTime + 0.08
+      );
+
+      oscillator
+        .connect(gain)
+        .connect(audioCtx.destination);
+
+      oscillator.start();
+
+      oscillator.stop(
+        audioCtx.currentTime + 0.09
+      );
+    } catch {}
   }
+
+  /* =====================================================
+     VIBRATION
+  ===================================================== */
 
   function vibrateOnTap() {
     if (!prefs.vibrationEnabled) return;
+
     try {
-      if (navigator.vibrate) navigator.vibrate(10);
-    } catch (e) {}
+      if (navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+    } catch {}
   }
 
-  // Own, additive listener — does not touch game.js's performTap()
-  // at all, so the already-completed Tap-Tap logic (Part G) stays
-  // untouched. This only adds feedback effects alongside it.
   function wireTapFeedback() {
-    const tapButton = document.getElementById("tapButton");
+    const tapButton =
+      document.getElementById("tapButton");
+
     if (!tapButton) return;
-    tapButton.addEventListener("click", () => {
-      playTapSound();
-      vibrateOnTap();
-    });
+
+    tapButton.addEventListener(
+      "click",
+      () => {
+        playTapSound();
+        vibrateOnTap();
+      },
+      { passive: true }
+    );
   }
 
-  /* ---------------------------------------------------------
-     RENDER
-  --------------------------------------------------------- */
+  /* =====================================================
+     SETTINGS DATA
+  ===================================================== */
 
-  const TOGGLES = [
-    { key: "soundEnabled", label: "Sound Effects", desc: "Short tap sound while playing" },
-    { key: "animationsEnabled", label: "Game Animations", desc: "Tap, reactor and coin flourish animations" },
-    { key: "notificationsEnabled", label: "Notifications", desc: "Show the unread badge on the bell icon" },
-    { key: "vibrationEnabled", label: "Vibration", desc: "Haptic feedback on tap (where supported)" },
-    { key: "reduceMotion", label: "Reduce Motion", desc: "Minimize animations across the app" }
+  const sections = [
+    {
+      title: "GAME EXPERIENCE",
+      icon: "🎮",
+      items: [
+        {
+          key: "soundEnabled",
+          icon: "🔊",
+          label: "Sound Effects",
+          desc: "Play subtle sounds while tapping."
+        },
+        {
+          key: "animationsEnabled",
+          icon: "✨",
+          label: "Game Animations",
+          desc: "Enable tap, reactor and coin effects."
+        },
+        {
+          key: "vibrationEnabled",
+          icon: "📳",
+          label: "Vibration",
+          desc: "Use haptic feedback when supported."
+        }
+      ]
+    },
+
+    {
+      title: "NOTIFICATIONS",
+      icon: "🔔",
+      items: [
+        {
+          key: "notificationsEnabled",
+          icon: "🔔",
+          label: "Notifications",
+          desc: "Show notification alerts and unread badges."
+        }
+      ]
+    },
+
+    {
+      title: "ACCESSIBILITY",
+      icon: "♿",
+      items: [
+        {
+          key: "reduceMotion",
+          icon: "🎞️",
+          label: "Reduce Motion",
+          desc: "Minimize animations across the app."
+        }
+      ]
+    }
   ];
 
-  function render() {
-    if (!dom.list) return;
+  /* =====================================================
+     TOGGLE
+  ===================================================== */
 
-    const toggleRows = TOGGLES.map(t => `
-      <div class="settings-row">
-        <div class="settings-row-text">
-          <div class="settings-row-label">${t.label}</div>
-          <div class="settings-row-desc">${t.desc}</div>
-        </div>
-        <button
-          type="button"
-          class="settings-toggle ${prefs[t.key] ? "on" : ""}"
-          data-pref-key="${t.key}"
-          role="switch"
-          aria-checked="${!!prefs[t.key]}"
-          aria-label="${t.label}"
-        ><span class="settings-toggle-knob"></span></button>
-      </div>
-    `).join("");
-
-    dom.list.innerHTML = `
-      ${toggleRows}
-
-      <div class="settings-row settings-row-static">
-        <div class="settings-row-text">
-          <div class="settings-row-label">App Version</div>
-          <div class="settings-row-desc">${APP_VERSION}</div>
-        </div>
-      </div>
-
-      <button type="button" id="settingsResetBtn" class="settings-reset-btn">
-        Reset Preferences to Default
+  function createToggle(item) {
+    return `
+      <button
+        type="button"
+        class="settings-toggle ${prefs[item.key] ? "on" : ""}"
+        data-pref-key="${item.key}"
+        role="switch"
+        aria-checked="${!!prefs[item.key]}"
+        aria-label="${item.label}"
+      >
+        <span class="settings-toggle-knob"></span>
       </button>
     `;
   }
 
-  /* ---------------------------------------------------------
-     EVENTS
-  --------------------------------------------------------- */
+  /* =====================================================
+     RENDER
+  ===================================================== */
+
+  function render() {
+    if (!dom.list) return;
+
+    let html = `
+      <div class="settings-hero">
+        <div class="settings-hero-icon">
+          ⚙️
+        </div>
+
+        <div class="settings-hero-content">
+          <div class="settings-hero-title">
+            Customize EarnRush
+          </div>
+
+          <div class="settings-hero-desc">
+            Control your gameplay experience and preferences.
+          </div>
+        </div>
+      </div>
+    `;
+
+    sections.forEach(section => {
+      html += `
+        <div class="settings-section">
+          <div class="settings-section-title">
+            <span class="settings-section-icon">
+              ${section.icon}
+            </span>
+
+            <span>
+              ${section.title}
+            </span>
+          </div>
+      `;
+
+      section.items.forEach(item => {
+        html += `
+          <div class="settings-row">
+
+            <div class="settings-row-icon">
+              ${item.icon}
+            </div>
+
+            <div class="settings-row-text">
+
+              <div class="settings-row-label">
+                ${item.label}
+              </div>
+
+              <div class="settings-row-desc">
+                ${item.desc}
+              </div>
+
+            </div>
+
+            ${createToggle(item)}
+
+          </div>
+        `;
+      });
+
+      html += `
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="settings-section settings-app-section">
+
+        <div class="settings-section-title">
+          <span class="settings-section-icon">
+            ℹ️
+          </span>
+
+          <span>APP</span>
+        </div>
+
+        <div class="settings-row settings-row-static">
+
+          <div class="settings-row-icon">
+            🚀
+          </div>
+
+          <div class="settings-row-text">
+
+            <div class="settings-row-label">
+              EarnRush
+            </div>
+
+            <div class="settings-row-desc">
+              ${APP_VERSION} • Play. Rush. Level Up.
+            </div>
+
+          </div>
+
+          <span class="settings-version-badge">
+            v5.0
+          </span>
+
+        </div>
+
+        <button
+          type="button"
+          id="settingsResetBtn"
+          class="settings-reset-btn"
+        >
+          <span>↻</span>
+          Reset Preferences
+        </button>
+
+        <div class="settings-footer">
+          Your game progress and Coins are not affected.
+        </div>
+
+      </div>
+    `;
+
+    dom.list.innerHTML = html;
+  }
+
+  /* =====================================================
+     PANEL
+  ===================================================== */
 
   function openPanel() {
     if (!dom.overlay) return;
+
     dom.overlay.hidden = false;
-    dom.settingsBtn?.setAttribute("aria-expanded", "true");
+
+    dom.settingsBtn?.setAttribute(
+      "aria-expanded",
+      "true"
+    );
+
+    requestAnimationFrame(() => {
+      dom.panel?.classList.add("settings-panel-open");
+    });
+
     render();
   }
 
   function closePanel() {
     if (!dom.overlay) return;
-    dom.overlay.hidden = true;
-    dom.settingsBtn?.setAttribute("aria-expanded", "false");
+
+    dom.panel?.classList.remove(
+      "settings-panel-open"
+    );
+
+    setTimeout(() => {
+      dom.overlay.hidden = true;
+    }, 180);
+
+    dom.settingsBtn?.setAttribute(
+      "aria-expanded",
+      "false"
+    );
   }
 
   function isOpen() {
-    return !!dom.overlay && !dom.overlay.hidden;
+    return !!dom.overlay &&
+      !dom.overlay.hidden;
   }
+
+  /* =====================================================
+     EVENTS
+  ===================================================== */
 
   function setupEvents() {
-    dom.settingsBtn?.addEventListener("click", () => {
-      isOpen() ? closePanel() : openPanel();
-    });
 
-    dom.closeBtn?.addEventListener("click", closePanel);
+    dom.settingsBtn?.addEventListener(
+      "click",
+      () => {
+        isOpen()
+          ? closePanel()
+          : openPanel();
+      }
+    );
 
-    dom.overlay?.addEventListener("click", (e) => {
-      if (e.target === dom.overlay) closePanel();
-    });
+    dom.closeBtn?.addEventListener(
+      "click",
+      closePanel
+    );
 
-    dom.panel?.addEventListener("click", (e) => e.stopPropagation());
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && isOpen()) closePanel();
-    });
-
-    dom.list?.addEventListener("click", (e) => {
-      const toggleBtn = e.target.closest("[data-pref-key]");
-      if (toggleBtn) {
-        const key = toggleBtn.dataset.prefKey;
-        prefs[key] = !prefs[key];
-        savePrefs();
-        applyEffects();
-        render();
-        if (key === "notificationsEnabled" && window.EarnRushNotifications) {
-          window.EarnRushNotifications.refresh();
+    dom.overlay?.addEventListener(
+      "click",
+      e => {
+        if (e.target === dom.overlay) {
+          closePanel();
         }
-        return;
       }
+    );
 
-      if (e.target.id === "settingsResetBtn") {
-        prefs = { ...defaults };
-        savePrefs();
-        applyEffects();
-        render();
-        if (window.EarnRushNotifications) window.EarnRushNotifications.refresh();
+    dom.panel?.addEventListener(
+      "click",
+      e => e.stopPropagation()
+    );
+
+    document.addEventListener(
+      "keydown",
+      e => {
+        if (
+          e.key === "Escape" &&
+          isOpen()
+        ) {
+          closePanel();
+        }
       }
-    });
+    );
+
+    dom.list?.addEventListener(
+      "click",
+      e => {
+
+        const toggle =
+          e.target.closest(
+            "[data-pref-key]"
+          );
+
+        if (toggle) {
+
+          const key =
+            toggle.dataset.prefKey;
+
+          if (!(key in prefs)) return;
+
+          prefs[key] = !prefs[key];
+
+          savePrefs();
+          applyEffects();
+          render();
+
+          if (
+            key === "notificationsEnabled" &&
+            window.EarnRushNotifications
+          ) {
+            window.EarnRushNotifications.refresh();
+          }
+
+          return;
+        }
+
+        if (
+          e.target.closest(
+            "#settingsResetBtn"
+          )
+        ) {
+
+          prefs = {
+            ...defaults
+          };
+
+          savePrefs();
+          applyEffects();
+          render();
+
+          if (
+            window.EarnRushNotifications
+          ) {
+            window.EarnRushNotifications.refresh();
+          }
+        }
+      }
+    );
   }
 
-  /* ---------------------------------------------------------
+  /* =====================================================
      PUBLIC API
-  --------------------------------------------------------- */
+  ===================================================== */
+
   window.EarnRushSettings = {
+
     get(key) {
       return prefs[key];
     },
+
     getAll() {
-      return { ...prefs };
+      return {
+        ...prefs
+      };
     }
+
   };
+
+  /* =====================================================
+     INIT
+  ===================================================== */
 
   function init() {
     cacheDom();
@@ -253,9 +555,16 @@
     wireTapFeedback();
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, { once: true });
+  if (
+    document.readyState === "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init,
+      { once: true }
+    );
   } else {
     init();
   }
+
 })();
