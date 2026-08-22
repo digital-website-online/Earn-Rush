@@ -1790,23 +1790,10 @@ JAVASCRIPT SCRIPTS
 ========================================== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/supabase-client.js"></script>
-<script src="js/auth.js"></script>
 <script src="js/ui.js"></script>
-<script src="js/game.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/game.js"></script>
 <script src="js/missions.js"></script>
-<!-- js/sharing.js intentionally NOT loaded — it duplicated missions.js's
-     own referral tracking/tier rendering almost line-for-line (same
-     localStorage keys, same /api/check-referral polling, same tier
-     values, same #missionsList target) via a separate #referralTiers
-     wrapper missions.js's own #earnRushTasks wrapper never knew about.
-     That's the actual cause of both the duplicate referral list AND
-     the "sometimes above, sometimes below" positioning bug — two
-     independent async renders racing to insert into the same
-     container. missions.js already has everything sharing.js did,
-     plus the Ad task and XP rewards on claim, so it's the one
-     authoritative source now. The file itself is left in the repo for
-     reference; only the <script> tag was removed. -->
 <script src="js/withdrawal.js"></script>
 <script src="js/notifications.js"></script>
 <script src="js/settings.js"></script>
