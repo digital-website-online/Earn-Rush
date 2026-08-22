@@ -1689,10 +1689,14 @@ select:focus-visible {
     }
 
     .icon-button {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        font-size: 14px;
+        width: 27px;
+        height: 27px;
+        border-radius: 8px;
+        font-size: 12px;
+    }
+
+    .notif-badge {
+        display: none;
     }
 
     .auth-guest-actions {
@@ -1700,11 +1704,17 @@ select:focus-visible {
     }
 
     .auth-header-btn {
-        min-height: 34px;
-        padding: 0 7px;
-        border-radius: 9px;
-        font-size: 7.5px;
-        letter-spacing: .3px;
+        min-height: 30px;
+        padding: 0 6px;
+        border-radius: 8px;
+        font-size: 7px;
+        letter-spacing: .2px;
+    }
+
+    .auth-header-btn.primary {
+        min-height: 36px;
+        padding: 0 12px;
+        font-size: 10px;
     }
 
     .status-card {
@@ -1861,14 +1871,20 @@ select:focus-visible {
     }
 
     .icon-button {
-        width: 31px;
-        height: 31px;
+        width: 25px;
+        height: 25px;
     }
 
     .auth-header-btn {
-        min-height: 31px;
-        padding: 0 5px;
-        font-size: 7px;
+        min-height: 28px;
+        padding: 0 4px;
+        font-size: 6.5px;
+    }
+
+    .auth-header-btn.primary {
+        min-height: 33px;
+        padding: 0 10px;
+        font-size: 9px;
     }
 
     .player-status {
@@ -1964,14 +1980,20 @@ select:focus-visible {
     }
 
     .icon-button {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 22px;
     }
 
     .auth-header-btn {
-        min-height: 28px;
-        padding: 0 4px;
-        font-size: 6.5px;
+        min-height: 26px;
+        padding: 0 3px;
+        font-size: 6px;
+    }
+
+    .auth-header-btn.primary {
+        min-height: 30px;
+        padding: 0 8px;
+        font-size: 8px;
     }
 
     .balance-amount {
