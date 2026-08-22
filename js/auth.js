@@ -2,17 +2,7 @@
    EARNRUSH — AUTH
    -----------------------------------------------------------
    Uses ONLY the standard, documented Supabase Auth client API
-   (supabase.auth.signUp / signInWithPassword / getSession /
-   onAuthStateChange) plus plain table reads/updates on
-   `profiles`, which are covered by the RLS policies you already
-   have ("Users can view own profile" / "Users can update own
-   profile"). Nothing here guesses a custom function signature.
-
-   NOT implemented yet (see the stub functions below and the final
-   status report) because they depend on function signatures that
-   must not be guessed:
-     - Coin balance reconciliation between local gameState.coins
-       and profiles.coins
+   plus plain table reads/updates on `profiles`.
    ========================================================= */
 
 (() => {
@@ -24,65 +14,10 @@
   let currentUser = null;
   let currentProfile = null;
 
-  const dom = {};
+  const GUEST_ID_KEY = "earnRushGuestId";
 
-  function cacheDom() {
-    dom.overlay = document.getElementById("authOverlay");
-    dom.panel = document.getElementById("authPanel");
-    dom.closeBtn = document.getElementById("authCloseBtn");
-
-    dom.tabLogin = document.getElementById("authTabLogin");
-    dom.tabSignup = document.getElementById("authTabSignup");
-
-    dom.loginForm = document.getElementById("authLoginForm");
-    dom.signupForm = document.getElementById("authSignupForm");
-
-    dom.errorEl = document.getElementById("authError");
-
-    /* Account header */
-    dom.userChip = document.getElementById("authUserChip");
-    dom.guestActions = document.getElementById("authGuestActions");
-    dom.loginBtn = document.getElementById("authLoginBtn");
-    dom.signupBtn = document.getElementById("authSignupBtn");
-  }
-
-  function showError(msg) {
-    if (!dom.errorEl) return;
-
-    dom.errorEl.textContent = msg;
-    dom.errorEl.hidden = !msg;
-  }
-
-  function openModal(mode) {
-    if (!dom.overlay) return;
-
-    showError("");
-    setMode(mode || "login");
-
-    dom.overlay.hidden = false;
-  }
-
-  function closeModal() {
-    if (!dom.overlay) return;
-
-    dom.overlay.hidden = true;
-  }
-
-  function setMode(mode) {
-    const isLogin = mode === "login";
-
-    dom.tabLogin?.classList.toggle("active", isLogin);
-    dom.tabSignup?.classList.toggle("active", !isLogin);
-
-    if (dom.loginForm) {
-      dom.loginForm.hidden = !isLogin;
-    }
-
-    if (dom.signupForm) {
-      dom.signupForm.hidden = isLogin;
-    }
-
-    showError("");
+  function getUI() {
+    return window.EarnRushUI?.auth || null;
   }
 
   /* ---------------------------------------------------------
@@ -129,8 +64,6 @@
      GUEST PROGRESS CLAIMING
   --------------------------------------------------------- */
 
-  const GUEST_ID_KEY = "earnRushGuestId";
-
   function getOrCreateGuestId() {
     let id = localStorage.getItem(GUEST_ID_KEY);
 
@@ -161,17 +94,20 @@
       const guestCoins = Math.max(
         0,
         Math.floor(
-          Number(window.EarnRushGame?.getState()?.coins) || 0
+          Number(
+            window.EarnRushGame?.getState()?.coins
+          ) || 0
         )
       );
 
-      const { data, error } = await window.supabase.rpc(
-        "claim_guest_session",
-        {
-          p_guest_id: guestId,
-          p_guest_coins: guestCoins
-        }
-      );
+      const { data, error } =
+        await window.supabase.rpc(
+          "claim_guest_session",
+          {
+            p_guest_id: guestId,
+            p_guest_coins: guestCoins
+          }
+        );
 
       if (error) {
         console.warn(
@@ -199,24 +135,35 @@
 
   async function handleSignup(e) {
     e.preventDefault();
-    showError("");
+
+    const ui = getUI();
+
+    ui?.showError("");
 
     const name =
-      document.getElementById("authSignupName")?.value.trim();
+      document
+        .getElementById("authSignupName")
+        ?.value.trim();
 
     const email =
-      document.getElementById("authSignupEmail")?.value.trim();
+      document
+        .getElementById("authSignupEmail")
+        ?.value.trim();
 
     const password =
-      document.getElementById("authSignupPassword")?.value;
+      document
+        .getElementById("authSignupPassword")
+        ?.value;
 
     if (!name || !email || !password) {
-      showError("Please fill in all fields.");
+      ui?.showError("Please fill in all fields.");
       return;
     }
 
     if (password.length < 6) {
-      showError("Password must be at least 6 characters.");
+      ui?.showError(
+        "Password must be at least 6 characters."
+      );
       return;
     }
 
@@ -230,7 +177,7 @@
       });
 
     if (error) {
-      showError(error.message);
+      ui?.showError(error.message);
       return;
     }
 
@@ -249,26 +196,33 @@
 
       onAuthResolved();
     } else {
-      showError(
+      ui?.showError(
         "Check your email to confirm your account, then log in."
       );
 
-      setMode("login");
+      ui?.setMode("login");
     }
   }
 
   async function handleLogin(e) {
     e.preventDefault();
-    showError("");
+
+    const ui = getUI();
+
+    ui?.showError("");
 
     const email =
-      document.getElementById("authLoginEmail")?.value.trim();
+      document
+        .getElementById("authLoginEmail")
+        ?.value.trim();
 
     const password =
-      document.getElementById("authLoginPassword")?.value;
+      document
+        .getElementById("authLoginPassword")
+        ?.value;
 
     if (!email || !password) {
-      showError("Please fill in all fields.");
+      ui?.showError("Please fill in all fields.");
       return;
     }
 
@@ -279,7 +233,7 @@
       });
 
     if (error) {
-      showError(error.message);
+      ui?.showError(error.message);
       return;
     }
 
@@ -301,7 +255,7 @@
   }
 
   function onAuthResolved() {
-    closeModal();
+    getUI()?.close();
 
     renderUserChip();
 
@@ -322,114 +276,34 @@
   --------------------------------------------------------- */
 
   function renderUserChip() {
-    const loggedIn = !!currentUser;
-
-    /*
-      Logged OUT:
-      LOGIN + CREATE ACCOUNT visible
-      Username chip hidden
-
-      Logged IN:
-      LOGIN + CREATE ACCOUNT hidden
-      Username chip visible
-    */
-
-    if (dom.guestActions) {
-      dom.guestActions.hidden = loggedIn;
-    }
-
-    if (dom.userChip) {
-      dom.userChip.hidden = !loggedIn;
-
-      if (loggedIn) {
-        dom.userChip.textContent =
-          currentProfile?.name ||
-          currentUser?.email ||
-          "Account";
-      }
-    }
+    getUI()?.renderUserChip(
+      currentUser,
+      currentProfile
+    );
   }
 
   /* ---------------------------------------------------------
-     EVENTS
+     INIT
   --------------------------------------------------------- */
 
-  function setupEvents() {
-    dom.closeBtn?.addEventListener(
-      "click",
-      closeModal
-    );
+  async function init() {
+    const ui = getUI();
 
-    dom.overlay?.addEventListener(
-      "click",
-      e => {
-        if (e.target === dom.overlay) {
-          closeModal();
-        }
-      }
-    );
+    if (!ui) {
+      console.error(
+        "[EarnRush Auth] EarnRushUI.auth is not available. Make sure ui.js loads before auth.js."
+      );
 
-    dom.panel?.addEventListener(
-      "click",
-      e => e.stopPropagation()
-    );
+      return;
+    }
 
-    document.addEventListener(
-      "keydown",
-      e => {
-        if (
-          e.key === "Escape" &&
-          dom.overlay &&
-          !dom.overlay.hidden
-        ) {
-          closeModal();
-        }
-      }
-    );
+    ui.cacheDom();
 
-    /* Existing Login / Signup tabs */
+    ui.setupEvents({
+      onLogin: handleLogin,
+      onSignup: handleSignup,
 
-    dom.tabLogin?.addEventListener(
-      "click",
-      () => setMode("login")
-    );
-
-    dom.tabSignup?.addEventListener(
-      "click",
-      () => setMode("signup")
-    );
-
-    /* NEW: Header Login button */
-
-    dom.loginBtn?.addEventListener(
-      "click",
-      () => openModal("login")
-    );
-
-    /* NEW: Header Create Account button */
-
-    dom.signupBtn?.addEventListener(
-      "click",
-      () => openModal("signup")
-    );
-
-    /* Forms */
-
-    dom.loginForm?.addEventListener(
-      "submit",
-      handleLogin
-    );
-
-    dom.signupForm?.addEventListener(
-      "submit",
-      handleSignup
-    );
-
-    /* Username chip → Logout */
-
-    dom.userChip?.addEventListener(
-      "click",
-      () => {
+      onLogout: () => {
         if (
           confirm(
             "Log out of your EarnRush account?"
@@ -438,42 +312,7 @@
           handleLogout();
         }
       }
-    );
-  }
-
-  /* ---------------------------------------------------------
-     PUBLIC API
-  --------------------------------------------------------- */
-
-  window.EarnRushAuth = {
-    getUser() {
-      return currentUser;
-    },
-
-    getProfile() {
-      return currentProfile;
-    },
-
-    requireAuth() {
-      window.pendingWithdrawAfterAuth = true;
-      openModal("login");
-    },
-
-    open: openModal,
-
-    close: closeModal,
-
-    logout: handleLogout
-  };
-
-  /* ---------------------------------------------------------
-     INIT
-  --------------------------------------------------------- */
-
-  async function init() {
-    cacheDom();
-
-    setupEvents();
+    });
 
     if (
       !window.supabase ||
@@ -508,12 +347,6 @@
 
       window.EarnRushWithdrawal?.refreshCoinBalance();
     } else {
-      /*
-        No active session:
-        make sure the logged-out account UI
-        is rendered immediately.
-      */
-
       currentUser = null;
       currentProfile = null;
 
@@ -530,13 +363,45 @@
           session?.user || null;
 
         currentProfile = currentUser
-          ? await loadProfile(currentUser.id)
+          ? await loadProfile(
+              currentUser.id
+            )
           : null;
 
         renderUserChip();
       }
     );
   }
+
+  /* ---------------------------------------------------------
+     PUBLIC API
+  --------------------------------------------------------- */
+
+  window.EarnRushAuth = {
+    getUser() {
+      return currentUser;
+    },
+
+    getProfile() {
+      return currentProfile;
+    },
+
+    requireAuth() {
+      window.pendingWithdrawAfterAuth = true;
+
+      getUI()?.open("login");
+    },
+
+    open(mode) {
+      getUI()?.open(mode);
+    },
+
+    close() {
+      getUI()?.close();
+    },
+
+    logout: handleLogout
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener(
