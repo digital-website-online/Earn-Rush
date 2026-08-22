@@ -564,28 +564,26 @@
 
 
     /* =====================================================
-       EVENTS
-    ===================================================== */
+   EVENTS
+   ===================================================== */
 
-    if (gameUI?.dom.reactorCore) {
+function bindTapEvents() {
 
-        gameUI.dom.reactorCore.addEventListener(
-            "click",
-            performTap
-        );
+    if (!gameUI?.dom) return;
+
+    const reactor = gameUI.dom.reactorCore;
+    const tapButton = gameUI.dom.tapButton;
+
+    if (reactor) {
+        reactor.onclick = performTap;
     }
 
-
-    if (gameUI?.dom.tapButton) {
-
-        gameUI.dom.tapButton.addEventListener(
-            "click",
-            performTap
-        );
+    if (tapButton && tapButton !== reactor) {
+        tapButton.onclick = performTap;
     }
+}
 
-
-    /* =====================================================
+bindTapEvents(); =====================================================
        SAVE WHEN PAGE LEAVES / HIDES
     ===================================================== */
 
