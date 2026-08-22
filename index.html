@@ -1575,44 +1575,173 @@ STEP 1 UI MICRO-INTERACTIONS
       <!-- History Bar -->
       <div class="mg-history" id="mgHistory"></div>
 
-      <!-- Dual Betting Panels (Panel 1 & Panel 2), stacked -->
-      <div class="mg-betting-container">
-        <!-- Panel 1 -->
-        <div class="mg-controls" data-panel-id="1">
-          <div class="mg-panel-left">
-            <div class="mg-stepper">
-              <button class="mg-step-btn" data-action="minus" data-panel="1">-</button>
-              <input type="number" id="mgBetInput1" class="mg-step-input" value="100" min="100" max="10000">
-              <button class="mg-step-btn" data-action="plus" data-panel="1">+</button>
-            </div>
-            <div class="mg-token-buttons">
-              <button data-mg-token="100" data-panel="1">100</button>
-              <button data-mg-token="500" data-panel="1">500</button>
-              <button data-mg-token="1000" data-panel="1">1k</button>
-              <button data-mg-token="5000" data-panel="1">5k</button>
-            </div>
-          </div>
-          <button id="mgStart1" class="mg-start" data-panel="1">BET<br><span>100</span></button>
-        </div>
+      <!-- Dual Betting Panels -->
+<div class="mg-betting-container">
 
-        <!-- Panel 2 -->
-        <div class="mg-controls" data-panel-id="2">
-          <div class="mg-panel-left">
-            <div class="mg-stepper">
-              <button class="mg-step-btn" data-action="minus" data-panel="2">-</button>
-              <input type="number" id="mgBetInput2" class="mg-step-input" value="100" min="100" max="10000">
-              <button class="mg-step-btn" data-action="plus" data-panel="2">+</button>
-            </div>
-            <div class="mg-token-buttons">
-              <button data-mg-token="100" data-panel="2">100</button>
-              <button data-mg-token="500" data-panel="2">500</button>
-              <button data-mg-token="1000" data-panel="2">1k</button>
-              <button data-mg-token="5000" data-panel="2">5k</button>
-            </div>
-          </div>
-          <button id="mgStart2" class="mg-start" data-panel="2">BET<br><span>100</span></button>
-        </div>
+  <!-- Panel 1 -->
+  <div class="mg-controls" data-panel-id="1">
+
+    <div class="mg-panel-left">
+
+      <div class="mg-stepper">
+        <button
+          type="button"
+          class="mg-step-btn"
+          data-action="minus"
+          data-panel="1"
+        >−</button>
+
+        <input
+          type="number"
+          id="mgBetInput1"
+          class="mg-step-input"
+          value="16"
+          min="16"
+          max="16000"
+          step="1"
+          inputmode="numeric"
+        >
+
+        <button
+          type="button"
+          class="mg-step-btn"
+          data-action="plus"
+          data-panel="1"
+        >+</button>
       </div>
+
+      <div class="mg-token-buttons">
+
+        <button
+          type="button"
+          data-mg-token="16"
+          data-panel="1"
+        >16</button>
+
+        <button
+          type="button"
+          data-mg-token="100"
+          data-panel="1"
+        >100</button>
+
+        <button
+          type="button"
+          data-mg-token="500"
+          data-panel="1"
+        >500</button>
+
+        <button
+          type="button"
+          data-mg-token="1000"
+          data-panel="1"
+        >1K</button>
+
+        <button
+          type="button"
+          data-mg-token="5000"
+          data-panel="1"
+        >5K</button>
+
+      </div>
+
+    </div>
+
+    <button
+      id="mgStart1"
+      class="mg-start"
+      data-panel="1"
+      type="button"
+    >
+      BET<br>
+      <span>16</span>
+    </button>
+
+  </div>
+
+
+  <!-- Panel 2 -->
+  <div class="mg-controls" data-panel-id="2">
+
+    <div class="mg-panel-left">
+
+      <div class="mg-stepper">
+
+        <button
+          type="button"
+          class="mg-step-btn"
+          data-action="minus"
+          data-panel="2"
+        >−</button>
+
+        <input
+          type="number"
+          id="mgBetInput2"
+          class="mg-step-input"
+          value="16"
+          min="16"
+          max="16000"
+          step="1"
+          inputmode="numeric"
+        >
+
+        <button
+          type="button"
+          class="mg-step-btn"
+          data-action="plus"
+          data-panel="2"
+        >+</button>
+
+      </div>
+
+      <div class="mg-token-buttons">
+
+        <button
+          type="button"
+          data-mg-token="16"
+          data-panel="2"
+        >16</button>
+
+        <button
+          type="button"
+          data-mg-token="100"
+          data-panel="2"
+        >100</button>
+
+        <button
+          type="button"
+          data-mg-token="500"
+          data-panel="2"
+        >500</button>
+
+        <button
+          type="button"
+          data-mg-token="1000"
+          data-panel="2"
+        >1K</button>
+
+        <button
+          type="button"
+          data-mg-token="5000"
+          data-panel="2"
+        >5K</button>
+
+      </div>
+
+    </div>
+
+    <button
+      id="mgStart2"
+      class="mg-start"
+      data-panel="2"
+      type="button"
+    >
+      BET<br>
+      <span>16</span>
+    </button>
+
+  </div>
+
+</div>
 
 
       <!-- Tabs & Live Bets Feed -->
