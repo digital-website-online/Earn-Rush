@@ -113,7 +113,7 @@
     } catch (e) {
       // localStorage unavailable (private mode, etc.) — fall through
     }
-    return 300; // starter balance for brand-new players only
+    return 300000; // starter balance for brand-new players only
   }
 
   function saveTokensToStorage() {
