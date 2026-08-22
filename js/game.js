@@ -117,6 +117,21 @@
 
 
     /* =====================================================
+       UI
+    ===================================================== */
+
+    const gameUI = window.EarnRushUI?.game;
+
+    if (!gameUI) {
+        console.error(
+            "[EarnRush Game] EarnRushUI.game is not available. Make sure ui.js loads before game.js."
+        );
+    } else {
+        gameUI.init();
+    }
+
+
+    /* =====================================================
        REWARDED-AD PROVIDER INTERFACE (Tap-Tap unlock)
        -----------------------------------------------------
        No real ad SDK is connected yet. This is a clean, gated
@@ -188,51 +203,8 @@
 
 
     /* =====================================================
-       ELEMENTS
-    ===================================================== */
-
-    const coinsElement =
-        document.getElementById("balance");
-
-    const levelElement =
-        document.getElementById("levelValue");
-
-    const reactorCore =
-        document.getElementById("reactorCore");
-
-    const tapButton =
-        document.getElementById("tapButton");
-
-    const progressFill =
-        document.querySelector(".progress-fill");
-
-    const comboValue =
-        document.querySelector(".combo-value");
-
-    const xpBar =
-        document.getElementById("xpBar");
-
-    const xpText =
-        document.getElementById("xpText");
-
-    const streakElement =
-        document.getElementById("streakValue");
-
-
-    /* =====================================================
        UTILITIES
     ===================================================== */
-
-    function formatNumber(value) {
-
-        const number = Number(value) || 0;
-
-        return number.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
-
 
     function safeNumber(value, fallback = 0) {
 
@@ -245,113 +217,22 @@
 
 
     /* =====================================================
-       UI — COINS
-    ===================================================== */
-
-    function updateCoins() {
-
-        if (!coinsElement) return;
-
-        coinsElement.textContent =
-            formatNumber(gameState.coins);
-    }
-
-
-    /* =====================================================
-       UI — LEVEL
-    ===================================================== */
-
-    function updateLevel() {
-
-        if (!levelElement) return;
-
-        levelElement.textContent =
-            String(gameState.level).padStart(2, "0");
-    }
-
-
-    /* =====================================================
-       UI — COMBO
-    ===================================================== */
-
-    function updateCombo() {
-
-        if (!comboValue) return;
-
-        comboValue.textContent =
-            `🔥 x${gameState.combo}`;
-    }
-
-
-    function updateComboProgress() {
-
-        if (!progressFill) return;
-
-        const progress = Math.max(
-            0,
-            Math.min(100, gameState.comboProgress)
-        );
-
-        progressFill.style.width =
-            `${progress}%`;
-    }
-
-
-    /* =====================================================
-       UI — XP
-    ===================================================== */
-
-    function updateXP() {
-
-        const required =
-            Math.max(1, gameState.xpToNextLevel);
-
-        const current =
-            Math.max(0, gameState.xp);
-
-        const percentage =
-            Math.min(
-                100,
-                (current / required) * 100
-            );
-
-        if (xpBar) {
-            xpBar.style.width =
-                `${percentage}%`;
-        }
-
-        if (xpText) {
-            xpText.textContent =
-                `${current} / ${required} XP`;
-        }
-    }
-
-
-    /* =====================================================
-       UI — STREAK
-    ===================================================== */
-
-    function updateStreak() {
-
-        if (!streakElement) return;
-
-        streakElement.textContent =
-            `🔥 ${gameState.streak} Day`;
-    }
-
-
-    /* =====================================================
-       COMPLETE UI
+       UI UPDATE
     ===================================================== */
 
     function updateUI() {
 
-        updateCoins();
-        updateLevel();
-        updateCombo();
-        updateComboProgress();
-        updateXP();
-        updateStreak();
+        if (!gameUI) return;
+
+        gameUI.update({
+            coins: gameState.coins,
+            level: gameState.level,
+            combo: gameState.combo,
+            comboProgress: gameState.comboProgress,
+            xp: gameState.xp,
+            xpToNextLevel: gameState.xpToNextLevel,
+            streak: gameState.streak
+        });
     }
 
 
@@ -407,11 +288,11 @@
 
         gameState.coins += bonus;
 
-        showMessage(
+        gameUI?.showMessage(
             `🎉 LEVEL ${gameState.level}! +${bonus} Coins`
         );
 
-        createRewardPopup(
+        gameUI?.createRewardPopup(
             bonus,
             "coins"
         );
@@ -447,7 +328,7 @@
 
             gameState.comboProgress = 0;
 
-            showMessage(
+            gameUI?.showMessage(
                 `🔥 COMBO x${gameState.combo}!`
             );
         }
@@ -455,66 +336,45 @@
 
 
     /* =====================================================
-       TAP-TAP LOCK POPUP
+       TAP-TAP LOCK
        -----------------------------------------------------
-       Reuses the same .error-popup component styling that
-       withdrawal.js already uses elsewhere on the page, so this
-       doesn't introduce a second visual popup system.
+       UI popup is handled by ui.js.
+       Game logic remains here.
     ===================================================== */
 
     function showTapTapLockPopup() {
 
-        const existing =
-            document.getElementById("tapTapLockPopup");
+        if (!gameUI) return;
 
-        if (existing) {
-            existing.remove();
-        }
-
-        const popup =
-            document.createElement("div");
-
-        popup.id = "tapTapLockPopup";
-        popup.className = "error-popup";
-
-        popup.innerHTML = `
-            <div class="error-popup-icon">🔒</div>
-            <div class="error-popup-title">Tap-Tap Locked</div>
-            <div class="error-popup-message">
-                Watch 1 short ad to unlock Tap-Tap again.
-            </div>
-            <button class="error-popup-btn primary" type="button" id="tapTapWatchAdBtn">
-                Watch Ad to Unlock
-            </button>
-            <button class="error-popup-btn" type="button" id="tapTapClosePopupBtn">
-                Close
-            </button>
-        `;
-
-        document.body.appendChild(popup);
-
-        document.getElementById("tapTapWatchAdBtn")
-            ?.addEventListener("click", () => {
+        gameUI.showTapTapLockPopup({
+            onComplete: (popup) => {
 
                 window.EarnRushAds.showRewardedAd(
                     /* onComplete */ () => {
+
                         gameState.tapTapEarned = 0;
                         gameState.tapTapUnlocked = true;
+
                         queueSave();
+
                         popup.remove();
-                        showMessage("✅ Tap-Tap unlocked!");
+
+                        gameUI.showMessage(
+                            "✅ Tap-Tap unlocked!"
+                        );
                     },
+
                     /* onUnavailable */ () => {
+
                         popup.remove();
-                        showMessage("Ad not available right now — try again soon.");
+
+                        gameUI.showMessage(
+                            "Ad not available right now — try again soon."
+                        );
                     }
                 );
-            });
-
-        document.getElementById("tapTapClosePopupBtn")
-            ?.addEventListener("click", () => {
-                popup.remove();
-            });
+            }
+        });
     }
 
 
@@ -546,7 +406,10 @@
 
 
         /* Tap-Tap earning cap */
-        if (!gameState.tapTapUnlocked || gameState.tapTapEarned >= TAP_TAP_LIMIT) {
+        if (
+            !gameState.tapTapUnlocked ||
+            gameState.tapTapEarned >= TAP_TAP_LIMIT
+        ) {
             gameState.tapTapUnlocked = false;
             showTapTapLockPopup();
             return;
@@ -606,260 +469,13 @@
 
 
         /* Effects */
-        reactorEffect();
-        coinsEffect();
+        gameUI?.reactorEffect();
+        gameUI?.coinsEffect();
 
-        createRewardPopup(
+        gameUI?.createRewardPopup(
             reward,
             "coins"
         );
-    }
-
-
-    /* =====================================================
-       REACTOR EFFECT
-    ===================================================== */
-
-    function reactorEffect() {
-
-        if (!reactorCore) return;
-
-        reactorCore.classList.remove(
-            "tap-pop"
-        );
-
-        void reactorCore.offsetWidth;
-
-        reactorCore.classList.add(
-            "tap-pop"
-        );
-    }
-
-
-    /* =====================================================
-       COIN EFFECT
-    ===================================================== */
-
-    function coinsEffect() {
-
-        if (!coinsElement) return;
-
-        coinsElement.classList.remove(
-            "balance-pop"
-        );
-
-        void coinsElement.offsetWidth;
-
-        coinsElement.classList.add(
-            "balance-pop"
-        );
-    }
-
-
-    /* =====================================================
-       REWARD POPUP
-    ===================================================== */
-
-    function createRewardPopup(
-        amount,
-        type = "coins"
-    ) {
-
-        const value =
-            safeNumber(amount);
-
-        const popup =
-            document.createElement("div");
-
-        const icon =
-            type === "coins"
-                ? "🪙"
-                : "💰";
-
-        popup.textContent =
-            `+${formatNumber(value)} ${icon}`;
-
-
-        popup.className =
-            "earnrush-reward-popup";
-
-
-        /*
-         * Fallback inline styling keeps the popup working
-         * even if additional animation CSS is unavailable.
-         */
-        Object.assign(
-            popup.style,
-            {
-                position: "fixed",
-                left: "50%",
-                top: "45%",
-                transform:
-                    "translate(-50%, -50%)",
-                color: "#39ff88",
-                fontSize: "22px",
-                fontWeight: "900",
-                pointerEvents: "none",
-                zIndex: "9999",
-                textShadow:
-                    "0 0 15px rgba(57,255,136,.5)"
-            }
-        );
-
-
-        document.body.appendChild(popup);
-
-
-        if (
-            typeof popup.animate ===
-            "function"
-        ) {
-
-            const animation =
-                popup.animate(
-                    [
-                        {
-                            opacity: 0,
-                            transform:
-                                "translate(-50%, -30%) scale(.7)"
-                        },
-                        {
-                            opacity: 1,
-                            transform:
-                                "translate(-50%, -50%) scale(1)"
-                        },
-                        {
-                            opacity: 0,
-                            transform:
-                                "translate(-50%, -100%) scale(1.15)"
-                        }
-                    ],
-                    {
-                        duration: 700,
-                        easing: "ease-out"
-                    }
-                );
-
-
-            animation.onfinish = () => {
-                popup.remove();
-            };
-
-        } else {
-
-            setTimeout(
-                () => popup.remove(),
-                700
-            );
-        }
-    }
-
-
-    /* =====================================================
-       MESSAGE
-    ===================================================== */
-
-    let messageTimer = null;
-
-
-    function showMessage(text) {
-
-        const oldMessage =
-            document.querySelector(
-                ".earnrush-game-message"
-            );
-
-        if (oldMessage) {
-            oldMessage.remove();
-        }
-
-
-        const message =
-            document.createElement("div");
-
-        message.className =
-            "earnrush-game-message";
-
-        message.textContent =
-            String(text);
-
-
-        Object.assign(
-            message.style,
-            {
-                position: "fixed",
-                left: "50%",
-                top: "18%",
-                transform:
-                    "translateX(-50%)",
-                padding: "12px 20px",
-                borderRadius: "14px",
-                background: "#0b1625",
-                border:
-                    "1px solid rgba(57,255,136,.35)",
-                color: "#ffffff",
-                fontWeight: "900",
-                zIndex: "10000",
-                pointerEvents: "none",
-                whiteSpace: "nowrap",
-                maxWidth:
-                    "calc(100vw - 30px)",
-                textAlign: "center"
-            }
-        );
-
-
-        document.body.appendChild(
-            message
-        );
-
-
-        clearTimeout(messageTimer);
-
-
-        if (
-            typeof message.animate ===
-            "function"
-        ) {
-
-            const animation =
-                message.animate(
-                    [
-                        {
-                            opacity: 0,
-                            transform:
-                                "translate(-50%, -10px)"
-                        },
-                        {
-                            opacity: 1,
-                            transform:
-                                "translate(-50%, 0)"
-                        },
-                        {
-                            opacity: 0,
-                            transform:
-                                "translate(-50%, -10px)"
-                        }
-                    ],
-                    {
-                        duration: 1200,
-                        easing: "ease-out"
-                    }
-                );
-
-
-            animation.onfinish = () => {
-                message.remove();
-            };
-
-        } else {
-
-            messageTimer =
-                setTimeout(
-                    () => message.remove(),
-                    1200
-                );
-        }
     }
 
 
@@ -951,18 +567,18 @@
        EVENTS
     ===================================================== */
 
-    if (reactorCore) {
+    if (gameUI?.dom.reactorCore) {
 
-        reactorCore.addEventListener(
+        gameUI.dom.reactorCore.addEventListener(
             "click",
             performTap
         );
     }
 
 
-    if (tapButton) {
+    if (gameUI?.dom.tapButton) {
 
-        tapButton.addEventListener(
+        gameUI.dom.tapButton.addEventListener(
             "click",
             performTap
         );
@@ -1045,7 +661,7 @@
 
 
         showMessage(text) {
-            showMessage(text);
+            gameUI?.showMessage(text);
         },
 
 
@@ -1054,7 +670,7 @@
             type
         ) {
 
-            createRewardPopup(
+            gameUI?.createRewardPopup(
                 amount,
                 type
             );
@@ -1123,4 +739,3 @@
     saveGame();
 
 })();
-      
