@@ -211,6 +211,18 @@ select:focus-visible {
     flex-shrink: 0;
 }
 
+.header-icons .icon-button {
+    width: auto;
+    height: auto;
+
+    padding: 5px;
+
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 
 /* =========================================================
    AUTH HEADER
@@ -1660,39 +1672,57 @@ select:focus-visible {
     .game-header {
         margin-bottom: 18px;
         flex-wrap: nowrap;
-        gap: 6px;
+        gap: 7px;
     }
 
     .brand {
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         min-width: 0;
-        gap: 6px;
+        gap: 7px;
     }
 
     .header-actions {
-        flex: 0 0 auto;
-        gap: 4px;
+        flex: 0 1 auto;
+        min-width: 0;
+        gap: 5px;
     }
 
     .brand-mark {
-        width: 36px;
-        height: 36px;
-        flex-basis: 36px;
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
 
-        border-radius: 11px;
-        font-size: 17px;
+        border-radius: 10px;
+        font-size: 16px;
     }
 
     .brand-name {
-        font-size: 16px;
-        letter-spacing: -.4px;
+        flex: 0 1 auto;
+        min-width: 0;
+
+        font-size: 17px;
+        letter-spacing: -.3px;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .icon-button {
-        width: 27px;
-        height: 27px;
-        border-radius: 8px;
-        font-size: 12px;
+    .header-icons {
+        gap: 6px;
+    }
+
+    .header-icons .icon-button {
+        width: auto;
+        height: auto;
+
+        padding: 4px;
+
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+
+        font-size: 19px;
     }
 
     .notif-badge {
@@ -1700,21 +1730,21 @@ select:focus-visible {
     }
 
     .auth-guest-actions {
-        gap: 4px;
+        gap: 5px;
     }
 
     .auth-header-btn {
-        min-height: 30px;
-        padding: 0 6px;
+        min-height: 26px;
+        padding: 0 8px;
         border-radius: 8px;
-        font-size: 7px;
+        font-size: 7.5px;
         letter-spacing: .2px;
     }
 
     .auth-header-btn.primary {
-        min-height: 36px;
+        min-height: 34px;
         padding: 0 12px;
-        font-size: 10px;
+        font-size: 9.5px;
     }
 
     .status-card {
@@ -1860,29 +1890,29 @@ select:focus-visible {
     }
 
     .brand-mark {
-        width: 32px;
-        height: 32px;
-        flex-basis: 32px;
-        font-size: 15px;
-    }
-
-    .brand-name {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
         font-size: 14px;
     }
 
-    .icon-button {
-        width: 25px;
-        height: 25px;
+    .brand-name {
+        font-size: 15px;
+    }
+
+    .header-icons .icon-button {
+        padding: 3px;
+        font-size: 17px;
     }
 
     .auth-header-btn {
-        min-height: 28px;
-        padding: 0 4px;
-        font-size: 6.5px;
+        min-height: 24px;
+        padding: 0 6px;
+        font-size: 7px;
     }
 
     .auth-header-btn.primary {
-        min-height: 33px;
+        min-height: 31px;
         padding: 0 10px;
         font-size: 9px;
     }
@@ -1972,26 +2002,26 @@ select:focus-visible {
     }
 
     .brand-name {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .header-actions {
         gap: 3px;
     }
 
-    .icon-button {
-        width: 22px;
-        height: 22px;
+    .header-icons .icon-button {
+        padding: 2px;
+        font-size: 15px;
     }
 
     .auth-header-btn {
-        min-height: 26px;
-        padding: 0 3px;
+        min-height: 22px;
+        padding: 0 5px;
         font-size: 6px;
     }
 
     .auth-header-btn.primary {
-        min-height: 30px;
+        min-height: 28px;
         padding: 0 8px;
         font-size: 8px;
     }
