@@ -294,49 +294,35 @@
 
     sections.forEach(section => {
 
-      html += `
-        <div class="settings-section">
+  section.items.forEach(item => {
 
-          <div class="settings-section-title">
+    html += `
+      <div class="settings-row">
 
-            <span class="settings-section-icon">
-              ${section.icon}
-            </span>
+        <div class="settings-row-icon">
+          ${item.icon}
+        </div>
 
-            <span>
-              ${section.title}
-            </span>
+        <div class="settings-row-text">
 
+          <div class="settings-row-label">
+            ${item.label}
           </div>
-      `;
 
-      section.items.forEach(item => {
-
-        html += `
-          <div class="settings-row">
-
-            <div class="settings-row-icon">
-              ${item.icon}
-            </div>
-
-            <div class="settings-row-text">
-
-              <div class="settings-row-label">
-                ${item.label}
-              </div>
-
-              <div class="settings-row-desc">
-                ${item.desc}
-              </div>
-
-            </div>
-
-            ${createToggle(item)}
-
+          <div class="settings-row-desc">
+            ${item.desc}
           </div>
-        `;
 
-      });
+        </div>
+
+        ${createToggle(item)}
+
+      </div>
+    `;
+
+  });
+
+});
 
       html += `
         </div>
