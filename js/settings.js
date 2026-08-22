@@ -1,6 +1,6 @@
 /* =========================================================
-   EARNRUSH — PREMIUM SETTINGS v2
-   Functional + Premium UI Structure
+   EARNRUSH — PREMIUM SETTINGS v3
+   Functional + Clean Premium UI
 ========================================================= */
 
 (() => {
@@ -16,10 +16,7 @@
     soundEnabled: true,
     animationsEnabled: true,
     notificationsEnabled: true,
-    vibrationEnabled: true,
-    reduceMotion: window.matchMedia
-      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      : false
+    vibrationEnabled: true
   };
 
   let prefs = loadPrefs();
@@ -83,11 +80,6 @@
     document.documentElement.classList.toggle(
       "no-game-animations",
       !prefs.animationsEnabled
-    );
-
-    document.documentElement.classList.toggle(
-      "reduce-motion",
-      !!prefs.reduceMotion
     );
   }
 
@@ -175,73 +167,38 @@
   }
 
   /* =====================================================
-     SETTINGS DATA
+     SETTINGS
+     Exactly 4 cards
   ===================================================== */
 
-  const sections = [
-
-    
-{
-      title: "GAME EXPERIENCE",
-      icon: "🎮",
-      items: [
-
-        {
-          key: "soundEnabled",
-          icon: "🔊",
-          label: "Sound Effects",
-          desc: "Play subtle sounds while tapping."
-        },
-
-        {
-          key: "animationsEnabled",
-          icon: "✨",
-          label: "Game Animations",
-          desc: "Enable tap, reactor and coin effects."
-        },
-
-        {
-          key: "vibrationEnabled",
-          icon: "📳",
-          label: "Vibration",
-          desc: "Use haptic feedback when supported."
-        }
-
-      ]
+  const settings = [
+    {
+      key: "soundEnabled",
+      icon: "🔊",
+      label: "Sound Effects",
+      desc: "Play subtle sounds while tapping."
     },
 
     {
-      title: "NOTIFICATIONS",
+      key: "animationsEnabled",
+      icon: "✨",
+      label: "Game Animations",
+      desc: "Enable tap, reactor and coin effects."
+    },
+
+    {
+      key: "vibrationEnabled",
+      icon: "📳",
+      label: "Vibration",
+      desc: "Use haptic feedback when supported."
+    },
+
+    {
+      key: "notificationsEnabled",
       icon: "🔔",
-
-      items: [
-
-        {
-          key: "notificationsEnabled",
-          icon: "🔔",
-          label: "Notifications",
-          desc: "Show notification alerts and unread badges."
-        }
-
-      ]
-    },
-
-    {
-      title: "ACCESSIBILITY",
-      icon: "♿",
-
-      items: [
-
-        {
-          key: "reduceMotion",
-          icon: "🎞️",
-          label: "Reduce Motion",
-          desc: "Minimize animations across the app."
-        }
-
-      ]
+      label: "Notifications",
+      desc: "Show notification alerts and unread badges."
     }
-
   ];
 
   /* =====================================================
@@ -292,60 +249,40 @@
       </div>
     `;
 
-    sections.forEach(section => {
+    /* FOUR SETTING CARDS */
 
-  section.items.forEach(item => {
-
-    html += `
-      <div class="settings-row">
-
-        <div class="settings-row-icon">
-          ${item.icon}
-        </div>
-
-        <div class="settings-row-text">
-
-          <div class="settings-row-label">
-            ${item.label}
-          </div>
-
-          <div class="settings-row-desc">
-            ${item.desc}
-          </div>
-
-        </div>
-
-        ${createToggle(item)}
-
-      </div>
-    `;
-
-  });
-
-});
+    settings.forEach(item => {
 
       html += `
+        <div class="settings-row">
+
+          <div class="settings-row-icon">
+            ${item.icon}
+          </div>
+
+          <div class="settings-row-text">
+
+            <div class="settings-row-label">
+              ${item.label}
+            </div>
+
+            <div class="settings-row-desc">
+              ${item.desc}
+            </div>
+
+          </div>
+
+          ${createToggle(item)}
+
         </div>
       `;
 
     });
 
-    /* APP SECTION */
+    /* APP INFO */
 
     html += `
-      <div class="settings-section settings-app-section">
-
-        <div class="settings-section-title">
-
-          <span class="settings-section-icon">
-            ℹ️
-          </span>
-
-          <span>
-            APP
-          </span>
-
-        </div>
+      <div class="settings-app-section">
 
         <div class="settings-row settings-row-static">
 
@@ -360,7 +297,7 @@
             </div>
 
             <div class="settings-row-desc">
-              ${APP_VERSION} • Play. Rush. Level Up.
+              Play. Rush. Level Up.
             </div>
 
           </div>
@@ -504,8 +441,7 @@
 
           if (!(key in prefs)) return;
 
-          prefs[key] =
-            !prefs[key];
+          prefs[key] = !prefs[key];
 
           savePrefs();
           applyEffects();
