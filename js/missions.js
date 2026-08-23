@@ -15,14 +15,14 @@
   const AD_REWARD = 5000;
 
   const tiers = [
-    { id: "ref_1", target: 1, coins: 1000, xp: 25 },
-    { id: "ref_5", target: 5, coins: 5000, xp: 100 },
-    { id: "ref_7", target: 7, coins: 7000, xp: 150 },
-    { id: "ref_15", target: 15, coins: 15000, xp: 300 },
-    { id: "ref_25", target: 25, coins: 25000, xp: 500 },
-    { id: "ref_35", target: 35, coins: 35000, xp: 750 },
-    { id: "ref_50", target: 50, coins: 50000, xp: 1200 }
-  ];
+  { id: "ref_1", target: 1, coins: 10000, xp: 25 },
+  { id: "ref_5", target: 5, coins: 50000, xp: 100 },
+  { id: "ref_7", target: 7, coins: 70000, xp: 150 },
+  { id: "ref_15", target: 15, coins: 150000, xp: 300 },
+  { id: "ref_25", target: 25, coins: 250000, xp: 500 },
+  { id: "ref_35", target: 35, coins: 350000, xp: 750 },
+  { id: "ref_50", target: 50, coins: 500000, xp: 1200 }
+];
 
   let pollTimer = null;
   let referralCount = 0;
@@ -346,7 +346,7 @@
 </div>
 
 <div class="task-reward-preview">
-  🪙 1 Referral = 1,000 Coins
+  🪙 1 Referral = 10,000 Coins
 </div>
 
       <div class="mission-reward">
