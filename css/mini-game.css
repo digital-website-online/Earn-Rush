@@ -747,7 +747,11 @@ body.mg-open {
     height: 100%;
     min-height: 100dvh;
     max-height: none;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
     display: flex;
     flex-direction: column;
 }
