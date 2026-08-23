@@ -217,7 +217,6 @@
     renderUserChip();
 
     window.EarnRushWithdrawal?.loadWithdrawalHistory();
-    window.EarnRushWithdrawal?.refreshCoinBalance();
   }
 
   function clearAuthenticatedUser() {
