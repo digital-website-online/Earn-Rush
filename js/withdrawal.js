@@ -641,7 +641,13 @@
             if (coinsInput) coinsInput.value = "";
             if (rsDisplay) rsDisplay.textContent = "= 0 Rs";
 
-            await refreshCoinBalance();
+            const state = window.EarnRushGame?.getState();
+            if (state) {
+              state.coins = Math.max(0, (Number(state.coins) || 0) - coins);
+              window.EarnRushGame.updateUI();
+              window.EarnRushGame.save();
+            }
+
             await loadWithdrawalHistory();
 
           } catch (err) {
