@@ -437,7 +437,7 @@
     renderUserChip();
 
     window.EarnRushWithdrawal?.loadWithdrawalHistory();
-    window.EarnRushWithdrawal?.refreshCoinBalance();
+    
 
     if (window.pendingWithdrawAfterAuth) {
       window.pendingWithdrawAfterAuth = false;
