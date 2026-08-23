@@ -2893,429 +2893,328 @@ select:focus-visible {
     }
 }
 /* =========================================================
-   EARNRUSH — SETTINGS V2 PREMIUM OVERRIDE
-   Visual-only upgrade.
-   Existing settings.js functionality remains untouched.
+   EARNRUSH — SETTINGS MOTION + CLEAN CARD SYSTEM
+========================================================= */
+
+/* =========================================================
+   OVERLAY MOTION
 ========================================================= */
 
 #settingsOverlay {
-  background:
-    radial-gradient(
-      circle at 50% 10%,
-      rgba(39, 200, 255, 0.08),
-      transparent 38%
-    ),
-    rgba(2, 6, 14, 0.84) !important;
+  opacity: 0;
+  transition:
+    opacity .28s cubic-bezier(.22,.61,.36,1);
 
-  backdrop-filter: blur(18px) saturate(120%);
-  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  will-change: opacity;
+}
+
+#settingsOverlay:not([hidden]) {
+  opacity: 1;
 }
 
 /* =========================================================
-   MAIN PANEL
+   PANEL OPEN / CLOSE
 ========================================================= */
 
 #settingsPanel {
-  position: relative !important;
+  opacity: 0;
+  transform:
+    translateY(24px)
+    scale(.965);
 
-  width: min(430px, calc(100vw - 28px)) !important;
-  height: min(760px, calc(100dvh - 28px)) !important;
-  max-height: none !important;
+  transition:
+    opacity .28s cubic-bezier(.22,.61,.36,1),
+    transform .34s cubic-bezier(.16,1,.3,1);
 
-  margin: auto !important;
-
-  overflow: hidden !important;
-
-  border-radius: 28px !important;
-
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-
-  background:
-    radial-gradient(
-      500px 260px at 100% -5%,
-      rgba(39, 200, 255, 0.16),
-      transparent 65%
-    ),
-    radial-gradient(
-      350px 240px at -10% 35%,
-      rgba(54, 245, 139, 0.045),
-      transparent 70%
-    ),
-    linear-gradient(
-      145deg,
-      #0d1c2c 0%,
-      #081522 45%,
-      #050c15 100%
-    ) !important;
-
-  box-shadow:
-    0 40px 100px rgba(0, 0, 0, 0.65),
-    0 0 70px rgba(39, 200, 255, 0.07),
-    inset 0 1px 0 rgba(255,255,255,0.045) !important;
-
-  color: #fff;
+  will-change:
+    transform,
+    opacity;
 }
 
-/* top glow */
+#settingsPanel.settings-panel-open {
+  opacity: 1;
 
-#settingsPanel::before {
-  content: "";
-
-  position: absolute;
-  top: -120px;
-  right: -100px;
-
-  width: 260px;
-  height: 260px;
-
-  border-radius: 50%;
-
-  background: rgba(39, 200, 255, 0.08);
-
-  filter: blur(55px);
-
-  pointer-events: none;
+  transform:
+    translateY(0)
+    scale(1);
 }
 
 /* =========================================================
    HEADER
 ========================================================= */
 
-#settingsPanel .slide-panel-header {
-  position: relative !important;
+#settingsPanel .slide-panel-header::before {
+  transition:
+    transform .45s cubic-bezier(.16,1,.3,1),
+    box-shadow .35s ease;
+}
 
-  min-height: 108px !important;
+#settingsPanel.settings-panel-open
+.slide-panel-header::before {
+  transform: rotate(8deg) scale(1);
+  box-shadow:
+    0 8px 28px rgba(39,200,255,.14);
+}
 
-  padding: 20px 20px 18px !important;
+/* =========================================================
+   CLEAN HERO
+========================================================= */
 
-  display: flex !important;
-  align-items: flex-start !important;
+#settingsPanel .settings-hero {
+  position: relative;
 
-  border-bottom: 1px solid rgba(255,255,255,0.065) !important;
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin: 0 0 14px;
+  padding: 14px;
+
+  border-radius: 18px;
+
+  border: 1px solid rgba(39,200,255,.10);
 
   background:
     linear-gradient(
-      180deg,
-      rgba(255,255,255,0.025),
-      transparent
-    ) !important;
+      145deg,
+      rgba(39,200,255,.075),
+      rgba(255,255,255,.018)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035);
+
+  overflow: hidden;
 }
 
-/* settings icon */
-
-#settingsPanel .slide-panel-header::before {
-  content: "⚙";
+#settingsPanel .settings-hero::before {
+  content: "";
 
   position: absolute;
 
-  left: 20px;
-  top: 20px;
+  width: 140px;
+  height: 140px;
 
-  width: 46px;
-  height: 46px;
+  right: -65px;
+  top: -70px;
 
-  margin: 0 !important;
+  border-radius: 50%;
+
+  background: rgba(39,200,255,.08);
+
+  filter: blur(25px);
+
+  pointer-events: none;
+}
+
+#settingsPanel .settings-hero-icon {
+  width: 43px;
+  height: 43px;
+
+  flex: 0 0 43px;
 
   display: grid;
   place-items: center;
 
-  border-radius: 15px;
+  border-radius: 13px;
 
   background:
     linear-gradient(
       145deg,
-      rgba(39,200,255,0.18),
-      rgba(39,200,255,0.055)
+      rgba(39,200,255,.16),
+      rgba(39,200,255,.045)
     );
 
-  border: 1px solid rgba(39,200,255,0.24);
+  border: 1px solid rgba(39,200,255,.14);
 
-  color: #38d8ff;
-
-  font-size: 21px;
-
-  box-shadow:
-    0 8px 25px rgba(39,200,255,0.09);
-}
-
-/* title */
-
-#settingsPanel .slide-panel-header h3 {
-  position: absolute !important;
-
-  left: 78px !important;
-  top: 20px !important;
-
-  margin: 0 !important;
-
-  color: #ffffff !important;
-
-  font-size: 20px !important;
-  line-height: 1.15 !important;
-
-  font-weight: 950 !important;
-
-  letter-spacing: -0.5px !important;
-}
-
-/* subtitle */
-
-#settingsPanel .slide-panel-header h3::after {
-  content: "Make EarnRush feel exactly right for you";
-
-  display: block;
-
-  margin-top: 7px;
-
-  color: #71849a;
-
-  font-size: 10px;
-
-  line-height: 1.4;
-
-  font-weight: 650;
-
-  letter-spacing: 0;
-}
-
-/* close */
-
-#settingsPanel #settingsCloseBtn {
-  position: absolute !important;
-
-  top: 18px;
-  right: 18px;
-
-  width: 38px !important;
-  height: 38px !important;
-
-  padding: 0 !important;
-
-  display: grid !important;
-  place-items: center !important;
-
-  border-radius: 12px !important;
-
-  background: rgba(255,255,255,0.045) !important;
-
-  border: 1px solid rgba(255,255,255,0.075) !important;
-
-  color: #8da0b4 !important;
-
-  font-size: 17px !important;
+  font-size: 19px;
 
   transition:
-    transform .2s ease,
-    background .2s ease,
-    color .2s ease;
+    transform .35s cubic-bezier(.16,1,.3,1);
 }
 
-#settingsPanel #settingsCloseBtn:hover {
-  transform: rotate(90deg);
-
-  background: rgba(255,255,255,0.08) !important;
-
-  color: #fff !important;
+#settingsPanel .settings-hero:hover
+.settings-hero-icon {
+  transform: rotate(8deg) scale(1.04);
 }
 
-/* =========================================================
-   BODY
-========================================================= */
+#settingsPanel .settings-hero-title {
+  color: #f5f9fc;
 
-#settingsPanel .slide-panel-body {
-  position: relative;
+  font-size: 12px;
+  font-weight: 900;
 
-  padding: 18px !important;
-
-  overflow-y: auto !important;
-
-  scrollbar-width: thin;
-
-  scrollbar-color:
-    rgba(39,200,255,0.25)
-    transparent;
+  letter-spacing: -.1px;
 }
 
-/* =========================================================
-   SECTION HEADERS
-========================================================= */
-
-#settingsPanel .settings-row:first-child::before,
-#settingsPanel .settings-row:nth-child(4)::before,
-#settingsPanel .settings-row:nth-child(5)::before,
-#settingsPanel .settings-row-static::before {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 8px;
-
-  left: 2px;
-
-  top: -25px;
-
-  height: 15px;
+#settingsPanel .settings-hero-desc {
+  margin-top: 4px;
 
   color: #71849a;
 
   font-size: 9px;
+  line-height: 1.4;
 
-  font-weight: 950;
-
-  letter-spacing: 1.7px;
-
-  line-height: 1;
-}
-
-/* cyan indicator */
-
-#settingsPanel .settings-row:first-child::before {
-  content: "GAME EXPERIENCE";
-}
-
-#settingsPanel .settings-row:nth-child(4)::before {
-  content: "NOTIFICATIONS";
-}
-
-#settingsPanel .settings-row:nth-child(5)::before {
-  content: "ACCESSIBILITY";
-}
-
-#settingsPanel .settings-row-static::before {
-  content: "APPLICATION";
-}
-
-/* glowing dot before sections */
-
-#settingsPanel .settings-row:first-child::before,
-#settingsPanel .settings-row:nth-child(4)::before,
-#settingsPanel .settings-row:nth-child(5)::before,
-#settingsPanel .settings-row-static::before {
-  text-shadow: 0 0 15px rgba(39,200,255,0.3);
+  font-weight: 650;
 }
 
 /* =========================================================
-   ROWS — CARD STYLE
+   REMOVE DUPLICATE ICON
+========================================================= */
+
+/*
+   JS already creates:
+   .settings-row-icon
+
+   So the old ::after icon must disappear.
+*/
+
+#settingsPanel .settings-row::after {
+  content: none !important;
+
+  display: none !important;
+}
+
+/* Actual icon */
+
+#settingsPanel .settings-row-icon {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(39,200,255,.14),
+      rgba(39,200,255,.045)
+    );
+
+  border: 1px solid rgba(39,200,255,.13);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04);
+
+  font-size: 17px;
+
+  transition:
+    transform .28s cubic-bezier(.16,1,.3,1),
+    background .25s ease,
+    box-shadow .25s ease;
+}
+
+/* =========================================================
+   CLEAN CARDS
 ========================================================= */
 
 #settingsPanel .settings-row {
-  position: relative;
+  overflow: hidden;
 
-  min-height: 72px !important;
-
-  margin: 0 0 9px 0 !important;
-
-  padding: 13px 13px 13px 11px !important;
-
-  display: flex !important;
-
-  align-items: center !important;
-
-  gap: 12px !important;
-
-  border-radius: 17px !important;
-
-  border: 1px solid rgba(255,255,255,0.055) !important;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255,255,255,0.048),
-      rgba(255,255,255,0.017)
-    ) !important;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.025);
+  transform: translateY(0);
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    background .2s ease,
-    box-shadow .2s ease;
+    transform .22s cubic-bezier(.22,.61,.36,1),
+    border-color .22s ease,
+    background .22s ease,
+    box-shadow .22s ease;
 }
+
+/* subtle light sweep */
+
+#settingsPanel .settings-row::before {
+  pointer-events: none;
+}
+
+/* hover */
 
 #settingsPanel .settings-row:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 
-  border-color: rgba(39,200,255,0.18) !important;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(39,200,255,0.075),
-      rgba(255,255,255,0.018)
-    ) !important;
+  border-color:
+    rgba(39,200,255,.18) !important;
 
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.035);
+    0 12px 30px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+#settingsPanel .settings-row:hover
+.settings-row-icon {
+  transform:
+    scale(1.045)
+    rotate(-2deg);
+
+  box-shadow:
+    0 5px 18px rgba(39,200,255,.08),
+    inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+/* tap */
+
+#settingsPanel .settings-row:active {
+  transform:
+    scale(.985);
 }
 
 /* =========================================================
-   ICONS
+   CARD ENTRANCE
 ========================================================= */
 
-#settingsPanel .settings-row::after {
-  width: 42px !important;
-  height: 42px !important;
-
-  flex: 0 0 42px !important;
-
-  order: -1;
-
-  display: grid !important;
-  place-items: center !important;
-
-  border-radius: 13px !important;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(39,200,255,0.14),
-      rgba(39,200,255,0.045)
-    ) !important;
-
-  border: 1px solid rgba(39,200,255,0.13) !important;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.04);
-
-  font-size: 17px !important;
+#settingsPanel .settings-content-enter
+.settings-hero {
+  animation:
+    settingsHeroIn .45s cubic-bezier(.16,1,.3,1) both;
 }
 
-/* =========================================================
-   TEXT
-========================================================= */
+#settingsPanel .settings-content-enter
+.settings-row {
+  animation:
+    settingsCardIn .42s cubic-bezier(.16,1,.3,1) both;
 
-#settingsPanel .settings-row-text {
-  min-width: 0;
-
-  flex: 1;
+  animation-delay:
+    calc(var(--settings-index) * 55ms + 80ms);
 }
 
-#settingsPanel .settings-row-label {
-  color: #f5f9fc !important;
+@keyframes settingsHeroIn {
 
-  font-size: 13px !important;
+  from {
+    opacity: 0;
+    transform:
+      translateY(10px)
+      scale(.985);
+  }
 
-  line-height: 1.2 !important;
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
 
-  font-weight: 900 !important;
-
-  letter-spacing: -0.15px !important;
 }
 
-#settingsPanel .settings-row-desc {
-  margin-top: 5px !important;
+@keyframes settingsCardIn {
 
-  color: #71849a !important;
+  from {
+    opacity: 0;
+    transform:
+      translateY(14px)
+      scale(.985);
+  }
 
-  font-size: 10px !important;
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
 
-  line-height: 1.35 !important;
-
-  font-weight: 650 !important;
 }
 
 /* =========================================================
@@ -3323,94 +3222,75 @@ select:focus-visible {
 ========================================================= */
 
 #settingsPanel .settings-toggle {
-  position: relative;
-
-  width: 48px !important;
-  height: 28px !important;
-
-  flex: 0 0 48px !important;
-
-  padding: 0 !important;
-
-  border-radius: 999px !important;
-
-  border: 1px solid rgba(255,255,255,0.10) !important;
-
-  background: rgba(255,255,255,0.07) !important;
-
-  box-shadow:
-    inset 0 1px 3px rgba(0,0,0,0.25);
+  cursor: pointer;
 
   transition:
-    background .25s ease,
-    border-color .25s ease,
-    box-shadow .25s ease;
+    transform .16s cubic-bezier(.16,1,.3,1),
+    background .30s ease,
+    border-color .30s ease,
+    box-shadow .30s ease;
+}
+
+#settingsPanel .settings-toggle:active {
+  transform: scale(.90);
 }
 
 #settingsPanel .settings-toggle-knob {
-  position: absolute;
-
-  top: 3px;
-  left: 3px;
-
-  width: 20px;
-  height: 20px;
-
-  border-radius: 50%;
-
-  background: #8797a8;
-
-  box-shadow:
-    0 2px 7px rgba(0,0,0,.45);
-
   transition:
-    transform .25s cubic-bezier(.2,.8,.2,1),
-    background .25s ease;
+    transform .34s cubic-bezier(.34,1.56,.64,1),
+    background .25s ease,
+    box-shadow .30s ease;
 }
 
 #settingsPanel .settings-toggle.on {
-  background:
-    linear-gradient(
-      135deg,
-      #27c8ff,
-      #36f58b
-    ) !important;
-
-  border-color: rgba(54,245,139,0.42) !important;
-
-  box-shadow:
-    0 0 20px rgba(39,200,255,0.18);
+  animation:
+    settingsToggleGlow .35s ease;
 }
 
-#settingsPanel .settings-toggle.on .settings-toggle-knob {
-  transform: translateX(20px);
+@keyframes settingsToggleGlow {
 
-  background: #ffffff;
+  0% {
+    box-shadow:
+      0 0 0 rgba(39,200,255,0);
+  }
 
-  box-shadow:
-    0 0 12px rgba(255,255,255,0.45);
+  45% {
+    box-shadow:
+      0 0 25px rgba(39,200,255,.28);
+  }
+
+  100% {
+    box-shadow:
+      0 0 20px rgba(39,200,255,.18);
+  }
+
 }
 
 /* =========================================================
-   SECTION SPACING
+   REMOVE RESET DUPLICATION
 ========================================================= */
 
-#settingsPanel .settings-row:first-child {
-  margin-top: 28px !important;
+#settingsPanel .settings-reset-btn::before {
+  content: none !important;
+
+  display: none !important;
 }
 
-#settingsPanel .settings-row:nth-child(4) {
-  margin-top: 35px !important;
+#settingsPanel .settings-reset-btn span {
+  display: inline-block;
+
+  margin-right: 7px;
+
+  transition:
+    transform .35s cubic-bezier(.16,1,.3,1);
 }
 
-#settingsPanel .settings-row:nth-child(5) {
-  margin-top: 35px !important;
+#settingsPanel .settings-reset-btn:hover span {
+  transform: rotate(-180deg);
 }
 
-#settingsPanel .settings-row-static {
-  margin-top: 35px !important;
-
-  min-height: 70px !important;
+#settingsPanel .settings-reset-btn:active {
+  transform: scale(.975);
 }
 
 /* =========================================================
@@ -3418,95 +3298,87 @@ select:focus-visible {
 ========================================================= */
 
 #settingsPanel .settings-row-static {
-  background:
-    linear-gradient(
-      145deg,
-      rgba(39,200,255,0.075),
-      rgba(255,255,255,0.018)
-    ) !important;
-
-  border-color: rgba(39,200,255,0.10) !important;
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease;
 }
+
+#settingsPanel .settings-row-static:hover {
+  transform: translateY(-1px);
+}
+
+/*
+   Remove old fake icon because the real
+   .settings-row-icon already exists.
+*/
 
 #settingsPanel .settings-row-static::after {
-  content: "⚡" !important;
-
-  display: grid !important;
-  place-items: center !important;
-
-  color: #38d8ff;
-
-  font-size: 18px !important;
-}
-
-#settingsPanel .settings-row-static .settings-row-desc {
-  color: #38d8ff !important;
-
-  font-size: 10px !important;
-
-  font-weight: 800 !important;
+  content: none !important;
+  display: none !important;
 }
 
 /* =========================================================
-   RESET
+   CONTENT REFRESH
 ========================================================= */
 
-#settingsPanel .settings-reset-btn {
-  position: relative;
+#settingsPanel .settings-content-refresh
+.settings-row {
+  animation:
+    settingsCardRefresh .28s ease both;
+}
 
-  width: 100% !important;
+@keyframes settingsCardRefresh {
 
-  margin-top: 10px !important;
+  from {
+    opacity: .72;
+    transform: scale(.992);
+  }
 
-  min-height: 46px;
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 
-  padding: 12px 14px !important;
+}
 
-  border-radius: 14px !important;
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
 
-  border: 1px solid rgba(255,90,110,0.16) !important;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255,70,90,0.075),
-      rgba(255,70,90,0.025)
-    ) !important;
-
-  color: #ff7d8b !important;
-
-  font-size: 11px !important;
-
-  font-weight: 900 !important;
-
-  letter-spacing: .1px;
-
+#settingsPanel #settingsCloseBtn {
   transition:
-    transform .2s ease,
+    transform .25s cubic-bezier(.16,1,.3,1),
     background .2s ease,
-    border-color .2s ease;
+    color .2s ease,
+    box-shadow .2s ease !important;
 }
 
-#settingsPanel .settings-reset-btn::before {
-  content: "↻";
-
-  margin-right: 7px;
-
-  font-size: 14px;
+#settingsPanel #settingsCloseBtn:hover {
+  transform:
+    rotate(90deg)
+    scale(1.04);
 }
 
-#settingsPanel .settings-reset-btn:hover {
-  transform: translateY(-1px);
-
-  background:
-    rgba(255,70,90,0.12) !important;
-
-  border-color:
-    rgba(255,90,110,0.28) !important;
+#settingsPanel #settingsCloseBtn:active {
+  transform:
+    rotate(90deg)
+    scale(.90);
 }
 
-#settingsPanel .settings-reset-btn:active {
-  transform: scale(.98);
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  #settingsPanel,
+  #settingsPanel *,
+  #settingsOverlay {
+    animation: none !important;
+    transition: none !important;
+  }
+
 }
 
 /* =========================================================
@@ -3515,82 +3387,21 @@ select:focus-visible {
 
 @media (max-width: 480px) {
 
-  #settingsPanel {
-    width: calc(100vw - 18px) !important;
-
-    height: calc(100dvh - 18px) !important;
-
-    border-radius: 24px !important;
+  #settingsPanel .settings-hero {
+    padding: 12px;
+    border-radius: 16px;
   }
 
-  #settingsPanel .slide-panel-header {
-    min-height: 100px !important;
-
-    padding: 18px !important;
+  #settingsPanel .settings-hero-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
   }
 
-  #settingsPanel .slide-panel-header::before {
-    left: 18px;
-    top: 18px;
-
-    width: 43px;
-    height: 43px;
+  #settingsPanel .settings-row-icon {
+    width: 39px;
+    height: 39px;
+    flex-basis: 39px;
   }
 
-  #settingsPanel .slide-panel-header h3 {
-    left: 72px !important;
-    top: 18px !important;
-
-    font-size: 19px !important;
-  }
-
-  #settingsPanel .slide-panel-body {
-    padding: 15px !important;
-  }
-
-  #settingsPanel .settings-row {
-    min-height: 68px !important;
-
-    padding: 11px !important;
-
-    border-radius: 16px !important;
-  }
-
-  #settingsPanel .settings-row::after {
-    width: 39px !important;
-    height: 39px !important;
-    flex-basis: 39px !important;
-  }
-
-  #settingsPanel .settings-row-label {
-    font-size: 12px !important;
-  }
-
-  #settingsPanel .settings-row-desc {
-    font-size: 9px !important;
-  }
-
-  #settingsPanel .settings-toggle {
-    width: 45px !important;
-    height: 27px !important;
-    flex-basis: 45px !important;
-  }
-
-  #settingsPanel .settings-toggle-knob {
-    width: 19px;
-    height: 19px;
-  }
-
-  #settingsPanel .settings-toggle.on .settings-toggle-knob {
-    transform: translateX(18px);
-  }
-}
-
-/* =========================================================
-   REDUCE MOTION COMPATIBILITY
-========================================================= */
-
-html.reduce-motion #settingsPanel *,
-html.no-game-animations #settingsPanel .settings-row {
-  transition: none !important;
 }
