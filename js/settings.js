@@ -224,131 +224,132 @@
      RENDER
   ===================================================== */
 
-  function render() {
-    if (!dom.list) return;
+  function render(animate = false) {
+  if (!dom.list) return;
 
-    let html = `
-      <div class="settings-hero">
+  let html = `
+    <div class="settings-hero">
+      <div class="settings-hero-icon">⚙️</div>
 
-        <div class="settings-hero-icon">
-          ⚙️
+      <div class="settings-hero-content">
+        <div class="settings-hero-title">
+          Customize EarnRush
         </div>
 
-        <div class="settings-hero-content">
-
-          <div class="settings-hero-title">
-            Customize EarnRush
-          </div>
-
-          <div class="settings-hero-desc">
-            Control your gameplay experience and preferences.
-          </div>
-
+        <div class="settings-hero-desc">
+          Control your gameplay experience and preferences.
         </div>
-
       </div>
-    `;
+    </div>
+  `;
 
-    /* FOUR SETTING CARDS */
-
-    settings.forEach(item => {
-
-      html += `
-        <div class="settings-row">
-
-          <div class="settings-row-icon">
-            ${item.icon}
-          </div>
-
-          <div class="settings-row-text">
-
-            <div class="settings-row-label">
-              ${item.label}
-            </div>
-
-            <div class="settings-row-desc">
-              ${item.desc}
-            </div>
-
-          </div>
-
-          ${createToggle(item)}
-
-        </div>
-      `;
-
-    });
-
-    /* APP INFO */
-
+  settings.forEach((item, index) => {
     html += `
-      <div class="settings-app-section">
+      <div
+        class="settings-row"
+        style="--settings-index:${index}"
+      >
 
-        <div class="settings-row settings-row-static">
-
-          <div class="settings-row-icon">
-            🚀
-          </div>
-
-          <div class="settings-row-text">
-
-            <div class="settings-row-label">
-              EarnRush
-            </div>
-
-            <div class="settings-row-desc">
-              Play. Rush. Level Up.
-            </div>
-
-          </div>
-
-          <span class="settings-version-badge">
-            v5.0
-          </span>
-
+        <div class="settings-row-icon">
+          ${item.icon}
         </div>
 
-        <button
-          type="button"
-          id="settingsResetBtn"
-          class="settings-reset-btn"
-        >
-          <span>↻</span>
-          Reset Preferences
-        </button>
+        <div class="settings-row-text">
+          <div class="settings-row-label">
+            ${item.label}
+          </div>
 
-        <div class="settings-footer">
-          Your game progress and Coins are not affected.
+          <div class="settings-row-desc">
+            ${item.desc}
+          </div>
         </div>
+
+        ${createToggle(item)}
 
       </div>
     `;
+  });
 
-    dom.list.innerHTML = html;
+  html += `
+    <div class="settings-app-section">
+
+      <div class="settings-row settings-row-static">
+
+        <div class="settings-row-icon">
+          🚀
+        </div>
+
+        <div class="settings-row-text">
+          <div class="settings-row-label">
+            EarnRush
+          </div>
+
+          <div class="settings-row-desc">
+            Play. Rush. Level Up.
+          </div>
+        </div>
+
+        <span class="settings-version-badge">
+          v5.0
+        </span>
+
+      </div>
+
+      <button
+        type="button"
+        id="settingsResetBtn"
+        class="settings-reset-btn"
+      >
+        <span>↻</span>
+        Reset Preferences
+      </button>
+
+      <div class="settings-footer">
+        Your game progress and Coins are not affected.
+      </div>
+
+    </div>
+  `;
+
+  dom.list.innerHTML = html;
+
+  if (animate) {
+    dom.list.classList.remove("settings-content-refresh");
+
+    requestAnimationFrame(() => {
+      dom.list.classList.add("settings-content-refresh");
+    });
   }
+}
 
   /* =====================================================
      PANEL
   ===================================================== */
 
   function openPanel() {
-    if (!dom.overlay) return;
+  if (!dom.overlay) return;
 
-    dom.overlay.hidden = false;
+  dom.overlay.hidden = false;
 
-    dom.settingsBtn?.setAttribute(
-      "aria-expanded",
-      "true"
-    );
+  dom.settingsBtn?.setAttribute(
+    "aria-expanded",
+    "true"
+  );
 
-    render();
+  render(false);
 
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       dom.panel?.classList.add(
         "settings-panel-open"
       );
+
+      dom.list?.classList.add(
+        "settings-content-enter"
+      );
     });
-  }
+  });
+}
 
   function closePanel() {
     if (!dom.overlay) return;
