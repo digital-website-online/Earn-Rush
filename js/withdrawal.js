@@ -637,6 +637,45 @@
               msg.className = "withdraw-message pending show";
               msg.style.display = "block";
             }
+/* =====================================================
+   CREATE WITHDRAWAL NOTIFICATION
+===================================================== */
+
+if (window.EarnRushNotifications) {
+
+  const user =
+    window.EarnRushAuth?.getUser();
+
+  const userName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.user_metadata?.display_name ||
+    "there";
+
+  const cashAmount =
+    Number(withdrawal.cash_amount || 0).toFixed(2);
+
+  const withdrawalId =
+    withdrawal.id || "";
+
+  const requestRef =
+    withdrawalId
+      ? `#ER-${String(withdrawalId).slice(-4).toUpperCase()}`
+      : "#ER-PENDING";
+
+  window.EarnRushNotifications.push({
+    title: "Withdrawal Request Received",
+    message:
+      `Hi ${userName}, your withdrawal request has been received ` +
+      `successfully and is currently pending. Our team will review ` +
+      `and process your request shortly. Once the verification ` +
+      `process is complete, your withdrawal will be completed and ` +
+      `the amount will be sent to your selected account.\n\n` +
+      `Status: 🟡 Pending\n` +
+      `Amount: Rs ${cashAmount}\n` +
+      `Request: ${requestRef}`
+  });
+}
 
             if (coinsInput) coinsInput.value = "";
             if (rsDisplay) rsDisplay.textContent = "= 0 Rs";
