@@ -129,26 +129,50 @@
   }
 
   function openPanel() {
-    if (!dom.overlay) return;
-    dom.overlay.hidden = false;
-    dom.bellBtn?.setAttribute("aria-expanded", "true");
-    render();
-  }
+  if (!dom.overlay) return;
+
+  dom.overlay.hidden = false;
+  dom.overlay.style.display = "flex";
+
+  dom.bellBtn?.setAttribute(
+    "aria-expanded",
+    "true"
+  );
+
+  render();
+}
 
   function closePanel() {
-    if (!dom.overlay) return;
-    dom.overlay.hidden = true;
-    dom.bellBtn?.setAttribute("aria-expanded", "false");
-  }
+  if (!dom.overlay) return;
+
+  dom.overlay.hidden = true;
+  dom.overlay.style.display = "none";
+
+  dom.bellBtn?.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+}
 
   function isOpen() {
     return !!dom.overlay && !dom.overlay.hidden;
   }
 
   function setupEvents() {
-    dom.bellBtn?.addEventListener("click", () => {
-      isOpen() ? closePanel() : openPanel();
-    });
+    document.addEventListener("click", (e) => {
+  const bell = e.target.closest("#notifBellBtn");
+
+  if (!bell) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (isOpen()) {
+    closePanel();
+  } else {
+    openPanel();
+  }
+});
 
     dom.closeBtn?.addEventListener("click", closePanel);
 
