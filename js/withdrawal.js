@@ -677,9 +677,13 @@
 
     if (error || !data) return;
 
-    const balanceEl = document.getElementById("balance");
-    if (balanceEl) balanceEl.textContent = data.coins.toLocaleString();
-  }
+    if (window.EarnRushGame && typeof window.EarnRushGame.setCoinsFromServer === "function") {
+      window.EarnRushGame.setCoinsFromServer(data.coins);
+    } else {
+      const balanceEl = document.getElementById("balance");
+      if (balanceEl) balanceEl.textContent = data.coins.toLocaleString();
+    }
+}
 
 
   /* =====================================================
