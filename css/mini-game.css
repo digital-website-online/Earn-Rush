@@ -739,7 +739,6 @@ body.mg-open {
     min-height: 100dvh;
     overflow: hidden;
     overscroll-behavior: none;
-    touch-action: none;
 }
 
 #miniGameOverlay .mg-container {
