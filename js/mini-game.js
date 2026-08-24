@@ -433,147 +433,177 @@
   }
 
   /* =========================================================
-     COINS -> ARCADE TOKENS
-     ========================================================= */
+   COINS -> ARCADE TOKENS
+   ========================================================= */
 
-  function updateConvertPreview() {
-    if (
-      !dom.convertInput ||
-      !dom.convertPreview
-    ) {
-      return;
-    }
-
-    const amount = Math.floor(
-      Number(dom.convertInput.value) || 0
-    );
-
-    if (amount <= 0) {
-      dom.convertPreview.textContent =
-        "= 0 Arcade Tokens";
-      return;
-    }
-
-    const tokens = Math.floor(
-      amount / CONFIG.COINS_PER_TOKEN
-    );
-
-    dom.convertPreview.textContent =
-      `= ${fmt(tokens)} Arcade Tokens`;
-  }
-
-  function showConvertMessage(
-    text,
-    isError
+function updateConvertPreview() {
+  if (
+    !dom.convertInput ||
+    !dom.convertPreview
   ) {
-    if (!dom.convertMsg) return;
-
-    dom.convertMsg.textContent = text;
-
-    dom.convertMsg.classList.toggle(
-      "is-error",
-      !!isError
-    );
-
-    dom.convertMsg.classList.toggle(
-      "is-success",
-      !isError
-    );
+    return;
   }
 
-  function handleConvert() {
-    if (!dom.convertInput) return;
+  const amount = Math.floor(
+    Number(dom.convertInput.value) || 0
+  );
 
-    const raw =
-      dom.convertInput.value;
+  if (amount <= 0) {
+    dom.convertPreview.textContent =
+      "= 0 Arcade Tokens";
+    return;
+  }
 
-    const amount =
-      Math.floor(Number(raw));
+  const tokens = Math.floor(
+    amount / CONFIG.COINS_PER_TOKEN
+  );
 
-    if (
-      !raw ||
-      !Number.isFinite(amount) ||
-      amount <= 0
-    ) {
-      showConvertMessage(
-        "Enter a valid Coins amount.",
-        true
-      );
-      return;
-    }
+  dom.convertPreview.textContent =
+    `= ${fmt(tokens)} Arcade Tokens`;
+}
 
-    if (
-      amount <
-      CONFIG.MIN_CONVERT_COINS
-    ) {
-      showConvertMessage(
-        `Minimum conversion is ${fmt(
-          CONFIG.MIN_CONVERT_COINS
-        )} Coins.`,
-        true
-      );
-      return;
-    }
 
-    const available =
-      getEarnRushCoins();
+function showConvertMessage(
+  text,
+  isError
+) {
+  if (!dom.convertMsg) return;
 
-    if (amount > available) {
-      showConvertMessage(
-        "Not enough Coins for this conversion.",
-        true
-      );
-      return;
-    }
+  dom.convertMsg.textContent = text;
 
-    const tokens = Math.floor(
-  amount / CONFIG.COINS_PER_TOKEN
-);
+  dom.convertMsg.classList.toggle(
+    "is-error",
+    !!isError
+  );
 
-    if (
-      !spendEarnRushCoins(amount)
-    ) {
-      showConvertMessage(
-        "Conversion failed. Please try again.",
-        true
-      );
-      return;
-    }
+  dom.convertMsg.classList.toggle(
+    "is-success",
+    !isError
+  );
+}
 
-    setTokens(
-      getTokens() + tokensEarned
-    );
 
-    updateWalletUI();
-    updateConvertPreview();
+function handleConvert() {
+  if (!dom.convertInput) return;
 
-    dom.convertInput.value = "";
+  const raw =
+    dom.convertInput.value;
 
+  const amount =
+    Math.floor(Number(raw));
+
+  if (
+    !raw ||
+    !Number.isFinite(amount) ||
+    amount <= 0
+  ) {
     showConvertMessage(
-      `Converted ${fmt(amount)} Coins → ${fmt(
-        tokensEarned
-      )} Arcade Tokens.`,
-      false
+      "Enter a valid Coins amount.",
+      true
+    );
+    return;
+  }
+
+  if (
+    amount <
+    CONFIG.MIN_CONVERT_COINS
+  ) {
+    showConvertMessage(
+      `Minimum conversion is ${fmt(
+        CONFIG.MIN_CONVERT_COINS
+      )} Coins.`,
+      true
+    );
+    return;
+  }
+
+  const available =
+    getEarnRushCoins();
+
+  if (amount > available) {
+    showConvertMessage(
+      "Not enough Coins for this conversion.",
+      true
+    );
+    return;
+  }
+
+  /* =========================================
+     CALCULATE ARCADE TOKENS
+
+     1 Coin = 10 Tokens
+     10 Coins = 100 Tokens
+     100 Coins = 1,000 Tokens
+     1,000 Coins = 10,000 Tokens
+  ========================================= */
+
+  const tokens =
+    Math.floor(
+      amount /
+      CONFIG.COINS_PER_TOKEN
+    );
+
+  if (tokens <= 0) {
+    showConvertMessage(
+      "Conversion amount is too small.",
+      true
+    );
+    return;
+  }
+
+  /* =========================================
+     REMOVE COINS
+  ========================================= */
+
+  if (
+    !spendEarnRushCoins(amount)
+  ) {
+    showConvertMessage(
+      "Conversion failed. Please try again.",
+      true
+    );
+    return;
+  }
+
+  /* =========================================
+     ADD ARCADE TOKENS
+  ========================================= */
+
+  setTokens(
+    getTokens() + tokens
+  );
+
+  updateWalletUI();
+
+  /* Clear input before preview update */
+  dom.convertInput.value = "";
+
+  updateConvertPreview();
+
+  showConvertMessage(
+    `Converted ${fmt(amount)} Coins → ${fmt(
+      tokens
+    )} Arcade Tokens.`,
+    false
+  );
+}
+
+
+function setupConversion() {
+  if (dom.convertInput) {
+    dom.convertInput.addEventListener(
+      "input",
+      updateConvertPreview
     );
   }
 
-  function setupConversion() {
-    if (dom.convertInput) {
-      dom.convertInput.addEventListener(
-        "input",
-        updateConvertPreview
-      );
-    }
-
-    if (dom.convertBtn) {
-      dom.convertBtn.addEventListener(
-        "click",
-        handleConvert
-      );
-    }
+  if (dom.convertBtn) {
+    dom.convertBtn.addEventListener(
+      "click",
+      handleConvert
+    );
   }
-
-  /* =========================================================
+} =========================================================
      OPEN / CLOSE
      ========================================================= */
 
