@@ -1,14 +1,5 @@
 /* =========================================================
    EARNRUSH — ADMIN WITHDRAWALS
-   -----------------------------------------------------------
-   Admin status is determined ONLY by calling the real
-   public.is_admin() RPC.
-
-   Server-side security remains authoritative:
-   admin_get_withdrawals and admin_update_withdrawal
-   independently enforce admin access.
-
-   UI/performance improvements only.
    ========================================================= */
 
 (() => {
@@ -25,9 +16,6 @@
     "rejected"
   ];
 
-  let loadSequence = 0;
-  let updateInProgress = false;
-
   function getUI() {
     return window.EarnRushUI?.admin || null;
   }
@@ -41,17 +29,17 @@
     }
 
     try {
-      const { data, error } =
-        await window.supabase.rpc(
-          "is_admin"
-        );
+      const {
+        data,
+        error
+      } = await window.supabase.rpc(
+        "is_admin"
+      );
 
-      if (error) {
-        return false;
-      }
+      if (error) return false;
 
       return !!data;
-    } catch (e) {
+    } catch (error) {
       return false;
     }
   }
@@ -72,39 +60,22 @@
 
     if (!ui?.dom.list) return;
 
-    const currentSequence =
-      ++loadSequence;
-
     ui.showLoading();
 
     try {
-      const { data, error } =
-        await window.supabase.rpc(
-          "admin_get_withdrawals"
-        );
-
-      /*
-       * If another load started after this one,
-       * do not overwrite the newer UI state.
-       */
-      if (
-        currentSequence !==
-        loadSequence
-      ) {
-        return;
-      }
+      const {
+        data,
+        error
+      } = await window.supabase.rpc(
+        "admin_get_withdrawals"
+      );
 
       if (error) {
-        ui.showError(
-          error.message
-        );
+        ui.showError(error.message);
         return;
       }
 
-      if (
-        !data ||
-        data.length === 0
-      ) {
+      if (!data || data.length === 0) {
         ui.showEmpty();
         return;
       }
@@ -115,38 +86,18 @@
       );
 
     } catch (error) {
-      if (
-        currentSequence !==
-        loadSequence
-      ) {
-        return;
-      }
-
       ui.showError(
         error?.message ||
-        "Unable to load withdrawal requests."
+        "Failed to load withdrawals."
       );
     }
   }
 
   async function handleUpdate(itemEl) {
-    if (
-      !itemEl ||
-      updateInProgress
-    ) {
-      return;
-    }
-
     const id =
-      Number(
-        itemEl.dataset.id
-      );
+      Number(itemEl.dataset.id);
 
-    if (
-      !Number.isFinite(id)
-    ) {
-      return;
-    }
+    if (!id) return;
 
     const status =
       itemEl.querySelector(
@@ -167,26 +118,23 @@
 
     if (!ui) return;
 
-    /*
-     * Only lock this particular request card.
-     * Other UI remains responsive.
-     */
     ui.setUpdateLoading(
       itemEl,
       true
     );
 
     try {
-      const { data, error } =
-        await window.supabase.rpc(
-          "admin_update_withdrawal",
-          {
-            p_withdrawal_id: id,
-            p_status: status,
-            p_admin_note: note,
-            p_transaction_reference: ref
-          }
-        );
+      const {
+        error
+      } = await window.supabase.rpc(
+        "admin_update_withdrawal",
+        {
+          p_withdrawal_id: id,
+          p_status: status,
+          p_admin_note: note,
+          p_transaction_reference: ref
+        }
+      );
 
       if (error) {
         alert(
@@ -195,10 +143,6 @@
         return;
       }
 
-      /*
-       * Re-render from authoritative
-       * server state exactly as before.
-       */
       await loadWithdrawals();
 
     } catch (error) {
@@ -216,6 +160,85 @@
     }
   }
 
+
+  /*
+   * DELETE
+   *
+   * IMPORTANT:
+   * This expects a server-side RPC named:
+   *
+   * admin_delete_withdrawal
+   *
+   * I am NOT inventing a direct table delete here.
+   * The RPC must enforce admin permission server-side.
+   */
+
+  async function handleDelete(itemEl) {
+    const id =
+      Number(itemEl.dataset.id);
+
+    if (!id) return;
+
+    const confirmed =
+      window.confirm(
+        "Delete this withdrawal request?\n\nThis action cannot be undone."
+      );
+
+    if (!confirmed) return;
+
+    const ui = getUI();
+
+    if (!ui) return;
+
+    ui.setDeleteLoading(
+      itemEl,
+      true
+    );
+
+    try {
+      const {
+        error
+      } = await window.supabase.rpc(
+        "admin_delete_withdrawal",
+        {
+          p_withdrawal_id: id
+        }
+      );
+
+      if (error) {
+        alert(
+          `Delete failed: ${error.message}`
+        );
+
+        return;
+      }
+
+      itemEl.remove();
+
+      if (
+        !ui.dom.list.querySelector(
+          ".admin-withdrawal-item"
+        )
+      ) {
+        ui.showEmpty();
+      }
+
+    } catch (error) {
+      alert(
+        `Delete failed: ${
+          error?.message ||
+          "Unknown error"
+        }`
+      );
+    } finally {
+      ui.setDeleteLoading(
+        itemEl,
+        false
+      );
+    }
+  }
+
+
   function openAdminPanel() {
     const ui = getUI();
 
@@ -223,42 +246,53 @@
 
     ui.open();
 
-    /*
-     * Start loading after the panel has been
-     * opened so the opening interaction itself
-     * stays lightweight.
-     */
     loadWithdrawals();
   }
+
 
   function closeAdminPanel() {
     const ui = getUI();
 
     if (!ui) return;
 
-    /*
-     * Invalidate any older render result.
-     * A late response cannot overwrite a newer state.
-     */
-    loadSequence++;
-
     ui.close();
   }
+
 
   function setupEvents() {
     const ui = getUI();
 
     if (!ui) return;
 
+
+    /*
+     * ADMIN BUTTON
+     */
+
     ui.dom.btn?.addEventListener(
       "click",
       openAdminPanel
     );
 
+
+    /*
+     * CLOSE BUTTON
+     */
+
     ui.dom.closeBtn?.addEventListener(
       "click",
-      closeAdminPanel
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        closeAdminPanel();
+      }
     );
+
+
+    /*
+     * OVERLAY CLICK
+     */
 
     ui.dom.overlay?.addEventListener(
       "click",
@@ -272,12 +306,22 @@
       }
     );
 
+
+    /*
+     * PANEL MUST NOT CLOSE
+     */
+
     ui.dom.panel?.addEventListener(
       "click",
       (e) => {
         e.stopPropagation();
       }
     );
+
+
+    /*
+     * ESCAPE
+     */
 
     document.addEventListener(
       "keydown",
@@ -287,37 +331,63 @@
           ui.dom.overlay &&
           !ui.dom.overlay.hidden
         ) {
+          e.preventDefault();
           closeAdminPanel();
         }
       }
     );
 
+
     /*
-     * Event delegation:
-     * one listener for the whole list,
-     * not one listener per withdrawal card.
+     * UPDATE + DELETE
+     *
+     * Event delegation means dynamically
+     * rendered cards also work.
      */
+
     ui.dom.list?.addEventListener(
       "click",
       (e) => {
-        const btn =
+
+        const updateBtn =
           e.target.closest(
             ".admin-update-btn"
           );
 
-        if (!btn) return;
+        if (updateBtn) {
+          const item =
+            updateBtn.closest(
+              ".admin-withdrawal-item"
+            );
 
-        const item =
-          btn.closest(
-            ".admin-withdrawal-item"
+          if (item) {
+            handleUpdate(item);
+          }
+
+          return;
+        }
+
+
+        const deleteBtn =
+          e.target.closest(
+            ".admin-delete-btn"
           );
 
-        if (item) {
-          handleUpdate(item);
+        if (deleteBtn) {
+          const item =
+            deleteBtn.closest(
+              ".admin-withdrawal-item"
+            );
+
+          if (item) {
+            handleDelete(item);
+          }
         }
+
       }
     );
   }
+
 
   function init() {
     const ui = getUI();
@@ -326,6 +396,7 @@
       console.warn(
         "EarnRushUI.admin is not available. Make sure ui.js loads before admin.js."
       );
+
       return;
     }
 
@@ -333,15 +404,13 @@
 
     setupEvents();
 
+
     /*
-     * Re-check admin visibility whenever
-     * auth state changes.
-     *
-     * Logout immediately hides the button.
+     * AUTH STATE
      */
+
     if (
-      window.supabase?.auth
-        ?.onAuthStateChange
+      window.supabase?.auth?.onAuthStateChange
     ) {
       window.supabase.auth.onAuthStateChange(
         () => {
@@ -350,14 +419,17 @@
       );
     }
 
+
     /*
-     * Initial check after auth restoration.
+     * Initial admin check
      */
+
     setTimeout(
       refreshAdminVisibility,
       400
     );
   }
+
 
   if (
     document.readyState ===
