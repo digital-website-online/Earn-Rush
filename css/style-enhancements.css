@@ -1239,46 +1239,28 @@ html.no-game-animations .reward-card {
 
 
 /* =========================================================
-   ADMIN PANEL
+   EARNRUSH — ADMIN PANEL PERFORMANCE UI
    ========================================================= */
 
 .admin-panel {
   position: relative;
 
-  width:
-    min(
-      470px,
-      calc(100vw - 28px)
-    );
+  width: min(470px, calc(100vw - 28px));
+  max-height: min(88vh, 760px);
 
-  max-height:
-    min(
-      88vh,
-      760px
-    );
+  overflow-y: auto;
+  overflow-x: hidden;
 
-  /*
-   * The panel itself does NOT scroll.
-   * Only #adminList scrolls.
-   *
-   * This prevents nested / competing scroll behavior.
-   */
-  overflow: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 
-  display: flex;
-  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
 
-  border:
-    1px solid rgba(56, 189, 248, 0.13);
-
+  border: 1px solid rgba(56, 189, 248, 0.13);
   border-radius: 24px;
 
   background:
-    radial-gradient(
-      circle at 100% 0%,
-      rgba(56, 189, 248, 0.055),
-      transparent 34%
-    ),
     linear-gradient(
       145deg,
       rgba(9, 27, 44, 0.99),
@@ -1286,10 +1268,7 @@ html.no-game-animations .reward-card {
     );
 
   box-shadow:
-    0 18px 45px
-      rgba(0, 0, 0, 0.42),
-    inset 0 1px 0
-      rgba(255, 255, 255, 0.025);
+    0 24px 60px rgba(0, 0, 0, 0.48);
 
   animation:
     erAdminPanelIn
@@ -1297,83 +1276,69 @@ html.no-game-animations .reward-card {
     ease-out
     both;
 
-  /*
-   * Prevent accidental text/paint overflow
-   * from affecting the rest of the page.
-   */
   contain: layout paint;
 }
 
 
-/* =========================================================
-   ADMIN LIST — THE ONLY SCROLL CONTAINER
-   ========================================================= */
+/* Scrollbar */
 
-#adminList {
-  flex: 1 1 auto;
-
-  min-height: 0;
-
-  padding:
-    6px 10px
-    8px;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  /*
-   * Native mobile momentum scrolling.
-   */
-  -webkit-overflow-scrolling: touch;
-
-  /*
-   * Prevent scroll chaining into the page.
-   */
-  overscroll-behavior: contain;
-
-  /*
-   * Tell browser this area is vertically scrollable.
-   */
-  touch-action: pan-y;
-
-  scrollbar-width: thin;
-
-  scrollbar-color:
-    rgba(56, 189, 248, 0.24)
-    transparent;
-}
-
-#adminList::-webkit-scrollbar {
+.admin-panel::-webkit-scrollbar {
   width: 4px;
 }
 
-#adminList::-webkit-scrollbar-track {
+.admin-panel::-webkit-scrollbar-track {
   background: transparent;
 }
 
-#adminList::-webkit-scrollbar-thumb {
+.admin-panel::-webkit-scrollbar-thumb {
   border-radius: 999px;
-
-  background:
-    rgba(56, 189, 248, 0.24);
+  background: rgba(56, 189, 248, 0.25);
 }
 
 
 /* =========================================================
-   ADMIN ITEMS
+   BODY LOCK WHILE ADMIN IS OPEN
+   ========================================================= */
+
+body.admin-panel-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+
+/* =========================================================
+   LIST
+   ========================================================= */
+
+#adminList {
+  padding: 4px 0;
+}
+
+
+/* =========================================================
+   ADMIN CARD
    ========================================================= */
 
 .admin-withdrawal-item {
-  margin-bottom: 10px;
+  position: relative;
 
+  margin: 0 0 10px;
   padding: 14px;
 
-  /*
-   * Each item is independently contained.
-   * This reduces the amount of page the browser
-   * needs to reconsider during scrolling.
-   */
-  contain: layout paint;
+  border: 1px solid rgba(148, 163, 184, 0.085);
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 35, 54, 0.96),
+      rgba(6, 18, 31, 0.98)
+    );
+
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.16);
+
+  contain: content;
 }
 
 .admin-withdrawal-item:last-child {
@@ -1382,12 +1347,11 @@ html.no-game-animations .reward-card {
 
 
 /* =========================================================
-   UPDATE AREA
+   ADMIN UPDATE AREA
    ========================================================= */
 
 .admin-update-row {
   position: relative;
-
   z-index: 2;
 
   display: grid;
@@ -1399,31 +1363,26 @@ html.no-game-animations .reward-card {
   gap: 8px;
 
   margin-top: 13px;
-
   padding-top: 12px;
 
-  border-top:
-    1px solid
+  border-top: 1px solid
     rgba(148, 163, 184, 0.065);
 }
 
 
 /* =========================================================
-   ADMIN INPUTS
+   INPUTS
    ========================================================= */
 
 .admin-update-row select,
 .admin-update-row input {
   width: 100%;
-
   min-width: 0;
-
   height: 40px;
 
   padding: 0 11px;
 
-  border:
-    1px solid
+  border: 1px solid
     rgba(148, 163, 184, 0.12);
 
   border-radius: 10px;
@@ -1431,24 +1390,15 @@ html.no-game-animations .reward-card {
   outline: none;
 
   background:
-    #071725;
+    rgba(6, 17, 29, 0.98);
 
   color: #f8fafc;
 
   font-family: inherit;
-
   font-size: 11px;
   font-weight: 650;
 
   box-sizing: border-box;
-
-  /*
-   * Only transition cheap properties.
-   * No background/filter animation.
-   */
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
 .admin-update-row select {
@@ -1457,7 +1407,6 @@ html.no-game-animations .reward-card {
 
 .admin-update-row input::placeholder {
   color: #64748b;
-
   opacity: 1;
 }
 
@@ -1468,7 +1417,7 @@ html.no-game-animations .reward-card {
 
   box-shadow:
     0 0 0 2px
-      rgba(56, 189, 248, 0.055);
+    rgba(56, 189, 248, 0.06);
 }
 
 
@@ -1480,53 +1429,29 @@ html.no-game-animations .reward-card {
   grid-column: 1 / -1;
 
   width: 100%;
-
   height: 42px;
 
-  margin-top: 1px;
-
-  border:
-    1px solid
-    rgba(125, 211, 252, 0.20);
-
+  border: 0;
   border-radius: 11px;
 
   background:
     linear-gradient(
       135deg,
-      #38bdf8 0%,
-      #22d3ee 100%
+      #38bdf8,
+      #22d3ee
     );
 
   color: #042033;
 
   font-family: inherit;
-
   font-size: 11px;
-
   font-weight: 950;
-
-  letter-spacing: 0.055em;
 
   cursor: pointer;
 
   box-shadow:
-    0 5px 14px
-      rgba(56, 189, 248, 0.10);
-
-  transition:
-    transform 0.12s ease,
-    filter 0.12s ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-
-  .admin-update-btn:hover {
-    transform: translateY(-1px);
-
-    filter: brightness(1.04);
-  }
-
+    0 6px 18px
+    rgba(56, 189, 248, 0.12);
 }
 
 .admin-update-btn:active {
@@ -1534,73 +1459,59 @@ html.no-game-animations .reward-card {
 }
 
 .admin-update-btn:disabled {
-  opacity: 0.52;
-
+  opacity: 0.5;
   cursor: not-allowed;
-
-  transform: none;
-
-  filter: none;
-
-  box-shadow: none;
 }
 
 
 /* =========================================================
-   UPDATE-IN-PROGRESS STATE
+   DELETE BUTTON
    ========================================================= */
 
-.admin-withdrawal-item.is-updating {
-  opacity: 0.78;
-}
+.admin-delete-btn {
+  grid-column: 1 / -1;
 
-.admin-withdrawal-item.is-updating
-.admin-update-row select,
-.admin-withdrawal-item.is-updating
-.admin-update-row input {
-  opacity: 0.72;
-}
+  width: 100%;
+  height: 38px;
 
+  margin-top: 1px;
 
-/* =========================================================
-   EMPTY / LOADING / ERROR
-   ========================================================= */
+  border: 1px solid
+    rgba(248, 113, 113, 0.20);
 
-.withdraw-history-section
-.panel-empty-text,
-.admin-panel
-.panel-empty-text {
-  margin: 6px 0;
-
-  padding: 20px 15px !important;
-
-  border:
-    1px dashed
-    rgba(148, 163, 184, 0.13);
-
-  border-radius: 13px;
+  border-radius: 10px;
 
   background:
-    rgba(255, 255, 255, 0.022);
+    rgba(239, 68, 68, 0.07);
 
-  color: #71849a;
+  color: #f87171;
 
+  font-family: inherit;
   font-size: 11px;
+  font-weight: 900;
 
-  font-weight: 600;
+  letter-spacing: 0.04em;
 
-  line-height: 1.55;
+  cursor: pointer;
+}
 
-  text-align: center;
+.admin-delete-btn:active {
+  transform: scale(0.985);
+}
+
+.admin-delete-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 
 /* =========================================================
-   ADMIN CLOSE BUTTON
+   CLOSE BUTTON
    ========================================================= */
 
 #adminCloseBtn {
   position: relative;
+  z-index: 20;
 
   display: inline-flex;
 
@@ -1610,9 +1521,10 @@ html.no-game-animations .reward-card {
   width: 40px;
   height: 40px;
 
-  border:
-    1px solid
-    rgba(148, 163, 184, 0.10);
+  flex: 0 0 40px;
+
+  border: 1px solid
+    rgba(148, 163, 184, 0.12);
 
   border-radius: 12px;
 
@@ -1623,24 +1535,10 @@ html.no-game-animations .reward-card {
 
   cursor: pointer;
 
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
+  -webkit-tap-highlight-color:
+    transparent;
 
-@media (hover: hover) and (pointer: fine) {
-
-  #adminCloseBtn:hover {
-    background:
-      rgba(239, 68, 68, 0.08);
-
-    border-color:
-      rgba(248, 113, 113, 0.18);
-
-    color: #f87171;
-  }
-
+  touch-action: manipulation;
 }
 
 #adminCloseBtn:active {
@@ -1649,55 +1547,41 @@ html.no-game-animations .reward-card {
 
 
 /* =========================================================
-   ADMIN OVERLAY
+   OVERLAY
    ========================================================= */
 
 #adminOverlay {
   background:
-    rgba(1, 5, 10, 0.78) !important;
+    rgba(1, 5, 10, 0.76) !important;
 
   /*
-   * Removed backdrop-filter intentionally.
-   * Blur over the entire dashboard is expensive on
-   * mobile GPUs and was contributing to the laggy feel.
+   * Removed backdrop-filter blur.
+   * It is expensive on mobile and was contributing
+   * to the laggy feeling.
    */
-  backdrop-filter: none;
 
-  -webkit-backdrop-filter: none;
-
-  /*
-   * Keep touch interaction predictable.
-   */
-  touch-action: none;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 
 /* =========================================================
-   ANIMATIONS
+   PANEL ANIMATION
    ========================================================= */
-
-@keyframes erWithdrawSectionIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 
 @keyframes erAdminPanelIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform:
+      translateY(12px)
+      scale(0.985);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform:
+      translateY(0)
+      scale(1);
   }
 }
 
@@ -1708,75 +1592,26 @@ html.no-game-animations .reward-card {
 
 @media (max-width: 480px) {
 
-  .withdraw-history-section {
-    margin-top: 20px;
-    padding-top: 18px;
-  }
-
-  .withdraw-history-title {
-    margin-bottom: 13px;
-
-    font-size: 13px;
-  }
-
-  .withdraw-history-item,
-  .admin-withdrawal-item {
-    padding: 13px;
-
-    margin-bottom: 9px;
-
-    border-radius: 15px;
-  }
-
-  .withdraw-history-row {
-    align-items: flex-start;
-
-    gap: 8px;
-  }
-
-  .withdraw-history-row strong {
-    font-size: 13px;
-
-    line-height: 1.4;
-  }
-
-  .withdraw-history-meta {
-    font-size: 10.5px;
-  }
-
-  .withdraw-status-badge {
-    min-width: 62px;
-
-    height: 23px;
-
-    padding: 0 7px;
-
-    font-size: 8px;
-  }
-
-
-  /* -----------------------------------------
-     ADMIN MOBILE PANEL
-     ----------------------------------------- */
-
   .admin-panel {
-    width:
-      calc(100vw - 20px);
-
-    max-height:
-      88dvh;
+    width: calc(100vw - 20px);
+    max-height: 88vh;
 
     border-radius: 20px;
+
+    box-shadow:
+      0 18px 45px
+      rgba(0, 0, 0, 0.48);
   }
 
   #adminList {
-    padding:
-      5px 7px
-      8px;
+    padding: 2px 0;
   }
 
   .admin-withdrawal-item {
     padding: 13px;
+    margin-bottom: 9px;
+
+    border-radius: 15px;
   }
 
   .admin-update-row {
@@ -1785,23 +1620,22 @@ html.no-game-animations .reward-card {
     gap: 7px;
 
     margin-top: 12px;
-
     padding-top: 11px;
   }
 
   .admin-update-row select,
   .admin-update-row input {
     height: 41px;
-
     font-size: 12px;
   }
 
   .admin-update-btn {
     height: 42px;
-
-    margin-top: 2px;
   }
 
+  .admin-delete-btn {
+    height: 39px;
+  }
 }
 
 
@@ -1811,30 +1645,14 @@ html.no-game-animations .reward-card {
 
 @media (max-width: 360px) {
 
-  .withdraw-history-item,
-  .admin-withdrawal-item {
-    padding: 12px;
-  }
-
-  .withdraw-history-row strong {
-    font-size: 12px;
-  }
-
-  .withdraw-status-badge {
-    min-width: 57px;
-
-    padding: 0 6px;
-
-    font-size: 7.5px;
-  }
-
   .admin-panel {
-    width:
-      calc(100vw - 14px);
-
+    width: calc(100vw - 14px);
     border-radius: 18px;
   }
 
+  .admin-withdrawal-item {
+    padding: 12px;
+  }
 }
 
 
@@ -1844,17 +1662,13 @@ html.no-game-animations .reward-card {
 
 @media (prefers-reduced-motion: reduce) {
 
-  .withdraw-history-section,
-  .admin-withdrawal-item,
   .admin-panel {
     animation: none !important;
   }
 
-  .admin-update-row input,
-  .admin-update-row select,
   .admin-update-btn,
+  .admin-delete-btn,
   #adminCloseBtn {
     transition: none !important;
   }
-
 }
