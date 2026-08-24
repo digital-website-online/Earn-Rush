@@ -859,892 +859,377 @@ html.no-game-animations .reward-card {
 }
 
 /* =========================================================
-   EARNRUSH — WITHDRAWAL HISTORY + ADMIN PANEL
-   PREMIUM UI UPGRADE
-   ---------------------------------------------------------
-   UI ONLY — NO JS / FUNCTIONALITY CHANGES
+   EARNRUSH — ADMIN WITHDRAWALS
+   -----------------------------------------------------------
+   Admin status is determined ONLY by calling the real
+   public.is_admin() RPC.
+
+   Server-side security remains authoritative:
+   admin_get_withdrawals and admin_update_withdrawal
+   independently enforce admin access.
+
+   UI/performance improvements only.
    ========================================================= */
 
+(() => {
+  "use strict";
 
-/* =========================================================
-   WITHDRAWAL HISTORY SECTION
-   ========================================================= */
+  if (window.__earnRushAdminLoaded) return;
 
-.withdraw-history-section {
-  position: relative;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(148, 163, 184, 0.08);
-  animation: erWithdrawSectionIn 0.55s cubic-bezier(.22,.61,.36,1) both;
-}
+  window.__earnRushAdminLoaded = true;
 
-.withdraw-history-title {
-  display: flex;
-  align-items: center;
-  gap: 9px;
+  const STATUS_OPTIONS = [
+    "pending",
+    "processing",
+    "paid",
+    "rejected"
+  ];
 
-  margin: 0 0 14px;
+  let loadSequence = 0;
+  let updateInProgress = false;
 
-  font-size: 14px;
-  line-height: 1.2;
-  font-weight: 900;
+  function getUI() {
+    return window.EarnRushUI?.admin || null;
+  }
 
-  letter-spacing: 0.045em;
-  color: #f1f5f9;
-}
+  async function checkIsAdmin() {
+    if (
+      !window.supabase ||
+      !window.EarnRushAuth?.getUser()
+    ) {
+      return false;
+    }
 
-.withdraw-history-title::before {
-  content: "";
-  width: 4px;
-  height: 18px;
-  flex: 0 0 4px;
+    try {
+      const { data, error } =
+        await window.supabase.rpc(
+          "is_admin"
+        );
 
-  border-radius: 999px;
+      if (error) {
+        return false;
+      }
 
-  background: linear-gradient(
-    180deg,
-    #38bdf8,
-    #22d3ee
-  );
+      return !!data;
+    } catch (e) {
+      return false;
+    }
+  }
 
-  box-shadow:
-    0 0 10px rgba(56, 189, 248, 0.45);
-}
+  async function refreshAdminVisibility() {
+    const ui = getUI();
 
+    if (!ui) return;
 
-/* =========================================================
-   HISTORY CARDS
-   ========================================================= */
+    const isAdmin =
+      await checkIsAdmin();
 
-.withdraw-history-item,
-.admin-withdrawal-item {
-  position: relative;
-  overflow: hidden;
+    ui.setVisible(isAdmin);
+  }
 
-  margin: 0 0 10px;
-  padding: 14px;
+  async function loadWithdrawals() {
+    const ui = getUI();
 
-  border: 1px solid rgba(148, 163, 184, 0.085);
-  border-radius: 16px;
+    if (!ui?.dom.list) return;
 
-  background:
-    radial-gradient(
-      circle at 100% 0%,
-      rgba(56, 189, 248, 0.055),
-      transparent 42%
-    ),
-    linear-gradient(
-      145deg,
-      rgba(15, 35, 54, 0.94),
-      rgba(6, 18, 31, 0.97)
+    const currentSequence =
+      ++loadSequence;
+
+    ui.showLoading();
+
+    try {
+      const { data, error } =
+        await window.supabase.rpc(
+          "admin_get_withdrawals"
+        );
+
+      /*
+       * If another load started after this one,
+       * do not overwrite the newer UI state.
+       */
+      if (
+        currentSequence !==
+        loadSequence
+      ) {
+        return;
+      }
+
+      if (error) {
+        ui.showError(
+          error.message
+        );
+        return;
+      }
+
+      if (
+        !data ||
+        data.length === 0
+      ) {
+        ui.showEmpty();
+        return;
+      }
+
+      ui.renderWithdrawals(
+        data,
+        STATUS_OPTIONS
+      );
+
+    } catch (error) {
+      if (
+        currentSequence !==
+        loadSequence
+      ) {
+        return;
+      }
+
+      ui.showError(
+        error?.message ||
+        "Unable to load withdrawal requests."
+      );
+    }
+  }
+
+  async function handleUpdate(itemEl) {
+    if (
+      !itemEl ||
+      updateInProgress
+    ) {
+      return;
+    }
+
+    const id =
+      Number(
+        itemEl.dataset.id
+      );
+
+    if (
+      !Number.isFinite(id)
+    ) {
+      return;
+    }
+
+    const status =
+      itemEl.querySelector(
+        ".admin-status-select"
+      )?.value;
+
+    const note =
+      itemEl.querySelector(
+        ".admin-note-input"
+      )?.value || null;
+
+    const ref =
+      itemEl.querySelector(
+        ".admin-ref-input"
+      )?.value || null;
+
+    const ui = getUI();
+
+    if (!ui) return;
+
+    /*
+     * Only lock this particular request card.
+     * Other UI remains responsive.
+     */
+    ui.setUpdateLoading(
+      itemEl,
+      true
     );
 
-  box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    try {
+      const { data, error } =
+        await window.supabase.rpc(
+          "admin_update_withdrawal",
+          {
+            p_withdrawal_id: id,
+            p_status: status,
+            p_admin_note: note,
+            p_transaction_reference: ref
+          }
+        );
 
-  animation: erWithdrawCardIn 0.48s cubic-bezier(.22,.61,.36,1) both;
+      if (error) {
+        alert(
+          `Update failed: ${error.message}`
+        );
+        return;
+      }
 
-  transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
+      /*
+       * Re-render from authoritative
+       * server state exactly as before.
+       */
+      await loadWithdrawals();
 
+    } catch (error) {
+      alert(
+        `Update failed: ${
+          error?.message ||
+          "Unknown error"
+        }`
+      );
+    } finally {
+      ui.setUpdateLoading(
+        itemEl,
+        false
+      );
+    }
+  }
 
-/* Top light line */
+  function openAdminPanel() {
+    const ui = getUI();
 
-.withdraw-history-item::before,
-.admin-withdrawal-item::before {
-  content: "";
+    if (!ui) return;
 
-  position: absolute;
-  top: 0;
-  left: 14px;
-  right: 14px;
+    ui.open();
 
-  height: 1px;
+    /*
+     * Start loading after the panel has been
+     * opened so the opening interaction itself
+     * stays lightweight.
+     */
+    loadWithdrawals();
+  }
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(56, 189, 248, 0.32),
-    transparent
-  );
+  function closeAdminPanel() {
+    const ui = getUI();
 
-  opacity: 0.8;
-}
+    if (!ui) return;
 
+    /*
+     * Invalidate any older render result.
+     * A late response cannot overwrite a newer state.
+     */
+    loadSequence++;
 
-/* Soft corner glow */
+    ui.close();
+  }
 
-.withdraw-history-item::after,
-.admin-withdrawal-item::after {
-  content: "";
+  function setupEvents() {
+    const ui = getUI();
 
-  position: absolute;
-  width: 90px;
-  height: 90px;
+    if (!ui) return;
 
-  top: -55px;
-  right: -55px;
-
-  border-radius: 50%;
-
-  background: rgba(56, 189, 248, 0.045);
-
-  filter: blur(5px);
-
-  pointer-events: none;
-}
-
-
-.withdraw-history-item:hover,
-.admin-withdrawal-item:hover {
-  transform: translateY(-2px);
-
-  border-color: rgba(56, 189, 248, 0.17);
-
-  box-shadow:
-    0 14px 34px rgba(0, 0, 0, 0.22),
-    0 0 20px rgba(56, 189, 248, 0.035);
-}
-
-
-/* =========================================================
-   MAIN WITHDRAWAL ROW
-   ========================================================= */
-
-.withdraw-history-row {
-  position: relative;
-  z-index: 1;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 10px;
-  min-width: 0;
-
-  color: #f8fafc;
-
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.withdraw-history-row strong {
-  min-width: 0;
-
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 1.35;
-
-  color: #f8fafc;
-
-  letter-spacing: -0.015em;
-
-  overflow-wrap: anywhere;
-}
-
-
-/* =========================================================
-   META INFORMATION
-   ========================================================= */
-
-.withdraw-history-meta {
-  position: relative;
-  z-index: 1;
-
-  margin-top: 7px;
-
-  color: #8296aa;
-
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.45;
-
-  overflow-wrap: anywhere;
-}
-
-.withdraw-history-meta + .withdraw-history-meta {
-  margin-top: 3px;
-}
-
-
-/* =========================================================
-   ADMIN NOTE
-   ========================================================= */
-
-.withdraw-history-note {
-  position: relative;
-  z-index: 1;
-
-  margin-top: 9px;
-  padding: 8px 10px;
-
-  border: 1px solid rgba(56, 189, 248, 0.10);
-  border-radius: 10px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(56, 189, 248, 0.07),
-      rgba(56, 189, 248, 0.025)
+    ui.dom.btn?.addEventListener(
+      "click",
+      openAdminPanel
     );
 
-  color: #7dd3fc;
-
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.45;
-}
-
-
-/* =========================================================
-   STATUS BADGES
-   ========================================================= */
-
-.withdraw-status-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 66px;
-  height: 25px;
-
-  padding: 0 9px;
-
-  flex-shrink: 0;
-
-  border: 1px solid transparent;
-  border-radius: 999px;
-
-  font-size: 9px;
-  font-weight: 900;
-  line-height: 1;
-
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.withdraw-status-badge::before {
-  content: "";
-
-  width: 5px;
-  height: 5px;
-
-  margin-right: 5px;
-
-  border-radius: 50%;
-
-  background: currentColor;
-  box-shadow: 0 0 7px currentColor;
-}
-
-.withdraw-status-badge:hover {
-  transform: scale(1.04);
-}
-
-
-/* Pending */
-
-.status-pending {
-  color: #facc15;
-
-  background: rgba(234, 179, 8, 0.09);
-  border-color: rgba(234, 179, 8, 0.17);
-
-  box-shadow:
-    0 0 15px rgba(234, 179, 8, 0.045);
-}
-
-
-/* Processing */
-
-.status-processing {
-  color: #38bdf8;
-
-  background: rgba(56, 189, 248, 0.09);
-  border-color: rgba(56, 189, 248, 0.17);
-
-  box-shadow:
-    0 0 15px rgba(56, 189, 248, 0.045);
-}
-
-
-/* Paid */
-
-.status-paid {
-  color: #4ade80;
-
-  background: rgba(34, 197, 94, 0.09);
-  border-color: rgba(34, 197, 94, 0.17);
-
-  box-shadow:
-    0 0 15px rgba(34, 197, 94, 0.045);
-}
-
-
-/* Rejected */
-
-.status-rejected {
-  color: #f87171;
-
-  background: rgba(239, 68, 68, 0.09);
-  border-color: rgba(239, 68, 68, 0.17);
-
-  box-shadow:
-    0 0 15px rgba(239, 68, 68, 0.045);
-}
-
-
-/* =========================================================
-   ADMIN PANEL
-   ========================================================= */
-
-.admin-panel {
-  position: relative;
-
-  width: min(470px, calc(100vw - 28px));
-  max-height: min(88vh, 760px);
-
-  overflow: hidden;
-
-  border: 1px solid rgba(56, 189, 248, 0.13);
-  border-radius: 24px;
-
-  background:
-    radial-gradient(
-      circle at 100% 0%,
-      rgba(56, 189, 248, 0.075),
-      transparent 34%
-    ),
-    linear-gradient(
-      145deg,
-      rgba(9, 27, 44, 0.99),
-      rgba(3, 13, 23, 0.995)
+    ui.dom.closeBtn?.addEventListener(
+      "click",
+      closeAdminPanel
     );
 
-  box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.58),
-    0 0 45px rgba(56, 189, 248, 0.055),
-    inset 0 1px 0 rgba(255, 255, 255, 0.035);
-
-  animation:
-    erAdminPanelIn
-    0.36s
-    cubic-bezier(.22,.61,.36,1)
-    both;
-}
-
-
-/* =========================================================
-   ADMIN PANEL SCROLL
-   ========================================================= */
-
-.admin-panel {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
-}
-
-.admin-panel::-webkit-scrollbar {
-  width: 5px;
-}
-
-.admin-panel::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.admin-panel::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(56, 189, 248, 0.24);
-}
-
-
-/* =========================================================
-   ADMIN LIST
-   ========================================================= */
-
-#adminList {
-  padding: 4px 0;
-}
-
-
-/* =========================================================
-   ADMIN ITEMS
-   ========================================================= */
-
-.admin-withdrawal-item {
-  margin-bottom: 12px;
-  padding: 15px;
-}
-
-.admin-withdrawal-item:last-child {
-  margin-bottom: 2px;
-}
-
-
-/* =========================================================
-   ADMIN UPDATE AREA
-   ========================================================= */
-
-.admin-update-row {
-  position: relative;
-  z-index: 2;
-
-  display: grid;
-
-  grid-template-columns:
-    minmax(0, 0.85fr)
-    minmax(0, 1.15fr);
-
-  gap: 8px;
-
-  margin-top: 13px;
-  padding-top: 12px;
-
-  border-top: 1px solid rgba(148, 163, 184, 0.065);
-}
-
-
-/* =========================================================
-   ADMIN INPUTS
-   ========================================================= */
-
-.admin-update-row select,
-.admin-update-row input {
-  width: 100%;
-  min-width: 0;
-  height: 40px;
-
-  padding: 0 11px;
-
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 10px;
-
-  outline: none;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(11, 27, 43, 0.98),
-      rgba(6, 17, 29, 0.98)
+    ui.dom.overlay?.addEventListener(
+      "click",
+      (e) => {
+        if (
+          e.target ===
+          ui.dom.overlay
+        ) {
+          closeAdminPanel();
+        }
+      }
     );
 
-  color: #f8fafc;
-
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 650;
-
-  box-sizing: border-box;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-.admin-update-row select {
-  cursor: pointer;
-}
-
-.admin-update-row input::placeholder {
-  color: #64748b;
-  opacity: 1;
-}
-
-.admin-update-row select:focus,
-.admin-update-row input:focus {
-  border-color: rgba(56, 189, 248, 0.42);
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(10, 30, 48, 0.99),
-      rgba(6, 19, 32, 0.99)
+    ui.dom.panel?.addEventListener(
+      "click",
+      (e) => {
+        e.stopPropagation();
+      }
     );
 
-  box-shadow:
-    0 0 0 3px rgba(56, 189, 248, 0.055),
-    0 0 16px rgba(56, 189, 248, 0.045);
-}
-
-
-/* =========================================================
-   UPDATE BUTTON
-   ========================================================= */
-
-.admin-update-btn {
-  grid-column: 1 / -1;
-
-  width: 100%;
-  height: 42px;
-
-  margin-top: 1px;
-
-  border: 1px solid rgba(125, 211, 252, 0.20);
-  border-radius: 11px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #38bdf8 0%,
-      #22d3ee 100%
+    document.addEventListener(
+      "keydown",
+      (e) => {
+        if (
+          e.key === "Escape" &&
+          ui.dom.overlay &&
+          !ui.dom.overlay.hidden
+        ) {
+          closeAdminPanel();
+        }
+      }
     );
 
-  color: #042033;
+    /*
+     * Event delegation:
+     * one listener for the whole list,
+     * not one listener per withdrawal card.
+     */
+    ui.dom.list?.addEventListener(
+      "click",
+      (e) => {
+        const btn =
+          e.target.closest(
+            ".admin-update-btn"
+          );
 
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 950;
+        if (!btn) return;
 
-  letter-spacing: 0.055em;
+        const item =
+          btn.closest(
+            ".admin-withdrawal-item"
+          );
 
-  cursor: pointer;
-
-  box-shadow:
-    0 8px 22px rgba(56, 189, 248, 0.13);
-
-  transition:
-    transform 0.2s cubic-bezier(.22,.61,.36,1),
-    filter 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.admin-update-btn:hover {
-  transform: translateY(-2px);
-
-  filter: brightness(1.07);
-
-  box-shadow:
-    0 12px 28px rgba(56, 189, 248, 0.20);
-}
-
-.admin-update-btn:active {
-  transform: scale(0.985);
-}
-
-.admin-update-btn:disabled {
-  opacity: 0.52;
-
-  cursor: not-allowed;
-
-  transform: none;
-  filter: none;
-
-  box-shadow: none;
-}
-
-
-/* =========================================================
-   EMPTY / LOADING / ERROR
-   ========================================================= */
-
-.withdraw-history-section .panel-empty-text,
-.admin-panel .panel-empty-text {
-  margin: 6px 0;
-
-  padding: 20px 15px !important;
-
-  border: 1px dashed rgba(148, 163, 184, 0.13);
-  border-radius: 13px;
-
-  background:
-    rgba(255, 255, 255, 0.022);
-
-  color: #71849a;
-
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.55;
-
-  text-align: center;
-}
-
-
-/* =========================================================
-   ADMIN CLOSE BUTTON — IF EXISTING HTML USES THIS ID
-   ========================================================= */
-
-#adminCloseBtn {
-  position: relative;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 40px;
-  height: 40px;
-
-  border: 1px solid rgba(148, 163, 184, 0.10);
-  border-radius: 12px;
-
-  background: rgba(255, 255, 255, 0.035);
-
-  color: #cbd5e1;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    color 0.2s ease;
-}
-
-#adminCloseBtn:hover {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(248, 113, 113, 0.18);
-
-  color: #f87171;
-
-  transform: rotate(4deg);
-}
-
-#adminCloseBtn:active {
-  transform: scale(0.94);
-}
-
-
-/* =========================================================
-   ADMIN OVERLAY
-   ========================================================= */
-
-#adminOverlay {
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(7, 25, 42, 0.42),
-      rgba(1, 5, 10, 0.78)
-    ) !important;
-
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-
-/* =========================================================
-   STAGGERED CARD ANIMATION
-   ========================================================= */
-
-.admin-withdrawal-item:nth-child(1),
-.withdraw-history-item:nth-child(1) {
-  animation-delay: 0.03s;
-}
-
-.admin-withdrawal-item:nth-child(2),
-.withdraw-history-item:nth-child(2) {
-  animation-delay: 0.08s;
-}
-
-.admin-withdrawal-item:nth-child(3),
-.withdraw-history-item:nth-child(3) {
-  animation-delay: 0.13s;
-}
-
-.admin-withdrawal-item:nth-child(4),
-.withdraw-history-item:nth-child(4) {
-  animation-delay: 0.18s;
-}
-
-.admin-withdrawal-item:nth-child(5),
-.withdraw-history-item:nth-child(5) {
-  animation-delay: 0.23s;
-}
-
-.admin-withdrawal-item:nth-child(n+6),
-.withdraw-history-item:nth-child(n+6) {
-  animation-delay: 0.27s;
-}
-
-
-/* =========================================================
-   ANIMATIONS
-   ========================================================= */
-
-@keyframes erWithdrawSectionIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
+        if (item) {
+          handleUpdate(item);
+        }
+      }
+    );
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+  function init() {
+    const ui = getUI();
 
+    if (!ui) {
+      console.warn(
+        "EarnRushUI.admin is not available. Make sure ui.js loads before admin.js."
+      );
+      return;
+    }
 
-@keyframes erWithdrawCardIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.985);
-  }
+    ui.cacheDom();
 
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+    setupEvents();
 
+    /*
+     * Re-check admin visibility whenever
+     * auth state changes.
+     *
+     * Logout immediately hides the button.
+     */
+    if (
+      window.supabase?.auth
+        ?.onAuthStateChange
+    ) {
+      window.supabase.auth.onAuthStateChange(
+        () => {
+          refreshAdminVisibility();
+        }
+      );
+    }
 
-@keyframes erAdminPanelIn {
-  from {
-    opacity: 0;
-    transform: translateY(22px) scale(0.965);
-    filter: brightness(0.8);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: brightness(1);
-  }
-}
-
-
-/* =========================================================
-   MOBILE — CLEAN ADMIN EXPERIENCE
-   ========================================================= */
-
-@media (max-width: 480px) {
-
-  .withdraw-history-section {
-    margin-top: 20px;
-    padding-top: 18px;
+    /*
+     * Initial check after auth restoration.
+     */
+    setTimeout(
+      refreshAdminVisibility,
+      400
+    );
   }
 
-  .withdraw-history-title {
-    margin-bottom: 13px;
-    font-size: 13px;
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init,
+      { once: true }
+    );
+  } else {
+    init();
   }
 
-  .withdraw-history-item,
-  .admin-withdrawal-item {
-    padding: 13px;
-    margin-bottom: 9px;
-
-    border-radius: 15px;
-  }
-
-  .withdraw-history-row {
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .withdraw-history-row strong {
-    font-size: 13px;
-    line-height: 1.4;
-  }
-
-  .withdraw-history-meta {
-    font-size: 10.5px;
-  }
-
-  .withdraw-status-badge {
-    min-width: 62px;
-    height: 23px;
-    padding: 0 7px;
-
-    font-size: 8px;
-  }
-
-
-  /* Admin */
-
-  .admin-panel {
-    width: calc(100vw - 20px);
-    max-height: 88vh;
-
-    border-radius: 20px;
-  }
-
-  #adminList {
-    padding: 2px 0;
-  }
-
-  .admin-withdrawal-item {
-    padding: 13px;
-  }
-
-  .admin-update-row {
-    grid-template-columns: 1fr;
-    gap: 7px;
-
-    margin-top: 12px;
-    padding-top: 11px;
-  }
-
-  .admin-update-row select,
-  .admin-update-row input {
-    height: 41px;
-    font-size: 12px;
-  }
-
-  .admin-update-btn {
-    height: 42px;
-    margin-top: 2px;
-  }
-}
-
-
-/* =========================================================
-   VERY SMALL PHONES
-   ========================================================= */
-
-@media (max-width: 360px) {
-
-  .withdraw-history-item,
-  .admin-withdrawal-item {
-    padding: 12px;
-  }
-
-  .withdraw-history-row strong {
-    font-size: 12px;
-  }
-
-  .withdraw-status-badge {
-    min-width: 57px;
-    padding: 0 6px;
-
-    font-size: 7.5px;
-  }
-
-  .admin-panel {
-    width: calc(100vw - 14px);
-    border-radius: 18px;
-  }
-}
-
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-  .withdraw-history-section,
-  .withdraw-history-item,
-  .admin-withdrawal-item,
-  .admin-panel {
-    animation: none !important;
-  }
-
-  .withdraw-history-item,
-  .admin-withdrawal-item,
-  .withdraw-status-badge,
-  .admin-update-row input,
-  .admin-update-row select,
-  .admin-update-btn,
-  #adminCloseBtn {
-    transition: none !important;
-  }
-}
+})();
