@@ -859,42 +859,61 @@ html.no-game-animations .reward-card {
 }
 
 /* =========================================================
-   WITHDRAWAL HISTORY + ADMIN PANEL — PREMIUM
+   EARNRUSH — WITHDRAWAL HISTORY + ADMIN PANEL
+   PREMIUM UI UPGRADE
    ---------------------------------------------------------
-   UI ONLY — NO FUNCTIONALITY CHANGES
+   UI ONLY — NO JS / FUNCTIONALITY CHANGES
+   ========================================================= */
+
+
+/* =========================================================
+   WITHDRAWAL HISTORY SECTION
    ========================================================= */
 
 .withdraw-history-section {
-  margin-top: 22px;
+  position: relative;
+  margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  animation: withdrawalSectionIn 0.45s ease both;
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  animation: erWithdrawSectionIn 0.55s cubic-bezier(.22,.61,.36,1) both;
 }
 
 .withdraw-history-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  font-size: 13px;
+  gap: 9px;
+
+  margin: 0 0 14px;
+
+  font-size: 14px;
+  line-height: 1.2;
   font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #cbd5e1;
+
+  letter-spacing: 0.045em;
+  color: #f1f5f9;
 }
 
 .withdraw-history-title::before {
   content: "";
   width: 4px;
-  height: 16px;
+  height: 18px;
+  flex: 0 0 4px;
+
   border-radius: 999px;
-  background: #38bdf8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+
+  background: linear-gradient(
+    180deg,
+    #38bdf8,
+    #22d3ee
+  );
+
+  box-shadow:
+    0 0 10px rgba(56, 189, 248, 0.45);
 }
 
 
 /* =========================================================
-   HISTORY / ADMIN CARDS
+   HISTORY CARDS
    ========================================================= */
 
 .withdraw-history-item,
@@ -902,110 +921,153 @@ html.no-game-animations .reward-card {
   position: relative;
   overflow: hidden;
 
+  margin: 0 0 10px;
   padding: 14px;
-  margin-bottom: 10px;
 
-  border-radius: 15px;
+  border: 1px solid rgba(148, 163, 184, 0.085);
+  border-radius: 16px;
 
   background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(56, 189, 248, 0.055),
+      transparent 42%
+    ),
     linear-gradient(
       145deg,
-      rgba(15, 35, 54, 0.88),
-      rgba(7, 20, 34, 0.94)
+      rgba(15, 35, 54, 0.94),
+      rgba(6, 18, 31, 0.97)
     );
 
-  border: 1px solid rgba(148, 163, 184, 0.09);
-
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.16),
+    0 10px 28px rgba(0, 0, 0, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  animation: erWithdrawCardIn 0.48s cubic-bezier(.22,.61,.36,1) both;
 
   transition:
     transform 0.25s ease,
     border-color 0.25s ease,
     box-shadow 0.25s ease;
-
-  animation: withdrawalCardIn 0.45s ease both;
 }
 
-/* subtle top shine */
+
+/* Top light line */
+
 .withdraw-history-item::before,
 .admin-withdrawal-item::before {
   content: "";
+
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 14px;
+  right: 14px;
+
   height: 1px;
 
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(56, 189, 248, 0.35),
+    rgba(56, 189, 248, 0.32),
     transparent
   );
 
-  opacity: 0.7;
+  opacity: 0.8;
 }
+
+
+/* Soft corner glow */
+
+.withdraw-history-item::after,
+.admin-withdrawal-item::after {
+  content: "";
+
+  position: absolute;
+  width: 90px;
+  height: 90px;
+
+  top: -55px;
+  right: -55px;
+
+  border-radius: 50%;
+
+  background: rgba(56, 189, 248, 0.045);
+
+  filter: blur(5px);
+
+  pointer-events: none;
+}
+
 
 .withdraw-history-item:hover,
 .admin-withdrawal-item:hover {
   transform: translateY(-2px);
 
-  border-color: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.17);
 
   box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.22),
-    0 0 18px rgba(56, 189, 248, 0.04);
+    0 14px 34px rgba(0, 0, 0, 0.22),
+    0 0 20px rgba(56, 189, 248, 0.035);
 }
 
 
 /* =========================================================
-   MAIN ROW
+   MAIN WITHDRAWAL ROW
    ========================================================= */
 
 .withdraw-history-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
+  position: relative;
+  z-index: 1;
 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
   min-width: 0;
+
+  color: #f8fafc;
 
   font-size: 13px;
   line-height: 1.35;
-  color: #f8fafc;
 }
 
 .withdraw-history-row strong {
+  min-width: 0;
+
   font-size: 14px;
   font-weight: 900;
-  letter-spacing: -0.01em;
-  color: #f8fafc;
-}
+  line-height: 1.35;
 
-.withdraw-history-row strong::first-letter {
-  color: #38bdf8;
+  color: #f8fafc;
+
+  letter-spacing: -0.015em;
+
+  overflow-wrap: anywhere;
 }
 
 
 /* =========================================================
-   META
+   META INFORMATION
    ========================================================= */
 
 .withdraw-history-meta {
+  position: relative;
+  z-index: 1;
+
   margin-top: 7px;
 
-  font-size: 11px;
-  line-height: 1.45;
+  color: #8296aa;
 
-  color: #7890a8;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.45;
 
   overflow-wrap: anywhere;
 }
 
 .withdraw-history-meta + .withdraw-history-meta {
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 
@@ -1014,17 +1076,27 @@ html.no-game-animations .reward-card {
    ========================================================= */
 
 .withdraw-history-note {
+  position: relative;
+  z-index: 1;
+
   margin-top: 9px;
   padding: 8px 10px;
 
-  border-radius: 9px;
+  border: 1px solid rgba(56, 189, 248, 0.10);
+  border-radius: 10px;
 
-  background: rgba(56, 189, 248, 0.055);
-  border: 1px solid rgba(56, 189, 248, 0.09);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(56, 189, 248, 0.07),
+      rgba(56, 189, 248, 0.025)
+    );
+
+  color: #7dd3fc;
 
   font-size: 11px;
+  font-weight: 600;
   line-height: 1.45;
-  color: #7dd3fc;
 }
 
 
@@ -1036,59 +1108,97 @@ html.no-game-animations .reward-card {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
 
-  min-width: 62px;
-  padding: 5px 9px;
+  min-width: 66px;
+  height: 25px;
 
-  border-radius: 999px;
-
-  font-size: 9px;
-  line-height: 1;
-  font-weight: 900;
-
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  padding: 0 9px;
 
   flex-shrink: 0;
 
   border: 1px solid transparent;
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 
+.withdraw-status-badge::before {
+  content: "";
+
+  width: 5px;
+  height: 5px;
+
+  margin-right: 5px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+  box-shadow: 0 0 7px currentColor;
+}
+
 .withdraw-status-badge:hover {
   transform: scale(1.04);
 }
 
+
+/* Pending */
+
 .status-pending {
-  background: rgba(234, 179, 8, 0.10);
-  border-color: rgba(234, 179, 8, 0.18);
   color: #facc15;
-  box-shadow: 0 0 12px rgba(234, 179, 8, 0.06);
+
+  background: rgba(234, 179, 8, 0.09);
+  border-color: rgba(234, 179, 8, 0.17);
+
+  box-shadow:
+    0 0 15px rgba(234, 179, 8, 0.045);
 }
+
+
+/* Processing */
 
 .status-processing {
-  background: rgba(56, 189, 248, 0.10);
-  border-color: rgba(56, 189, 248, 0.18);
   color: #38bdf8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.06);
+
+  background: rgba(56, 189, 248, 0.09);
+  border-color: rgba(56, 189, 248, 0.17);
+
+  box-shadow:
+    0 0 15px rgba(56, 189, 248, 0.045);
 }
+
+
+/* Paid */
 
 .status-paid {
-  background: rgba(34, 197, 94, 0.10);
-  border-color: rgba(34, 197, 94, 0.18);
   color: #4ade80;
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.06);
+
+  background: rgba(34, 197, 94, 0.09);
+  border-color: rgba(34, 197, 94, 0.17);
+
+  box-shadow:
+    0 0 15px rgba(34, 197, 94, 0.045);
 }
 
+
+/* Rejected */
+
 .status-rejected {
-  background: rgba(239, 68, 68, 0.10);
-  border-color: rgba(239, 68, 68, 0.18);
   color: #f87171;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.06);
+
+  background: rgba(239, 68, 68, 0.09);
+  border-color: rgba(239, 68, 68, 0.17);
+
+  box-shadow:
+    0 0 15px rgba(239, 68, 68, 0.045);
 }
 
 
@@ -1097,26 +1207,86 @@ html.no-game-animations .reward-card {
    ========================================================= */
 
 .admin-panel {
-  width: min(460px, 94vw);
-  max-height: 88vh;
-  overflow-y: auto;
+  position: relative;
 
-  border-radius: 22px;
+  width: min(470px, calc(100vw - 28px));
+  max-height: min(88vh, 760px);
+
+  overflow: hidden;
+
+  border: 1px solid rgba(56, 189, 248, 0.13);
+  border-radius: 24px;
 
   background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(56, 189, 248, 0.075),
+      transparent 34%
+    ),
     linear-gradient(
       145deg,
-      rgba(9, 25, 41, 0.98),
-      rgba(4, 14, 25, 0.99)
+      rgba(9, 27, 44, 0.99),
+      rgba(3, 13, 23, 0.995)
     );
 
-  border: 1px solid rgba(56, 189, 248, 0.12);
-
   box-shadow:
-    0 28px 80px rgba(0, 0, 0, 0.48),
-    0 0 35px rgba(56, 189, 248, 0.05);
+    0 30px 90px rgba(0, 0, 0, 0.58),
+    0 0 45px rgba(56, 189, 248, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 
-  animation: adminPanelIn 0.3s cubic-bezier(.22,.61,.36,1) both;
+  animation:
+    erAdminPanelIn
+    0.36s
+    cubic-bezier(.22,.61,.36,1)
+    both;
+}
+
+
+/* =========================================================
+   ADMIN PANEL SCROLL
+   ========================================================= */
+
+.admin-panel {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
+}
+
+.admin-panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.24);
+}
+
+
+/* =========================================================
+   ADMIN LIST
+   ========================================================= */
+
+#adminList {
+  padding: 4px 0;
+}
+
+
+/* =========================================================
+   ADMIN ITEMS
+   ========================================================= */
+
+.admin-withdrawal-item {
+  margin-bottom: 12px;
+  padding: 15px;
+}
+
+.admin-withdrawal-item:last-child {
+  margin-bottom: 2px;
 }
 
 
@@ -1125,58 +1295,65 @@ html.no-game-animations .reward-card {
    ========================================================= */
 
 .admin-update-row {
+  position: relative;
+  z-index: 2;
+
   display: grid;
-  grid-template-columns: 1fr 1fr;
+
+  grid-template-columns:
+    minmax(0, 0.85fr)
+    minmax(0, 1.15fr);
+
   gap: 8px;
 
-  margin-top: 12px;
-  padding-top: 11px;
+  margin-top: 13px;
+  padding-top: 12px;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.055);
+  border-top: 1px solid rgba(148, 163, 184, 0.065);
 }
+
+
+/* =========================================================
+   ADMIN INPUTS
+   ========================================================= */
 
 .admin-update-row select,
 .admin-update-row input {
   width: 100%;
   min-width: 0;
-  height: 39px;
+  height: 40px;
 
-  padding: 0 10px;
-
-  border-radius: 10px;
+  padding: 0 11px;
 
   border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 10px;
+
+  outline: none;
 
   background:
     linear-gradient(
       180deg,
-      rgba(10, 23, 37, 0.96),
-      rgba(6, 16, 28, 0.96)
+      rgba(11, 27, 43, 0.98),
+      rgba(6, 17, 29, 0.98)
     );
 
   color: #f8fafc;
 
   font-family: inherit;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 650;
 
-  outline: none;
+  box-sizing: border-box;
 
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
-.admin-update-row select:focus,
-.admin-update-row input:focus {
-  border-color: rgba(56, 189, 248, 0.45);
-
-  box-shadow:
-    0 0 0 3px rgba(56, 189, 248, 0.07),
-    0 0 14px rgba(56, 189, 248, 0.05);
-
-  background: rgba(9, 27, 44, 0.98);
+.admin-update-row select {
+  cursor: pointer;
 }
 
 .admin-update-row input::placeholder {
@@ -1184,14 +1361,20 @@ html.no-game-animations .reward-card {
   opacity: 1;
 }
 
+.admin-update-row select:focus,
+.admin-update-row input:focus {
+  border-color: rgba(56, 189, 248, 0.42);
 
-/* =========================================================
-   STATUS SELECT
-   ========================================================= */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 30, 48, 0.99),
+      rgba(6, 19, 32, 0.99)
+    );
 
-.admin-update-row select {
-  cursor: pointer;
-  appearance: auto;
+  box-shadow:
+    0 0 0 3px rgba(56, 189, 248, 0.055),
+    0 0 16px rgba(56, 189, 248, 0.045);
 }
 
 
@@ -1203,78 +1386,183 @@ html.no-game-animations .reward-card {
   grid-column: 1 / -1;
 
   width: 100%;
-  height: 40px;
+  height: 42px;
 
   margin-top: 1px;
 
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  border-radius: 10px;
+  border: 1px solid rgba(125, 211, 252, 0.20);
+  border-radius: 11px;
 
   background:
     linear-gradient(
       135deg,
-      #38bdf8,
-      #22d3ee
+      #38bdf8 0%,
+      #22d3ee 100%
     );
 
-  color: #062033;
+  color: #042033;
 
   font-family: inherit;
   font-size: 11px;
   font-weight: 950;
 
-  letter-spacing: 0.04em;
+  letter-spacing: 0.055em;
 
   cursor: pointer;
 
   box-shadow:
-    0 7px 20px rgba(56, 189, 248, 0.14);
+    0 8px 22px rgba(56, 189, 248, 0.13);
 
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
+    transform 0.2s cubic-bezier(.22,.61,.36,1),
+    filter 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .admin-update-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 
-  filter: brightness(1.06);
+  filter: brightness(1.07);
 
   box-shadow:
-    0 10px 25px rgba(56, 189, 248, 0.22);
+    0 12px 28px rgba(56, 189, 248, 0.20);
 }
 
 .admin-update-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.985);
 }
 
 .admin-update-btn:disabled {
-  opacity: 0.55;
+  opacity: 0.52;
+
   cursor: not-allowed;
+
   transform: none;
   filter: none;
+
   box-shadow: none;
 }
 
 
 /* =========================================================
-   EMPTY / LOADING MESSAGE
+   EMPTY / LOADING / ERROR
    ========================================================= */
 
 .withdraw-history-section .panel-empty-text,
 .admin-panel .panel-empty-text {
-  padding: 18px 14px !important;
+  margin: 6px 0;
 
-  border-radius: 12px;
+  padding: 20px 15px !important;
 
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px dashed rgba(148, 163, 184, 0.12);
+  border: 1px dashed rgba(148, 163, 184, 0.13);
+  border-radius: 13px;
 
-  color: #64748b;
+  background:
+    rgba(255, 255, 255, 0.022);
+
+  color: #71849a;
 
   font-size: 11px;
-  line-height: 1.5;
+  font-weight: 600;
+  line-height: 1.55;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   ADMIN CLOSE BUTTON — IF EXISTING HTML USES THIS ID
+   ========================================================= */
+
+#adminCloseBtn {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+
+  border: 1px solid rgba(148, 163, 184, 0.10);
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.035);
+
+  color: #cbd5e1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+#adminCloseBtn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(248, 113, 113, 0.18);
+
+  color: #f87171;
+
+  transform: rotate(4deg);
+}
+
+#adminCloseBtn:active {
+  transform: scale(0.94);
+}
+
+
+/* =========================================================
+   ADMIN OVERLAY
+   ========================================================= */
+
+#adminOverlay {
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(7, 25, 42, 0.42),
+      rgba(1, 5, 10, 0.78)
+    ) !important;
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+
+/* =========================================================
+   STAGGERED CARD ANIMATION
+   ========================================================= */
+
+.admin-withdrawal-item:nth-child(1),
+.withdraw-history-item:nth-child(1) {
+  animation-delay: 0.03s;
+}
+
+.admin-withdrawal-item:nth-child(2),
+.withdraw-history-item:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.admin-withdrawal-item:nth-child(3),
+.withdraw-history-item:nth-child(3) {
+  animation-delay: 0.13s;
+}
+
+.admin-withdrawal-item:nth-child(4),
+.withdraw-history-item:nth-child(4) {
+  animation-delay: 0.18s;
+}
+
+.admin-withdrawal-item:nth-child(5),
+.withdraw-history-item:nth-child(5) {
+  animation-delay: 0.23s;
+}
+
+.admin-withdrawal-item:nth-child(n+6),
+.withdraw-history-item:nth-child(n+6) {
+  animation-delay: 0.27s;
 }
 
 
@@ -1282,10 +1570,10 @@ html.no-game-animations .reward-card {
    ANIMATIONS
    ========================================================= */
 
-@keyframes withdrawalSectionIn {
+@keyframes erWithdrawSectionIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
 
   to {
@@ -1294,10 +1582,11 @@ html.no-game-animations .reward-card {
   }
 }
 
-@keyframes withdrawalCardIn {
+
+@keyframes erWithdrawCardIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.985);
+    transform: translateY(12px) scale(0.985);
   }
 
   to {
@@ -1306,69 +1595,132 @@ html.no-game-animations .reward-card {
   }
 }
 
-@keyframes adminPanelIn {
+
+@keyframes erAdminPanelIn {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.97);
+    transform: translateY(22px) scale(0.965);
+    filter: brightness(0.8);
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+    filter: brightness(1);
   }
 }
 
 
 /* =========================================================
-   MOBILE
+   MOBILE — CLEAN ADMIN EXPERIENCE
    ========================================================= */
 
 @media (max-width: 480px) {
 
   .withdraw-history-section {
-    margin-top: 18px;
-    padding-top: 16px;
+    margin-top: 20px;
+    padding-top: 18px;
+  }
+
+  .withdraw-history-title {
+    margin-bottom: 13px;
+    font-size: 13px;
   }
 
   .withdraw-history-item,
   .admin-withdrawal-item {
     padding: 13px;
-    border-radius: 14px;
+    margin-bottom: 9px;
+
+    border-radius: 15px;
   }
 
   .withdraw-history-row {
     align-items: flex-start;
+    gap: 8px;
   }
 
   .withdraw-history-row strong {
     font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .withdraw-history-meta {
+    font-size: 10.5px;
   }
 
   .withdraw-status-badge {
-    min-width: 58px;
-    padding: 5px 7px;
+    min-width: 62px;
+    height: 23px;
+    padding: 0 7px;
+
     font-size: 8px;
   }
 
+
+  /* Admin */
+
   .admin-panel {
-    width: calc(100vw - 24px);
-    max-height: 86vh;
-    border-radius: 19px;
+    width: calc(100vw - 20px);
+    max-height: 88vh;
+
+    border-radius: 20px;
+  }
+
+  #adminList {
+    padding: 2px 0;
+  }
+
+  .admin-withdrawal-item {
+    padding: 13px;
   }
 
   .admin-update-row {
     grid-template-columns: 1fr;
     gap: 7px;
+
+    margin-top: 12px;
+    padding-top: 11px;
   }
 
   .admin-update-row select,
   .admin-update-row input {
-    height: 40px;
+    height: 41px;
     font-size: 12px;
   }
 
   .admin-update-btn {
-    height: 41px;
+    height: 42px;
+    margin-top: 2px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+  .withdraw-history-item,
+  .admin-withdrawal-item {
+    padding: 12px;
+  }
+
+  .withdraw-history-row strong {
+    font-size: 12px;
+  }
+
+  .withdraw-status-badge {
+    min-width: 57px;
+    padding: 0 6px;
+
+    font-size: 7.5px;
+  }
+
+  .admin-panel {
+    width: calc(100vw - 14px);
+    border-radius: 18px;
   }
 }
 
@@ -1388,8 +1740,11 @@ html.no-game-animations .reward-card {
 
   .withdraw-history-item,
   .admin-withdrawal-item,
+  .withdraw-status-badge,
+  .admin-update-row input,
+  .admin-update-row select,
   .admin-update-btn,
-  .withdraw-status-badge {
+  #adminCloseBtn {
     transition: none !important;
   }
 }
