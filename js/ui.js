@@ -21,11 +21,20 @@
     dom: {},
 
     cacheDom() {
-      this.dom.btn = document.getElementById("adminPanelBtn");
-      this.dom.overlay = document.getElementById("adminOverlay");
-      this.dom.panel = document.getElementById("adminPanel");
-      this.dom.list = document.getElementById("adminList");
-      this.dom.closeBtn = document.getElementById("adminCloseBtn");
+      this.dom.btn =
+        document.getElementById("adminPanelBtn");
+
+      this.dom.overlay =
+        document.getElementById("adminOverlay");
+
+      this.dom.panel =
+        document.getElementById("adminPanel");
+
+      this.dom.list =
+        document.getElementById("adminList");
+
+      this.dom.closeBtn =
+        document.getElementById("adminCloseBtn");
     },
 
     setVisible(isAdmin) {
@@ -33,7 +42,11 @@
         this.dom.btn.hidden = !isAdmin;
       }
 
-      if (!isAdmin && this.dom.overlay && !this.dom.overlay.hidden) {
+      if (
+        !isAdmin &&
+        this.dom.overlay &&
+        !this.dom.overlay.hidden
+      ) {
         this.close();
       }
     },
@@ -42,6 +55,14 @@
       if (!this.dom.overlay) return;
 
       this.dom.overlay.hidden = false;
+
+      /*
+       * Keep the panel positioned at the top whenever it opens.
+       * This avoids reopening halfway down an old request list.
+       */
+      if (this.dom.list) {
+        this.dom.list.scrollTop = 0;
+      }
     },
 
     close() {
@@ -53,11 +74,18 @@
     showListMessage(message) {
       if (!this.dom.list) return;
 
-      this.dom.list.innerHTML = `
-        <div class="panel-empty-text" style="padding:14px;text-align:center;">
-          ${message}
-        </div>
-      `;
+      this.dom.list.innerHTML = "";
+
+      const el =
+        document.createElement("div");
+
+      el.className =
+        "panel-empty-text";
+
+      el.textContent =
+        String(message || "");
+
+      this.dom.list.appendChild(el);
     },
 
     showLoading() {
@@ -65,131 +93,344 @@
     },
 
     showEmpty() {
-      this.showListMessage("No withdrawal requests.");
+      this.showListMessage(
+        "No withdrawal requests."
+      );
     },
 
     showError(message) {
-      this.showListMessage(message);
+      this.showListMessage(
+        message || "Unable to load withdrawal requests."
+      );
     },
 
     renderWithdrawals(data, statusOptions) {
       if (!this.dom.list) return;
 
-      this.dom.list.innerHTML = data.map(w => `
-        <div class="admin-withdrawal-item" data-id="${w.id}">
-          <div class="withdraw-history-row">
-            <strong>${Number(w.coins).toLocaleString()} 🪙 → Rs ${w.cash_amount}</strong>
-            <span class="withdraw-status-badge status-${w.status}">${w.status}</span>
-          </div>
+      const rows =
+        Array.isArray(data)
+          ? data
+          : [];
 
-          <div class="withdraw-history-meta">
-            ${w.payment_method} — ${w.payment_account}
-          </div>
+      const statuses =
+        Array.isArray(statusOptions) &&
+        statusOptions.length
+          ? statusOptions
+          : [
+              "pending",
+              "processing",
+              "paid",
+              "rejected"
+            ];
 
-          <div class="withdraw-history-meta">
-            ${new Date(w.created_at).toLocaleString([], {
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
-            ${w.transaction_reference
-              ? ` • Ref: ${w.transaction_reference}`
-              : ""}
-          </div>
+      if (!rows.length) {
+        this.showEmpty();
+        return;
+      }
 
-          <div class="admin-update-row">
-            <select class="admin-status-select">
-              ${statusOptions.map(s => `
-                <option value="${s}" ${s === w.status ? "selected" : ""}>
-                  ${s}
+      /*
+       * One innerHTML operation is intentionally used here.
+       * It is much cheaper than repeatedly appending and
+       * reflowing dozens of individual nodes.
+       *
+       * All server-provided text is escaped before insertion.
+       */
+      const escapeHTML = (value) => {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      };
+
+      const formatDate = (value) => {
+        const date =
+          new Date(value);
+
+        if (
+          Number.isNaN(
+            date.getTime()
+          )
+        ) {
+          return "";
+        }
+
+        return date.toLocaleString(
+          [],
+          {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+      };
+
+      const html =
+        rows.map((w) => {
+          const id =
+            Number(w?.id);
+
+          const coins =
+            Number(w?.coins) || 0;
+
+          const cashAmount =
+            w?.cash_amount ?? "";
+
+          const status =
+            String(
+              w?.status || "pending"
+            ).toLowerCase();
+
+          const safeStatus =
+            statuses.includes(status)
+              ? status
+              : "pending";
+
+          const paymentMethod =
+            escapeHTML(
+              w?.payment_method || ""
+            );
+
+          const paymentAccount =
+            escapeHTML(
+              w?.payment_account || ""
+            );
+
+          const createdAt =
+            escapeHTML(
+              formatDate(
+                w?.created_at
+              )
+            );
+
+          const adminNote =
+            escapeHTML(
+              w?.admin_note || ""
+            );
+
+          const transactionReference =
+            escapeHTML(
+              w?.transaction_reference || ""
+            );
+
+          const safeCoins =
+            coins.toLocaleString();
+
+          const safeCashAmount =
+            escapeHTML(
+              cashAmount
+            );
+
+          const statusOptionsHTML =
+            statuses.map((s) => {
+              const safeOption =
+                escapeHTML(s);
+
+              const selected =
+                s === safeStatus
+                  ? " selected"
+                  : "";
+
+              return `
+                <option
+                  value="${safeOption}"${selected}
+                >
+                  ${safeOption}
                 </option>
-              `).join("")}
-            </select>
+              `;
+            }).join("");
 
-            <input
-              type="text"
-              class="admin-note-input"
-              placeholder="Admin note"
-              value="${w.admin_note || ""}"
+          const referenceHTML =
+            transactionReference
+              ? ` • Ref: ${transactionReference}`
+              : "";
+
+          return `
+            <div
+              class="admin-withdrawal-item"
+              data-id="${Number.isFinite(id) ? id : ""}"
+              style="content-visibility:auto;contain-intrinsic-size:180px;"
             >
 
-            <input
-              type="text"
-              class="admin-ref-input"
-              placeholder="Transaction reference"
-              value="${w.transaction_reference || ""}"
-            >
+              <div class="withdraw-history-row">
+                <strong>
+                  ${safeCoins} 🪙 → Rs ${safeCashAmount}
+                </strong>
 
-            <button type="button" class="admin-update-btn">
-              Update
-            </button>
-          </div>
-        </div>
-      `).join("");
+                <span
+                  class="withdraw-status-badge status-${safeStatus}"
+                >
+                  ${escapeHTML(safeStatus)}
+                </span>
+              </div>
+
+              <div class="withdraw-history-meta">
+                ${paymentMethod} — ${paymentAccount}
+              </div>
+
+              <div class="withdraw-history-meta">
+                ${createdAt}${referenceHTML}
+              </div>
+
+              <div class="admin-update-row">
+
+                <select
+                  class="admin-status-select"
+                  aria-label="Withdrawal status"
+                >
+                  ${statusOptionsHTML}
+                </select>
+
+                <input
+                  type="text"
+                  class="admin-note-input"
+                  placeholder="Admin note"
+                  value="${adminNote}"
+                  autocomplete="off"
+                >
+
+                <input
+                  type="text"
+                  class="admin-ref-input"
+                  placeholder="Transaction reference"
+                  value="${transactionReference}"
+                  autocomplete="off"
+                >
+
+                <button
+                  type="button"
+                  class="admin-update-btn"
+                >
+                  Update
+                </button>
+
+              </div>
+
+            </div>
+          `;
+        }).join("");
+
+      this.dom.list.innerHTML = html;
     },
 
     setUpdateLoading(itemEl, loading) {
-      const btn = itemEl?.querySelector(".admin-update-btn");
+      if (!itemEl) return;
+
+      const btn =
+        itemEl.querySelector(
+          ".admin-update-btn"
+        );
 
       if (!btn) return;
 
-      btn.disabled = loading;
+      btn.disabled = !!loading;
+
+      if (loading) {
+        if (!btn.dataset.originalText) {
+          btn.dataset.originalText =
+            btn.textContent;
+        }
+
+        btn.textContent =
+          "Updating…";
+
+        itemEl.classList.add(
+          "is-updating"
+        );
+      } else {
+        btn.textContent =
+          btn.dataset.originalText ||
+          "Update";
+
+        delete btn.dataset.originalText;
+
+        itemEl.classList.remove(
+          "is-updating"
+        );
+      }
     }
   };
-})();
-/* ---------------------------------------------------------
-   AUTH UI
-   --------------------------------------------------------- */
 
-(() => {
-  "use strict";
 
-  window.EarnRushUI = window.EarnRushUI || {};
-
-  const UI = window.EarnRushUI;
+  /* ---------------------------------------------------------
+     AUTH UI
+     --------------------------------------------------------- */
 
   UI.auth = {
     dom: {},
 
     cacheDom() {
-      this.dom.overlay = document.getElementById("authOverlay");
-      this.dom.panel = document.getElementById("authPanel");
-      this.dom.closeBtn = document.getElementById("authCloseBtn");
+      this.dom.overlay =
+        document.getElementById("authOverlay");
 
-      this.dom.tabLogin = document.getElementById("authTabLogin");
-      this.dom.tabSignup = document.getElementById("authTabSignup");
+      this.dom.panel =
+        document.getElementById("authPanel");
 
-      this.dom.loginForm = document.getElementById("authLoginForm");
-      this.dom.signupForm = document.getElementById("authSignupForm");
+      this.dom.closeBtn =
+        document.getElementById("authCloseBtn");
 
-      this.dom.errorEl = document.getElementById("authError");
+      this.dom.tabLogin =
+        document.getElementById("authTabLogin");
 
-      this.dom.userChip = document.getElementById("authUserChip");
-      this.dom.guestActions = document.getElementById("authGuestActions");
-      this.dom.loginBtn = document.getElementById("authLoginBtn");
-      this.dom.signupBtn = document.getElementById("authSignupBtn");
+      this.dom.tabSignup =
+        document.getElementById("authTabSignup");
+
+      this.dom.loginForm =
+        document.getElementById("authLoginForm");
+
+      this.dom.signupForm =
+        document.getElementById("authSignupForm");
+
+      this.dom.errorEl =
+        document.getElementById("authError");
+
+      this.dom.userChip =
+        document.getElementById("authUserChip");
+
+      this.dom.guestActions =
+        document.getElementById("authGuestActions");
+
+      this.dom.loginBtn =
+        document.getElementById("authLoginBtn");
+
+      this.dom.signupBtn =
+        document.getElementById("authSignupBtn");
     },
 
     showError(message) {
       if (!this.dom.errorEl) return;
 
-      this.dom.errorEl.textContent = message;
-      this.dom.errorEl.hidden = !message;
+      this.dom.errorEl.textContent =
+        message;
+
+      this.dom.errorEl.hidden =
+        !message;
     },
 
     setMode(mode) {
-      const isLogin = mode === "login";
+      const isLogin =
+        mode === "login";
 
-      this.dom.tabLogin?.classList.toggle("active", isLogin);
-      this.dom.tabSignup?.classList.toggle("active", !isLogin);
+      this.dom.tabLogin?.classList.toggle(
+        "active",
+        isLogin
+      );
+
+      this.dom.tabSignup?.classList.toggle(
+        "active",
+        !isLogin
+      );
 
       if (this.dom.loginForm) {
-        this.dom.loginForm.hidden = !isLogin;
+        this.dom.loginForm.hidden =
+          !isLogin;
       }
 
       if (this.dom.signupForm) {
-        this.dom.signupForm.hidden = isLogin;
+        this.dom.signupForm.hidden =
+          isLogin;
       }
 
       this.showError("");
@@ -199,26 +440,32 @@
       if (!this.dom.overlay) return;
 
       this.showError("");
+
       this.setMode(mode);
 
-      this.dom.overlay.hidden = false;
+      this.dom.overlay.hidden =
+        false;
     },
 
     close() {
       if (!this.dom.overlay) return;
 
-      this.dom.overlay.hidden = true;
+      this.dom.overlay.hidden =
+        true;
     },
 
     renderUserChip(user, profile) {
-      const loggedIn = !!user;
+      const loggedIn =
+        !!user;
 
       if (this.dom.guestActions) {
-        this.dom.guestActions.hidden = loggedIn;
+        this.dom.guestActions.hidden =
+          loggedIn;
       }
 
       if (this.dom.userChip) {
-        this.dom.userChip.hidden = !loggedIn;
+        this.dom.userChip.hidden =
+          !loggedIn;
 
         if (loggedIn) {
           this.dom.userChip.textContent =
@@ -235,6 +482,7 @@
       onLogout,
       onClose
     } = {}) {
+
       this.dom.closeBtn?.addEventListener(
         "click",
         () => {
@@ -246,7 +494,10 @@
       this.dom.overlay?.addEventListener(
         "click",
         (e) => {
-          if (e.target === this.dom.overlay) {
+          if (
+            e.target ===
+            this.dom.overlay
+          ) {
             this.close();
             onClose?.();
           }
@@ -255,7 +506,8 @@
 
       this.dom.panel?.addEventListener(
         "click",
-        (e) => e.stopPropagation()
+        (e) =>
+          e.stopPropagation()
       );
 
       document.addEventListener(
@@ -274,66 +526,78 @@
 
       this.dom.tabLogin?.addEventListener(
         "click",
-        () => this.setMode("login")
+        () =>
+          this.setMode("login")
       );
 
       this.dom.tabSignup?.addEventListener(
         "click",
-        () => this.setMode("signup")
+        () =>
+          this.setMode("signup")
       );
 
       this.dom.loginBtn?.addEventListener(
         "click",
-        () => this.open("login")
+        () =>
+          this.open("login")
       );
 
       this.dom.signupBtn?.addEventListener(
         "click",
-        () => this.open("signup")
+        () =>
+          this.open("signup")
       );
 
       this.dom.loginForm?.addEventListener(
         "submit",
-        (e) => onLogin?.(e)
+        (e) =>
+          onLogin?.(e)
       );
 
       this.dom.signupForm?.addEventListener(
         "submit",
-        (e) => onSignup?.(e)
+        (e) =>
+          onSignup?.(e)
       );
 
       this.dom.userChip?.addEventListener(
         "click",
-        () => onLogout?.()
+        () =>
+          onLogout?.()
       );
     }
   };
-})();
-/* ---------------------------------------------------------
-   GAME UI
-   --------------------------------------------------------- */
 
-(() => {
-  "use strict";
 
-  window.EarnRushUI = window.EarnRushUI || {};
-
-  const UI = window.EarnRushUI;
+  /* ---------------------------------------------------------
+     GAME UI
+     --------------------------------------------------------- */
 
   UI.game = {
     dom: {},
 
     cacheDom() {
-      this.dom.coins = document.getElementById("balance");
-      this.dom.level = document.getElementById("levelValue");
-      this.dom.reactorCore = document.getElementById("reactorCore");
-      this.dom.tapButton = document.getElementById("tapButton");
+      this.dom.coins =
+        document.getElementById("balance");
+
+      this.dom.level =
+        document.getElementById("levelValue");
+
+      this.dom.reactorCore =
+        document.getElementById("reactorCore");
+
+      this.dom.tapButton =
+        document.getElementById("tapButton");
 
       this.dom.progressFill =
-        document.querySelector(".progress-fill");
+        document.querySelector(
+          ".progress-fill"
+        );
 
       this.dom.comboValue =
-        document.querySelector(".combo-value");
+        document.querySelector(
+          ".combo-value"
+        );
 
       this.dom.xpBar =
         document.getElementById("xpBar");
@@ -342,16 +606,22 @@
         document.getElementById("xpText");
 
       this.dom.streak =
-        document.getElementById("streakValue");
+        document.getElementById(
+          "streakValue"
+        );
     },
 
     formatNumber(value) {
-      const number = Number(value) || 0;
+      const number =
+        Number(value) || 0;
 
-      return number.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+      return number.toLocaleString(
+        "en-US",
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }
+      );
     },
 
     updateCoins(value) {
@@ -365,7 +635,10 @@
       if (!this.dom.level) return;
 
       this.dom.level.textContent =
-        String(value).padStart(2, "0");
+        String(value).padStart(
+          2,
+          "0"
+        );
     },
 
     updateCombo(value) {
@@ -378,30 +651,37 @@
     updateComboProgress(value) {
       if (!this.dom.progressFill) return;
 
-      const progress = Math.max(
-        0,
-        Math.min(100, Number(value) || 0)
-      );
+      const progress =
+        Math.max(
+          0,
+          Math.min(
+            100,
+            Number(value) || 0
+          )
+        );
 
       this.dom.progressFill.style.width =
         `${progress}%`;
     },
 
     updateXP(current, required) {
-      const needed = Math.max(
-        1,
-        Number(required) || 1
-      );
+      const needed =
+        Math.max(
+          1,
+          Number(required) || 1
+        );
 
-      const xp = Math.max(
-        0,
-        Number(current) || 0
-      );
+      const xp =
+        Math.max(
+          0,
+          Number(current) || 0
+        );
 
-      const percentage = Math.min(
-        100,
-        (xp / needed) * 100
-      );
+      const percentage =
+        Math.min(
+          100,
+          (xp / needed) * 100
+        );
 
       if (this.dom.xpBar) {
         this.dom.xpBar.style.width =
@@ -433,8 +713,13 @@
       this.updateCoins(coins);
       this.updateLevel(level);
       this.updateCombo(combo);
-      this.updateComboProgress(comboProgress);
-      this.updateXP(xp, xpToNextLevel);
+      this.updateComboProgress(
+        comboProgress
+      );
+      this.updateXP(
+        xp,
+        xpToNextLevel
+      );
       this.updateStreak(streak);
     },
 
@@ -466,8 +751,12 @@
       );
     },
 
-    createRewardPopup(amount, type = "coins") {
-      const value = Number(amount) || 0;
+    createRewardPopup(
+      amount,
+      type = "coins"
+    ) {
+      const value =
+        Number(amount) || 0;
 
       const popup =
         document.createElement("div");
@@ -501,9 +790,14 @@
         }
       );
 
-      document.body.appendChild(popup);
+      document.body.appendChild(
+        popup
+      );
 
-      if (typeof popup.animate === "function") {
+      if (
+        typeof popup.animate ===
+        "function"
+      ) {
         const animation =
           popup.animate(
             [
@@ -529,9 +823,10 @@
             }
           );
 
-        animation.onfinish = () => {
-          popup.remove();
-        };
+        animation.onfinish =
+          () => {
+            popup.remove();
+          };
       } else {
         setTimeout(
           () => popup.remove(),
@@ -583,9 +878,14 @@
         }
       );
 
-      document.body.appendChild(message);
+      document.body.appendChild(
+        message
+      );
 
-      if (typeof message.animate === "function") {
+      if (
+        typeof message.animate ===
+        "function"
+      ) {
         const animation =
           message.animate(
             [
@@ -611,9 +911,10 @@
             }
           );
 
-        animation.onfinish = () => {
-          message.remove();
-        };
+        animation.onfinish =
+          () => {
+            message.remove();
+          };
       } else {
         setTimeout(
           () => message.remove(),
@@ -626,6 +927,7 @@
       onComplete,
       onUnavailable
     } = {}) {
+
       const existing =
         document.getElementById(
           "tapTapLockPopup"
@@ -645,7 +947,9 @@
         "error-popup";
 
       popup.innerHTML = `
-        <div class="error-popup-icon">🔒</div>
+        <div class="error-popup-icon">
+          🔒
+        </div>
 
         <div class="error-popup-title">
           Tap-Tap Locked
@@ -657,7 +961,7 @@
 
         <button
           class="error-popup-btn primary"
-          type="button"
+     type="button"
           id="tapTapWatchAdBtn"
         >
           Watch Ad to Unlock
@@ -672,19 +976,31 @@
         </button>
       `;
 
-      document.body.appendChild(popup);
+      document.body.appendChild(
+        popup
+      );
 
       document
-        .getElementById("tapTapWatchAdBtn")
-        ?.addEventListener("click", () => {
-          onComplete?.(popup);
-        });
+        .getElementById(
+          "tapTapWatchAdBtn"
+        )
+        ?.addEventListener(
+          "click",
+          () => {
+            onComplete?.(popup);
+          }
+        );
 
       document
-        .getElementById("tapTapClosePopupBtn")
-        ?.addEventListener("click", () => {
-          popup.remove();
-        });
+        .getElementById(
+          "tapTapClosePopupBtn"
+        )
+        ?.addEventListener(
+          "click",
+          () => {
+            popup.remove();
+          }
+        );
 
       return popup;
     },
