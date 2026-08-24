@@ -572,28 +572,37 @@ HEADER
     </div>
 
     <div class="header-icons">
+
+      <!-- NOTIFICATIONS -->
       <button
-        class="icon-button"
         type="button"
         id="notifBellBtn"
+        class="icon-button notification-button"
         aria-label="Notifications"
         aria-haspopup="true"
         aria-expanded="false"
       >
-        🔔
-        <span id="notifBadge" class="notif-badge" hidden>0</span>
+        <span class="notification-icon" aria-hidden="true">🔔</span>
+
+        <span
+          id="notifBadge"
+          class="notif-badge"
+          hidden
+        >0</span>
       </button>
 
+      <!-- SETTINGS -->
       <button
-        class="icon-button"
         type="button"
         id="settingsBtn"
+        class="icon-button"
         aria-label="Settings"
         aria-haspopup="true"
         aria-expanded="false"
       >
         ⚙️
       </button>
+
     </div>
 
     <button
