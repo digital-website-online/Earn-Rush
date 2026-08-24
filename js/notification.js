@@ -1,6 +1,7 @@
 /* =========================================================
    EARNRUSH — NOTIFICATIONS
-   ========================================================= */
+   FINAL MOBILE-SAFE VERSION
+========================================================= */
 
 (() => {
   "use strict";
@@ -12,20 +13,22 @@
 
   let notifications = [];
 
-  const dom = {
-    bellBtn: null,
-    badge: null,
-    overlay: null,
-    panel: null,
-    list: null,
-    closeBtn: null
-  };
+  const dom = {};
+
+  function cacheDom() {
+    dom.bellBtn = document.getElementById("notifBellBtn");
+    dom.badge = document.getElementById("notifBadge");
+    dom.overlay = document.getElementById("notifOverlay");
+    dom.panel = document.getElementById("notifPanel");
+    dom.list = document.getElementById("notifList");
+    dom.closeBtn = document.getElementById("notifCloseBtn");
+  }
 
   function loadNotifications() {
     try {
       const raw = localStorage.getItem(NOTIF_KEY);
-      const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      const data = raw ? JSON.parse(raw) : [];
+      return Array.isArray(data) ? data : [];
     } catch {
       return [];
     }
@@ -40,15 +43,6 @@
     } catch {}
   }
 
-  function cacheDom() {
-    dom.bellBtn = document.getElementById("notifBellBtn");
-    dom.badge = document.getElementById("notifBadge");
-    dom.overlay = document.getElementById("notifOverlay");
-    dom.panel = document.getElementById("notifPanel");
-    dom.list = document.getElementById("notifList");
-    dom.closeBtn = document.getElementById("notifCloseBtn");
-  }
-
   function unreadCount() {
     return notifications.filter(n => !n.read).length;
   }
@@ -59,28 +53,24 @@
     return div.innerHTML;
   }
 
-  function formatTimestamp(ts) {
-    try {
-      const d = new Date(ts);
+  function formatTime(timestamp) {
+    const date = new Date(timestamp);
 
-      if (isNaN(d.getTime())) return "";
+    if (isNaN(date.getTime())) return "";
 
-      const now = new Date();
+    const now = new Date();
 
-      if (d.toDateString() === now.toDateString()) {
-        return d.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit"
-        });
-      }
-
-      return d.toLocaleDateString([], {
-        month: "short",
-        day: "numeric"
+    if (date.toDateString() === now.toDateString()) {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
       });
-    } catch {
-      return "";
     }
+
+    return date.toLocaleDateString([], {
+      month: "short",
+      day: "numeric"
+    });
   }
 
   function renderBadge() {
@@ -88,16 +78,24 @@
 
     const count = unreadCount();
 
-    const enabled =
-      window.EarnRushSettings?.get
-        ? window.EarnRushSettings.get("notificationsEnabled")
-        : true;
+    let enabled = true;
+
+    try {
+      if (
+        window.EarnRushSettings &&
+        typeof window.EarnRushSettings.get === "function"
+      ) {
+        enabled =
+          window.EarnRushSettings.get(
+            "notificationsEnabled"
+          );
+      }
+    } catch {}
 
     if (count > 0 && enabled !== false) {
       dom.badge.hidden = false;
-      dom.badge.textContent = count > 99
-        ? "99+"
-        : String(count);
+      dom.badge.textContent =
+        count > 99 ? "99+" : String(count);
     } else {
       dom.badge.hidden = true;
     }
@@ -119,7 +117,9 @@
     }
 
     const sorted = [...notifications].sort(
-      (a, b) => Number(b.timestamp) - Number(a.timestamp)
+      (a, b) =>
+        Number(b.timestamp) -
+        Number(a.timestamp)
     );
 
     dom.list.innerHTML = sorted.map(n => `
@@ -139,7 +139,7 @@
           </div>
 
           <div class="notif-item-time">
-            ${formatTimestamp(n.timestamp)}
+            ${formatTime(n.timestamp)}
           </div>
         </div>
       </div>
@@ -152,18 +152,22 @@
   }
 
   function openPanel() {
-    if (!dom.overlay) {
-      console.warn("notifOverlay not found");
-      return;
-    }
+    cacheDom();
 
+    if (!dom.overlay) return;
+
+    /*
+     * Do NOT use hidden.
+     * Existing CSS controls the panel.
+     */
     dom.overlay.hidden = false;
 
-    // Force visibility on mobile
-    dom.overlay.style.display = "flex";
     dom.overlay.classList.add("is-open");
 
-    document.body.classList.add("notifications-open");
+    dom.overlay.style.display = "flex";
+    dom.overlay.style.visibility = "visible";
+    dom.overlay.style.opacity = "1";
+    dom.overlay.style.pointerEvents = "auto";
 
     if (dom.bellBtn) {
       dom.bellBtn.setAttribute(
@@ -176,13 +180,18 @@
   }
 
   function closePanel() {
+    cacheDom();
+
     if (!dom.overlay) return;
 
-    dom.overlay.hidden = true;
-    dom.overlay.style.display = "none";
     dom.overlay.classList.remove("is-open");
 
-    document.body.classList.remove("notifications-open");
+    dom.overlay.hidden = true;
+
+    dom.overlay.style.display = "none";
+    dom.overlay.style.visibility = "hidden";
+    dom.overlay.style.opacity = "0";
+    dom.overlay.style.pointerEvents = "none";
 
     if (dom.bellBtn) {
       dom.bellBtn.setAttribute(
@@ -193,25 +202,29 @@
   }
 
   function togglePanel() {
-    if (dom.overlay && !dom.overlay.hidden) {
+    cacheDom();
+
+    if (!dom.overlay) return;
+
+    const open =
+      dom.overlay.classList.contains("is-open");
+
+    if (open) {
       closePanel();
     } else {
       openPanel();
     }
   }
 
-  function isOpen() {
-    return !!dom.overlay && !dom.overlay.hidden;
-  }
-
   function markAsRead(id) {
-    const item = notifications.find(
-      n => String(n.id) === String(id)
-    );
+    const notification =
+      notifications.find(
+        n => String(n.id) === String(id)
+      );
 
-    if (!item) return;
+    if (!notification) return;
 
-    item.read = true;
+    notification.read = true;
 
     saveNotifications();
     render();
@@ -220,68 +233,101 @@
   function setupEvents() {
 
     /*
-     * EVENT DELEGATION
-     * Works even if the header/bell is dynamically replaced.
+     * CLICK — capture phase
+     * Works reliably on mobile.
      */
-    document.addEventListener("click", function(e) {
+    document.addEventListener(
+      "click",
+      function (event) {
 
-      const bell = e.target.closest("#notifBellBtn");
+        const bell =
+          event.target.closest &&
+          event.target.closest("#notifBellBtn");
 
-      if (bell) {
-        e.preventDefault();
-        e.stopPropagation();
+        if (bell) {
+          event.preventDefault();
+          event.stopPropagation();
 
-        togglePanel();
-        return;
-      }
+          togglePanel();
+          return;
+        }
 
-      const close = e.target.closest("#notifCloseBtn");
+        const close =
+          event.target.closest &&
+          event.target.closest("#notifCloseBtn");
 
-      if (close) {
-        e.preventDefault();
-        e.stopPropagation();
+        if (close) {
+          event.preventDefault();
+          event.stopPropagation();
 
-        closePanel();
-        return;
-      }
+          closePanel();
+          return;
+        }
 
-      if (
-        dom.overlay &&
-        e.target === dom.overlay
-      ) {
-        closePanel();
-        return;
-      }
+        const item =
+          event.target.closest &&
+          event.target.closest("[data-notif-id]");
 
-      const item = e.target.closest("[data-notif-id]");
+        if (item) {
+          markAsRead(
+            item.getAttribute("data-notif-id")
+          );
+          return;
+        }
 
-      if (item) {
-        markAsRead(item.dataset.notifId);
-      }
-    }, true);
+        if (
+          dom.overlay &&
+          event.target === dom.overlay
+        ) {
+          closePanel();
+        }
+      },
+      true
+    );
 
 
     /*
-     * Prevent panel clicks from closing overlay.
+     * TOUCH — important for mobile
      */
-    if (dom.panel) {
-      dom.panel.addEventListener(
-        "click",
-        e => e.stopPropagation()
-      );
-    }
+    document.addEventListener(
+      "touchend",
+      function (event) {
+
+        const bell =
+          event.target.closest &&
+          event.target.closest("#notifBellBtn");
+
+        if (bell) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          togglePanel();
+        }
+      },
+      {
+        capture: true,
+        passive: false
+      }
+    );
 
 
     /*
      * ESC
      */
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape" && isOpen()) {
-        closePanel();
-      }
-    });
-  }
+    document.addEventListener(
+      "keydown",
+      function (event) {
 
+        if (
+          event.key === "Escape" &&
+          dom.overlay &&
+          dom.overlay.classList.contains("is-open")
+        ) {
+          closePanel();
+        }
+      }
+    );
+  }
 
   window.EarnRushNotifications = {
 
@@ -315,7 +361,9 @@
     markAllRead() {
 
       notifications.forEach(
-        n => n.read = true
+        n => {
+          n.read = true;
+        }
       );
 
       saveNotifications();
@@ -336,36 +384,35 @@
 
     refresh() {
       cacheDom();
+      notifications = loadNotifications();
       render();
     }
   };
-
 
   function init() {
 
     cacheDom();
 
-    notifications = loadNotifications();
+    notifications =
+      loadNotifications();
+
+    /*
+     * Make sure initial state is closed.
+     */
+    if (dom.overlay) {
+      dom.overlay.hidden = true;
+      dom.overlay.classList.remove("is-open");
+      dom.overlay.style.display = "none";
+      dom.overlay.style.pointerEvents = "none";
+    }
 
     setupEvents();
-
     render();
-
-    // Re-cache DOM shortly after page load.
-    // Useful if header/panel is injected dynamically.
-    setTimeout(() => {
-      cacheDom();
-      render();
-    }, 300);
-
-    setTimeout(() => {
-      cacheDom();
-      render();
-    }, 1000);
   }
 
-
-  if (document.readyState === "loading") {
+  if (
+    document.readyState === "loading"
+  ) {
 
     document.addEventListener(
       "DOMContentLoaded",
