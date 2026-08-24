@@ -20,7 +20,7 @@
     MIN_BET: 16,
     MAX_BET: 16000,
 
-    COINS_PER_TOKEN: 10,
+    COINS_PER_TOKEN: 0.1,
     MIN_CONVERT_COINS: 10,
 
     START_MULTIPLIER: 1.15,
@@ -526,10 +526,9 @@
       return;
     }
 
-    const tokensEarned =
-      Math.floor(
-        amount / CONFIG.COINS_PER_TOKEN
-      );
+    const tokens = Math.floor(
+  amount / CONFIG.COINS_PER_TOKEN
+);
 
     if (
       !spendEarnRushCoins(amount)
