@@ -14,8 +14,15 @@
   const UI = window.EarnRushUI;
 
   /* ---------------------------------------------------------
-     ADMIN UI
-     --------------------------------------------------------- */
+   ADMIN UI
+   --------------------------------------------------------- */
+
+(() => {
+  "use strict";
+
+  window.EarnRushUI = window.EarnRushUI || {};
+
+  const UI = window.EarnRushUI;
 
   UI.admin = {
     dom: {},
@@ -42,11 +49,7 @@
         this.dom.btn.hidden = !isAdmin;
       }
 
-      if (
-        !isAdmin &&
-        this.dom.overlay &&
-        !this.dom.overlay.hidden
-      ) {
+      if (!isAdmin) {
         this.close();
       }
     },
@@ -56,36 +59,33 @@
 
       this.dom.overlay.hidden = false;
 
-      /*
-       * Keep the panel positioned at the top whenever it opens.
-       * This avoids reopening halfway down an old request list.
-       */
-      if (this.dom.list) {
-        this.dom.list.scrollTop = 0;
-      }
+      document.body.classList.add(
+        "admin-panel-open"
+      );
+
+      requestAnimationFrame(() => {
+        this.dom.closeBtn?.focus?.();
+      });
     },
 
     close() {
       if (!this.dom.overlay) return;
 
       this.dom.overlay.hidden = true;
+
+      document.body.classList.remove(
+        "admin-panel-open"
+      );
     },
 
     showListMessage(message) {
       if (!this.dom.list) return;
 
-      this.dom.list.innerHTML = "";
-
-      const el =
-        document.createElement("div");
-
-      el.className =
-        "panel-empty-text";
-
-      el.textContent =
-        String(message || "");
-
-      this.dom.list.appendChild(el);
+      this.dom.list.innerHTML = `
+        <div class="panel-empty-text">
+          ${String(message)}
+        </div>
+      `;
     },
 
     showLoading() {
@@ -100,259 +100,128 @@
 
     showError(message) {
       this.showListMessage(
-        message || "Unable to load withdrawal requests."
+        String(message || "Something went wrong.")
       );
     },
 
     renderWithdrawals(data, statusOptions) {
       if (!this.dom.list) return;
 
-      const rows =
-        Array.isArray(data)
-          ? data
-          : [];
+      this.dom.list.innerHTML = data.map(w => `
+        <div
+          class="admin-withdrawal-item"
+          data-id="${Number(w.id)}"
+        >
 
-      const statuses =
-        Array.isArray(statusOptions) &&
-        statusOptions.length
-          ? statusOptions
-          : [
-              "pending",
-              "processing",
-              "paid",
-              "rejected"
-            ];
+          <div class="withdraw-history-row">
+            <strong>
+              ${Number(w.coins).toLocaleString()}
+              🪙 → Rs ${w.cash_amount}
+            </strong>
 
-      if (!rows.length) {
-        this.showEmpty();
-        return;
-      }
+            <span
+              class="withdraw-status-badge status-${w.status}"
+            >
+              ${w.status}
+            </span>
+          </div>
 
-      /*
-       * One innerHTML operation is intentionally used here.
-       * It is much cheaper than repeatedly appending and
-       * reflowing dozens of individual nodes.
-       *
-       * All server-provided text is escaped before insertion.
-       */
-      const escapeHTML = (value) => {
-        return String(value ?? "")
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      };
+          <div class="withdraw-history-meta">
+            ${w.payment_method || ""}
+            — 
+            ${w.payment_account || ""}
+          </div>
 
-      const formatDate = (value) => {
-        const date =
-          new Date(value);
+          <div class="withdraw-history-meta">
+            ${new Date(w.created_at).toLocaleString([], {
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
 
-        if (
-          Number.isNaN(
-            date.getTime()
-          )
-        ) {
-          return "";
-        }
+            ${
+              w.transaction_reference
+                ? ` • Ref: ${w.transaction_reference}`
+                : ""
+            }
+          </div>
 
-        return date.toLocaleString(
-          [],
-          {
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-          }
-        );
-      };
+          <div class="admin-update-row">
 
-      const html =
-        rows.map((w) => {
-          const id =
-            Number(w?.id);
-
-          const coins =
-            Number(w?.coins) || 0;
-
-          const cashAmount =
-            w?.cash_amount ?? "";
-
-          const status =
-            String(
-              w?.status || "pending"
-            ).toLowerCase();
-
-          const safeStatus =
-            statuses.includes(status)
-              ? status
-              : "pending";
-
-          const paymentMethod =
-            escapeHTML(
-              w?.payment_method || ""
-            );
-
-          const paymentAccount =
-            escapeHTML(
-              w?.payment_account || ""
-            );
-
-          const createdAt =
-            escapeHTML(
-              formatDate(
-                w?.created_at
-              )
-            );
-
-          const adminNote =
-            escapeHTML(
-              w?.admin_note || ""
-            );
-
-          const transactionReference =
-            escapeHTML(
-              w?.transaction_reference || ""
-            );
-
-          const safeCoins =
-            coins.toLocaleString();
-
-          const safeCashAmount =
-            escapeHTML(
-              cashAmount
-            );
-
-          const statusOptionsHTML =
-            statuses.map((s) => {
-              const safeOption =
-                escapeHTML(s);
-
-              const selected =
-                s === safeStatus
-                  ? " selected"
-                  : "";
-
-              return `
+            <select class="admin-status-select">
+              ${statusOptions.map(s => `
                 <option
-                  value="${safeOption}"${selected}
+                  value="${s}"
+                  ${s === w.status ? "selected" : ""}
                 >
-                  ${safeOption}
+                  ${s}
                 </option>
-              `;
-            }).join("");
+              `).join("")}
+            </select>
 
-          const referenceHTML =
-            transactionReference
-              ? ` • Ref: ${transactionReference}`
-              : "";
-
-          return `
-            <div
-              class="admin-withdrawal-item"
-              data-id="${Number.isFinite(id) ? id : ""}"
-              style="content-visibility:auto;contain-intrinsic-size:180px;"
+            <input
+              type="text"
+              class="admin-note-input"
+              placeholder="Admin note"
+              value="${String(
+                w.admin_note || ""
+              ).replace(/"/g, "&quot;")}"
             >
 
-              <div class="withdraw-history-row">
-                <strong>
-                  ${safeCoins} 🪙 → Rs ${safeCashAmount}
-                </strong>
+            <input
+              type="text"
+              class="admin-ref-input"
+              placeholder="Transaction reference"
+              value="${String(
+                w.transaction_reference || ""
+              ).replace(/"/g, "&quot;")}"
+            >
 
-                <span
-                  class="withdraw-status-badge status-${safeStatus}"
-                >
-                  ${escapeHTML(safeStatus)}
-                </span>
-              </div>
+            <button
+              type="button"
+              class="admin-update-btn"
+            >
+              Update
+            </button>
 
-              <div class="withdraw-history-meta">
-                ${paymentMethod} — ${paymentAccount}
-              </div>
+            <button
+              type="button"
+              class="admin-delete-btn"
+              data-delete-id="${Number(w.id)}"
+            >
+              Delete
+            </button>
 
-              <div class="withdraw-history-meta">
-                ${createdAt}${referenceHTML}
-              </div>
+          </div>
 
-              <div class="admin-update-row">
-
-                <select
-                  class="admin-status-select"
-                  aria-label="Withdrawal status"
-                >
-                  ${statusOptionsHTML}
-                </select>
-
-                <input
-                  type="text"
-                  class="admin-note-input"
-                  placeholder="Admin note"
-                  value="${adminNote}"
-                  autocomplete="off"
-                >
-
-                <input
-                  type="text"
-                  class="admin-ref-input"
-                  placeholder="Transaction reference"
-                  value="${transactionReference}"
-                  autocomplete="off"
-                >
-
-                <button
-                  type="button"
-                  class="admin-update-btn"
-                >
-                  Update
-                </button>
-
-              </div>
-
-            </div>
-          `;
-        }).join("");
-
-      this.dom.list.innerHTML = html;
+        </div>
+      `).join("");
     },
 
     setUpdateLoading(itemEl, loading) {
-      if (!itemEl) return;
-
       const btn =
-        itemEl.querySelector(
+        itemEl?.querySelector(
           ".admin-update-btn"
         );
 
       if (!btn) return;
 
-      btn.disabled = !!loading;
+      btn.disabled = loading;
+    },
 
-      if (loading) {
-        if (!btn.dataset.originalText) {
-          btn.dataset.originalText =
-            btn.textContent;
-        }
-
-        btn.textContent =
-          "Updating…";
-
-        itemEl.classList.add(
-          "is-updating"
+    setDeleteLoading(itemEl, loading) {
+      const btn =
+        itemEl?.querySelector(
+          ".admin-delete-btn"
         );
-      } else {
-        btn.textContent =
-          btn.dataset.originalText ||
-          "Update";
 
-        delete btn.dataset.originalText;
+      if (!btn) return;
 
-        itemEl.classList.remove(
-          "is-updating"
-        );
-      }
+      btn.disabled = loading;
     }
   };
-
+})();
 
   /* ---------------------------------------------------------
      AUTH UI
