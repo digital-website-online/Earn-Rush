@@ -2,36 +2,53 @@
    EARNRUSH — ADMIN WITHDRAWALS
    -----------------------------------------------------------
    Admin status is determined ONLY by calling the real
-   public.is_admin() RPC (which checks admin_users server-side).
-   There is no client-side/localStorage admin flag anywhere in
-   this file — an ordinary user cannot make this panel appear no
-   matter what they set in devtools, because the actual data fetch
-   (admin_get_withdrawals) independently re-checks is_admin() again
-   on the server and raises an exception for non-admins regardless
-   of whether this button is visible.
+   public.is_admin() RPC.
+
+   Server-side security remains authoritative:
+   admin_get_withdrawals and admin_update_withdrawal
+   independently enforce admin access.
+
+   UI/performance improvements only.
    ========================================================= */
 
 (() => {
   "use strict";
 
   if (window.__earnRushAdminLoaded) return;
+
   window.__earnRushAdminLoaded = true;
 
-  const STATUS_OPTIONS = ["pending", "processing", "paid", "rejected"];
+  const STATUS_OPTIONS = [
+    "pending",
+    "processing",
+    "paid",
+    "rejected"
+  ];
+
+  let loadSequence = 0;
+  let updateInProgress = false;
 
   function getUI() {
     return window.EarnRushUI?.admin || null;
   }
 
   async function checkIsAdmin() {
-    if (!window.supabase || !window.EarnRushAuth?.getUser()) {
+    if (
+      !window.supabase ||
+      !window.EarnRushAuth?.getUser()
+    ) {
       return false;
     }
 
     try {
-      const { data, error } = await window.supabase.rpc("is_admin");
+      const { data, error } =
+        await window.supabase.rpc(
+          "is_admin"
+        );
 
-      if (error) return false;
+      if (error) {
+        return false;
+      }
 
       return !!data;
     } catch (e) {
@@ -41,9 +58,11 @@
 
   async function refreshAdminVisibility() {
     const ui = getUI();
+
     if (!ui) return;
 
-    const isAdmin = await checkIsAdmin();
+    const isAdmin =
+      await checkIsAdmin();
 
     ui.setVisible(isAdmin);
   }
@@ -53,60 +72,148 @@
 
     if (!ui?.dom.list) return;
 
+    const currentSequence =
+      ++loadSequence;
+
     ui.showLoading();
 
-    const { data, error } =
-      await window.supabase.rpc("admin_get_withdrawals");
+    try {
+      const { data, error } =
+        await window.supabase.rpc(
+          "admin_get_withdrawals"
+        );
 
-    if (error) {
-      // The RPC independently enforces admin access server-side.
-      ui.showError(error.message);
-      return;
+      /*
+       * If another load started after this one,
+       * do not overwrite the newer UI state.
+       */
+      if (
+        currentSequence !==
+        loadSequence
+      ) {
+        return;
+      }
+
+      if (error) {
+        ui.showError(
+          error.message
+        );
+        return;
+      }
+
+      if (
+        !data ||
+        data.length === 0
+      ) {
+        ui.showEmpty();
+        return;
+      }
+
+      ui.renderWithdrawals(
+        data,
+        STATUS_OPTIONS
+      );
+
+    } catch (error) {
+      if (
+        currentSequence !==
+        loadSequence
+      ) {
+        return;
+      }
+
+      ui.showError(
+        error?.message ||
+        "Unable to load withdrawal requests."
+      );
     }
-
-    if (!data || data.length === 0) {
-      ui.showEmpty();
-      return;
-    }
-
-    ui.renderWithdrawals(data, STATUS_OPTIONS);
   }
 
   async function handleUpdate(itemEl) {
-    const id = Number(itemEl.dataset.id);
+    if (
+      !itemEl ||
+      updateInProgress
+    ) {
+      return;
+    }
+
+    const id =
+      Number(
+        itemEl.dataset.id
+      );
+
+    if (
+      !Number.isFinite(id)
+    ) {
+      return;
+    }
 
     const status =
-      itemEl.querySelector(".admin-status-select")?.value;
+      itemEl.querySelector(
+        ".admin-status-select"
+      )?.value;
 
     const note =
-      itemEl.querySelector(".admin-note-input")?.value || null;
+      itemEl.querySelector(
+        ".admin-note-input"
+      )?.value || null;
 
     const ref =
-      itemEl.querySelector(".admin-ref-input")?.value || null;
+      itemEl.querySelector(
+        ".admin-ref-input"
+      )?.value || null;
 
     const ui = getUI();
 
     if (!ui) return;
 
-    ui.setUpdateLoading(itemEl, true);
+    /*
+     * Only lock this particular request card.
+     * Other UI remains responsive.
+     */
+    ui.setUpdateLoading(
+      itemEl,
+      true
+    );
 
-    const { data, error } =
-      await window.supabase.rpc("admin_update_withdrawal", {
-        p_withdrawal_id: id,
-        p_status: status,
-        p_admin_note: note,
-        p_transaction_reference: ref
-      });
+    try {
+      const { data, error } =
+        await window.supabase.rpc(
+          "admin_update_withdrawal",
+          {
+            p_withdrawal_id: id,
+            p_status: status,
+            p_admin_note: note,
+            p_transaction_reference: ref
+          }
+        );
 
-    ui.setUpdateLoading(itemEl, false);
+      if (error) {
+        alert(
+          `Update failed: ${error.message}`
+        );
+        return;
+      }
 
-    if (error) {
-      alert(`Update failed: ${error.message}`);
-      return;
+      /*
+       * Re-render from authoritative
+       * server state exactly as before.
+       */
+      await loadWithdrawals();
+
+    } catch (error) {
+      alert(
+        `Update failed: ${
+          error?.message ||
+          "Unknown error"
+        }`
+      );
+    } finally {
+      ui.setUpdateLoading(
+        itemEl,
+        false
+      );
     }
-
-    // Re-render from the authoritative server response/state.
-    await loadWithdrawals();
   }
 
   function openAdminPanel() {
@@ -116,6 +223,11 @@
 
     ui.open();
 
+    /*
+     * Start loading after the panel has been
+     * opened so the opening interaction itself
+     * stays lightweight.
+     */
     loadWithdrawals();
   }
 
@@ -123,6 +235,12 @@
     const ui = getUI();
 
     if (!ui) return;
+
+    /*
+     * Invalidate any older render result.
+     * A late response cannot overwrite a newer state.
+     */
+    loadSequence++;
 
     ui.close();
   }
@@ -132,44 +250,73 @@
 
     if (!ui) return;
 
-    ui.dom.btn?.addEventListener("click", openAdminPanel);
+    ui.dom.btn?.addEventListener(
+      "click",
+      openAdminPanel
+    );
 
     ui.dom.closeBtn?.addEventListener(
       "click",
       closeAdminPanel
     );
 
-    ui.dom.overlay?.addEventListener("click", (e) => {
-      if (e.target === ui.dom.overlay) {
-        closeAdminPanel();
+    ui.dom.overlay?.addEventListener(
+      "click",
+      (e) => {
+        if (
+          e.target ===
+          ui.dom.overlay
+        ) {
+          closeAdminPanel();
+        }
       }
-    });
+    );
 
-    ui.dom.panel?.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (
-        e.key === "Escape" &&
-        ui.dom.overlay &&
-        !ui.dom.overlay.hidden
-      ) {
-        closeAdminPanel();
+    ui.dom.panel?.addEventListener(
+      "click",
+      (e) => {
+        e.stopPropagation();
       }
-    });
+    );
 
-    ui.dom.list?.addEventListener("click", (e) => {
-      const btn = e.target.closest(".admin-update-btn");
-
-      if (!btn) return;
-
-      const item = btn.closest(".admin-withdrawal-item");
-
-      if (item) {
-        handleUpdate(item);
+    document.addEventListener(
+      "keydown",
+      (e) => {
+        if (
+          e.key === "Escape" &&
+          ui.dom.overlay &&
+          !ui.dom.overlay.hidden
+        ) {
+          closeAdminPanel();
+        }
       }
-    });
+    );
+
+    /*
+     * Event delegation:
+     * one listener for the whole list,
+     * not one listener per withdrawal card.
+     */
+    ui.dom.list?.addEventListener(
+      "click",
+      (e) => {
+        const btn =
+          e.target.closest(
+            ".admin-update-btn"
+          );
+
+        if (!btn) return;
+
+        const item =
+          btn.closest(
+            ".admin-withdrawal-item"
+          );
+
+        if (item) {
+          handleUpdate(item);
+        }
+      }
+    );
   }
 
   function init() {
@@ -186,20 +333,36 @@
 
     setupEvents();
 
-    // Re-check admin visibility whenever auth state changes.
-    // Logout must immediately hide the admin button.
-    if (window.supabase?.auth?.onAuthStateChange) {
-      window.supabase.auth.onAuthStateChange(() => {
-        refreshAdminVisibility();
-      });
+    /*
+     * Re-check admin visibility whenever
+     * auth state changes.
+     *
+     * Logout immediately hides the button.
+     */
+    if (
+      window.supabase?.auth
+        ?.onAuthStateChange
+    ) {
+      window.supabase.auth.onAuthStateChange(
+        () => {
+          refreshAdminVisibility();
+        }
+      );
     }
 
-    // Initial check after auth.js has had a moment to restore
-    // any existing session.
-    setTimeout(refreshAdminVisibility, 400);
+    /*
+     * Initial check after auth restoration.
+     */
+    setTimeout(
+      refreshAdminVisibility,
+      400
+    );
   }
 
-  if (document.readyState === "loading") {
+  if (
+    document.readyState ===
+    "loading"
+  ) {
     document.addEventListener(
       "DOMContentLoaded",
       init,
@@ -208,4 +371,5 @@
   } else {
     init();
   }
+
 })();
