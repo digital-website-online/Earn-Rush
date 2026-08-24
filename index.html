@@ -38,6 +38,88 @@ STYLES
 <link rel="stylesheet" href="css/style-enhancements.css">
 <link rel="stylesheet" href="css/mini-game.css">
 
+<style>
+/* =========================================================
+   EARNRUSH — NOTIFICATION MOBILE FIX
+========================================================= */
+
+#notifBellBtn {
+  position: relative !important;
+  z-index: 10001 !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  cursor: pointer !important;
+}
+
+#notifOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+
+  display: none;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+
+  z-index: 99990 !important;
+
+  pointer-events: auto !important;
+}
+
+#notifOverlay.is-open {
+  display: flex !important;
+}
+
+#notifPanel {
+  position: relative !important;
+
+  z-index: 99991 !important;
+
+  pointer-events: auto !important;
+
+  width: min(420px, 100%) !important;
+  max-width: 420px !important;
+
+  max-height: 90vh !important;
+  overflow: hidden !important;
+}
+
+#notifPanel * {
+  pointer-events: auto;
+}
+
+#notifCloseBtn {
+  position: relative !important;
+  z-index: 99992 !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+#notifList {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+
+/* MOBILE */
+@media (max-width: 600px) {
+
+  #notifOverlay {
+    align-items: flex-end !important;
+    justify-content: stretch !important;
+  }
+
+  #notifPanel {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: 85vh !important;
+
+    border-radius: 20px 20px 0 0 !important;
+  }
+}
+</style>
+
 
 <!-- =========================================
 STEP 1 PREMIUM UI OVERRIDES
