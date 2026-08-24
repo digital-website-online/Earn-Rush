@@ -859,108 +859,537 @@ html.no-game-animations .reward-card {
 }
 
 /* =========================================================
-   WITHDRAWAL HISTORY + ADMIN PANEL
+   WITHDRAWAL HISTORY + ADMIN PANEL — PREMIUM
+   ---------------------------------------------------------
+   UI ONLY — NO FUNCTIONALITY CHANGES
    ========================================================= */
 
 .withdraw-history-section {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  animation: withdrawalSectionIn 0.45s ease both;
 }
 
 .withdraw-history-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
   font-size: 13px;
-  font-weight: 800;
-  color: #94a3b8;
-  margin-bottom: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cbd5e1;
 }
+
+.withdraw-history-title::before {
+  content: "";
+  width: 4px;
+  height: 16px;
+  border-radius: 999px;
+  background: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+}
+
+
+/* =========================================================
+   HISTORY / ADMIN CARDS
+   ========================================================= */
 
 .withdraw-history-item,
 .admin-withdrawal-item {
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 10px;
-  background: rgba(9, 24, 39, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+
+  padding: 14px;
+  margin-bottom: 10px;
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 35, 54, 0.88),
+      rgba(7, 20, 34, 0.94)
+    );
+
+  border: 1px solid rgba(148, 163, 184, 0.09);
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+
+  animation: withdrawalCardIn 0.45s ease both;
 }
+
+/* subtle top shine */
+.withdraw-history-item::before,
+.admin-withdrawal-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(56, 189, 248, 0.35),
+    transparent
+  );
+
+  opacity: 0.7;
+}
+
+.withdraw-history-item:hover,
+.admin-withdrawal-item:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(56, 189, 248, 0.18);
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.22),
+    0 0 18px rgba(56, 189, 248, 0.04);
+}
+
+
+/* =========================================================
+   MAIN ROW
+   ========================================================= */
 
 .withdraw-history-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+
+  min-width: 0;
+
   font-size: 13px;
-  color: #fff;
+  line-height: 1.35;
+  color: #f8fafc;
 }
 
-.withdraw-history-meta {
-  margin-top: 4px;
-  font-size: 11px;
-  color: #64748b;
+.withdraw-history-row strong {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #f8fafc;
 }
 
-.withdraw-history-note {
-  margin-top: 6px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  background: rgba(56, 189, 248, 0.08);
-  font-size: 11px;
+.withdraw-history-row strong::first-letter {
   color: #38bdf8;
 }
 
+
+/* =========================================================
+   META
+   ========================================================= */
+
+.withdraw-history-meta {
+  margin-top: 7px;
+
+  font-size: 11px;
+  line-height: 1.45;
+
+  color: #7890a8;
+
+  overflow-wrap: anywhere;
+}
+
+.withdraw-history-meta + .withdraw-history-meta {
+  margin-top: 4px;
+}
+
+
+/* =========================================================
+   ADMIN NOTE
+   ========================================================= */
+
+.withdraw-history-note {
+  margin-top: 9px;
+  padding: 8px 10px;
+
+  border-radius: 9px;
+
+  background: rgba(56, 189, 248, 0.055);
+  border: 1px solid rgba(56, 189, 248, 0.09);
+
+  font-size: 11px;
+  line-height: 1.45;
+  color: #7dd3fc;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
 .withdraw-status-badge {
-  padding: 3px 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  min-width: 62px;
+  padding: 5px 9px;
+
   border-radius: 999px;
-  font-size: 10px;
-  font-weight: 800;
+
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 900;
+
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+
   flex-shrink: 0;
+
+  border: 1px solid transparent;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.status-pending { background: rgba(234, 179, 8, 0.15); color: #eab308; }
-.status-processing { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
-.status-paid { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
-.status-rejected { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.withdraw-status-badge:hover {
+  transform: scale(1.04);
+}
 
-/* Admin */
+.status-pending {
+  background: rgba(234, 179, 8, 0.10);
+  border-color: rgba(234, 179, 8, 0.18);
+  color: #facc15;
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.06);
+}
+
+.status-processing {
+  background: rgba(56, 189, 248, 0.10);
+  border-color: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.06);
+}
+
+.status-paid {
+  background: rgba(34, 197, 94, 0.10);
+  border-color: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.06);
+}
+
+.status-rejected {
+  background: rgba(239, 68, 68, 0.10);
+  border-color: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.06);
+}
+
+
+/* =========================================================
+   ADMIN PANEL
+   ========================================================= */
+
 .admin-panel {
-  width: min(420px, 92vw);
+  width: min(460px, 94vw);
+  max-height: 88vh;
+  overflow-y: auto;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(9, 25, 41, 0.98),
+      rgba(4, 14, 25, 0.99)
+    );
+
+  border: 1px solid rgba(56, 189, 248, 0.12);
+
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.48),
+    0 0 35px rgba(56, 189, 248, 0.05);
+
+  animation: adminPanelIn 0.3s cubic-bezier(.22,.61,.36,1) both;
 }
+
+
+/* =========================================================
+   ADMIN UPDATE AREA
+   ========================================================= */
 
 .admin-update-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  margin-top: 12px;
+  padding-top: 11px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
 }
 
 .admin-update-row select,
 .admin-update-row input {
-  flex: 1 1 120px;
+  width: 100%;
   min-width: 0;
-  height: 36px;
-  padding: 0 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #0b1420;
-  color: #fff;
-  font-size: 12px;
+  height: 39px;
+
+  padding: 0 10px;
+
+  border-radius: 10px;
+
+  border: 1px solid rgba(148, 163, 184, 0.12);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 23, 37, 0.96),
+      rgba(6, 16, 28, 0.96)
+    );
+
+  color: #f8fafc;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
-.admin-update-btn {
-  flex: 1 1 100%;
-  height: 36px;
-  border: none;
-  border-radius: 8px;
-  background: #38bdf8;
-  color: #0b1420;
-  font-weight: 800;
-  font-size: 12px;
+.admin-update-row select:focus,
+.admin-update-row input:focus {
+  border-color: rgba(56, 189, 248, 0.45);
+
+  box-shadow:
+    0 0 0 3px rgba(56, 189, 248, 0.07),
+    0 0 14px rgba(56, 189, 248, 0.05);
+
+  background: rgba(9, 27, 44, 0.98);
+}
+
+.admin-update-row input::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+
+/* =========================================================
+   STATUS SELECT
+   ========================================================= */
+
+.admin-update-row select {
   cursor: pointer;
+  appearance: auto;
+}
+
+
+/* =========================================================
+   UPDATE BUTTON
+   ========================================================= */
+
+.admin-update-btn {
+  grid-column: 1 / -1;
+
+  width: 100%;
+  height: 40px;
+
+  margin-top: 1px;
+
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #38bdf8,
+      #22d3ee
+    );
+
+  color: #062033;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 950;
+
+  letter-spacing: 0.04em;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 7px 20px rgba(56, 189, 248, 0.14);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.admin-update-btn:hover {
+  transform: translateY(-1px);
+
+  filter: brightness(1.06);
+
+  box-shadow:
+    0 10px 25px rgba(56, 189, 248, 0.22);
+}
+
+.admin-update-btn:active {
+  transform: scale(0.98);
 }
 
 .admin-update-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
+  transform: none;
+  filter: none;
+  box-shadow: none;
 }
-/* 
+
+
+/* =========================================================
+   EMPTY / LOADING MESSAGE
+   ========================================================= */
+
+.withdraw-history-section .panel-empty-text,
+.admin-panel .panel-empty-text {
+  padding: 18px 14px !important;
+
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed rgba(148, 163, 184, 0.12);
+
+  color: #64748b;
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes withdrawalSectionIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes withdrawalCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes adminPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .withdraw-history-section {
+    margin-top: 18px;
+    padding-top: 16px;
+  }
+
+  .withdraw-history-item,
+  .admin-withdrawal-item {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .withdraw-history-row {
+    align-items: flex-start;
+  }
+
+  .withdraw-history-row strong {
+    font-size: 13px;
+  }
+
+  .withdraw-status-badge {
+    min-width: 58px;
+    padding: 5px 7px;
+    font-size: 8px;
+  }
+
+  .admin-panel {
+    width: calc(100vw - 24px);
+    max-height: 86vh;
+    border-radius: 19px;
+  }
+
+  .admin-update-row {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .admin-update-row select,
+  .admin-update-row input {
+    height: 40px;
+    font-size: 12px;
+  }
+
+  .admin-update-btn {
+    height: 41px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .withdraw-history-section,
+  .withdraw-history-item,
+  .admin-withdrawal-item,
+  .admin-panel {
+    animation: none !important;
+  }
+
+  .withdraw-history-item,
+  .admin-withdrawal-item,
+  .admin-update-btn,
+  .withdraw-status-badge {
+    transition: none !important;
+  }
+}
