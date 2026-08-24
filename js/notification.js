@@ -1,12 +1,5 @@
 /* =========================================================
    EARNRUSH — NOTIFICATIONS
-   -----------------------------------------------------------
-   Clean, ready-to-use notification system. Starts empty — no
-   fake/hardcoded notifications. Future real notifications can be
-   added via window.EarnRushNotifications.push({ title, message }).
-
-   Data shape (persisted to localStorage under NOTIF_KEY):
-     { id, title, message, timestamp, read }
    ========================================================= */
 
 (() => {
@@ -17,25 +10,35 @@
 
   const NOTIF_KEY = "earnRushNotifications";
 
+  let notifications = [];
+
+  const dom = {
+    bellBtn: null,
+    badge: null,
+    overlay: null,
+    panel: null,
+    list: null,
+    closeBtn: null
+  };
+
   function loadNotifications() {
     try {
       const raw = localStorage.getItem(NOTIF_KEY);
       const parsed = raw ? JSON.parse(raw) : [];
       return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
+    } catch {
       return [];
     }
   }
 
-  function saveNotifications(list) {
+  function saveNotifications() {
     try {
-      localStorage.setItem(NOTIF_KEY, JSON.stringify(list));
-    } catch (e) {}
+      localStorage.setItem(
+        NOTIF_KEY,
+        JSON.stringify(notifications)
+      );
+    } catch {}
   }
-
-  let notifications = loadNotifications();
-
-  const dom = {};
 
   function cacheDom() {
     dom.bellBtn = document.getElementById("notifBellBtn");
@@ -50,32 +53,51 @@
     return notifications.filter(n => !n.read).length;
   }
 
+  function escapeHtml(value) {
+    const div = document.createElement("div");
+    div.textContent = String(value ?? "");
+    return div.innerHTML;
+  }
+
   function formatTimestamp(ts) {
     try {
       const d = new Date(ts);
+
       if (isNaN(d.getTime())) return "";
+
       const now = new Date();
-      const sameDay = d.toDateString() === now.toDateString();
-      return sameDay
-        ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        : d.toLocaleDateString([], { month: "short", day: "numeric" });
-    } catch (e) {
+
+      if (d.toDateString() === now.toDateString()) {
+        return d.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      return d.toLocaleDateString([], {
+        month: "short",
+        day: "numeric"
+      });
+    } catch {
       return "";
     }
   }
 
   function renderBadge() {
     if (!dom.badge) return;
-    const count = unreadCount();
-    // Respect the "Notifications" preference from Settings — badge
-    // still tracked internally, just not shown, if the user muted it.
-    const notifsEnabled = window.EarnRushSettings
-      ? window.EarnRushSettings.get("notificationsEnabled")
-      : true;
 
-    if (count > 0 && notifsEnabled !== false) {
+    const count = unreadCount();
+
+    const enabled =
+      window.EarnRushSettings?.get
+        ? window.EarnRushSettings.get("notificationsEnabled")
+        : true;
+
+    if (count > 0 && enabled !== false) {
       dom.badge.hidden = false;
-      dom.badge.textContent = count > 99 ? "99+" : String(count);
+      dom.badge.textContent = count > 99
+        ? "99+"
+        : String(count);
     } else {
       dom.badge.hidden = true;
     }
@@ -84,35 +106,44 @@
   function renderList() {
     if (!dom.list) return;
 
-    if (notifications.length === 0) {
+    if (!notifications.length) {
       dom.list.innerHTML = `
         <div class="panel-empty-state">
           <div class="panel-empty-icon">🔔</div>
-          <div class="panel-empty-text">No new notifications</div>
+          <div class="panel-empty-text">
+            No new notifications
+          </div>
         </div>
       `;
       return;
     }
 
-    // Newest first.
-    const sorted = [...notifications].sort((a, b) => b.timestamp - a.timestamp);
+    const sorted = [...notifications].sort(
+      (a, b) => Number(b.timestamp) - Number(a.timestamp)
+    );
 
     dom.list.innerHTML = sorted.map(n => `
-      <div class="notif-item ${n.read ? "" : "unread"}" data-notif-id="${n.id}">
-        <div class="notif-item-dot" aria-hidden="true"></div>
+      <div
+        class="notif-item ${n.read ? "" : "unread"}"
+        data-notif-id="${escapeHtml(n.id)}"
+      >
+        <div class="notif-item-dot"></div>
+
         <div class="notif-item-body">
-          <div class="notif-item-title">${escapeHtml(n.title)}</div>
-          <div class="notif-item-message">${escapeHtml(n.message)}</div>
-          <div class="notif-item-time">${formatTimestamp(n.timestamp)}</div>
+          <div class="notif-item-title">
+            ${escapeHtml(n.title)}
+          </div>
+
+          <div class="notif-item-message">
+            ${escapeHtml(n.message)}
+          </div>
+
+          <div class="notif-item-time">
+            ${formatTimestamp(n.timestamp)}
+          </div>
         </div>
       </div>
     `).join("");
-  }
-
-  function escapeHtml(str) {
-    const div = document.createElement("div");
-    div.textContent = String(str ?? "");
-    return div.innerHTML;
   }
 
   function render() {
@@ -120,90 +151,150 @@
     renderList();
   }
 
-  function markAsRead(id) {
-    const n = notifications.find(n => String(n.id) === String(id));
-    if (!n || n.read) return;
-    n.read = true;
-    saveNotifications(notifications);
+  function openPanel() {
+    if (!dom.overlay) {
+      console.warn("notifOverlay not found");
+      return;
+    }
+
+    dom.overlay.hidden = false;
+
+    // Force visibility on mobile
+    dom.overlay.style.display = "flex";
+    dom.overlay.classList.add("is-open");
+
+    document.body.classList.add("notifications-open");
+
+    if (dom.bellBtn) {
+      dom.bellBtn.setAttribute(
+        "aria-expanded",
+        "true"
+      );
+    }
+
     render();
   }
 
-  function openPanel() {
-  if (!dom.overlay) return;
-
-  dom.overlay.hidden = false;
-  dom.overlay.style.display = "flex";
-
-  dom.bellBtn?.setAttribute(
-    "aria-expanded",
-    "true"
-  );
-
-  render();
-}
-
   function closePanel() {
-  if (!dom.overlay) return;
+    if (!dom.overlay) return;
 
-  dom.overlay.hidden = true;
-  dom.overlay.style.display = "none";
+    dom.overlay.hidden = true;
+    dom.overlay.style.display = "none";
+    dom.overlay.classList.remove("is-open");
 
-  dom.bellBtn?.setAttribute(
-    "aria-expanded",
-    "false"
-  );
-}
+    document.body.classList.remove("notifications-open");
+
+    if (dom.bellBtn) {
+      dom.bellBtn.setAttribute(
+        "aria-expanded",
+        "false"
+      );
+    }
+  }
+
+  function togglePanel() {
+    if (dom.overlay && !dom.overlay.hidden) {
+      closePanel();
+    } else {
+      openPanel();
+    }
+  }
 
   function isOpen() {
     return !!dom.overlay && !dom.overlay.hidden;
   }
 
+  function markAsRead(id) {
+    const item = notifications.find(
+      n => String(n.id) === String(id)
+    );
+
+    if (!item) return;
+
+    item.read = true;
+
+    saveNotifications();
+    render();
+  }
+
   function setupEvents() {
-    document.addEventListener("click", (e) => {
-  const bell = e.target.closest("#notifBellBtn");
 
-  if (!bell) return;
+    /*
+     * EVENT DELEGATION
+     * Works even if the header/bell is dynamically replaced.
+     */
+    document.addEventListener("click", function(e) {
 
-  e.preventDefault();
-  e.stopPropagation();
+      const bell = e.target.closest("#notifBellBtn");
 
-  if (isOpen()) {
-    closePanel();
-  } else {
-    openPanel();
-  }
-});
+      if (bell) {
+        e.preventDefault();
+        e.stopPropagation();
 
-    dom.closeBtn?.addEventListener("click", closePanel);
+        togglePanel();
+        return;
+      }
 
-    // Outside-click / backdrop close — overlay itself is the
-    // backdrop, panel click shouldn't bubble to it.
-    dom.overlay?.addEventListener("click", (e) => {
-      if (e.target === dom.overlay) closePanel();
-    });
+      const close = e.target.closest("#notifCloseBtn");
 
-    dom.panel?.addEventListener("click", (e) => e.stopPropagation());
+      if (close) {
+        e.preventDefault();
+        e.stopPropagation();
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && isOpen()) closePanel();
-    });
+        closePanel();
+        return;
+      }
 
-    dom.list?.addEventListener("click", (e) => {
+      if (
+        dom.overlay &&
+        e.target === dom.overlay
+      ) {
+        closePanel();
+        return;
+      }
+
       const item = e.target.closest("[data-notif-id]");
-      if (item) markAsRead(item.dataset.notifId);
+
+      if (item) {
+        markAsRead(item.dataset.notifId);
+      }
+    }, true);
+
+
+    /*
+     * Prevent panel clicks from closing overlay.
+     */
+    if (dom.panel) {
+      dom.panel.addEventListener(
+        "click",
+        e => e.stopPropagation()
+      );
+    }
+
+
+    /*
+     * ESC
+     */
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && isOpen()) {
+        closePanel();
+      }
     });
   }
 
-  /* ---------------------------------------------------------
-     PUBLIC API — for wiring real notifications in later
-  --------------------------------------------------------- */
+
   window.EarnRushNotifications = {
-    // push({ title, message }) -> adds a new unread notification
+
     push({ title, message }) {
+
       if (!title || !message) return null;
 
       const entry = {
-        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        id:
+          `${Date.now()}_${Math.random()
+            .toString(36)
+            .slice(2, 8)}`,
+
         title: String(title),
         message: String(message),
         timestamp: Date.now(),
@@ -211,38 +302,81 @@
       };
 
       notifications.unshift(entry);
-      // Keep this bounded so localStorage doesn't grow unbounded.
-      notifications = notifications.slice(0, 100);
-      saveNotifications(notifications);
+
+      notifications =
+        notifications.slice(0, 100);
+
+      saveNotifications();
       render();
+
       return entry.id;
     },
 
     markAllRead() {
-      notifications.forEach(n => { n.read = true; });
-      saveNotifications(notifications);
+
+      notifications.forEach(
+        n => n.read = true
+      );
+
+      saveNotifications();
       render();
     },
 
     clearAll() {
+
       notifications = [];
-      saveNotifications(notifications);
+
+      saveNotifications();
       render();
     },
 
-    getUnreadCount: unreadCount,
-    refresh: render
+    getUnreadCount() {
+      return unreadCount();
+    },
+
+    refresh() {
+      cacheDom();
+      render();
+    }
   };
 
+
   function init() {
+
     cacheDom();
+
+    notifications = loadNotifications();
+
     setupEvents();
+
     render();
+
+    // Re-cache DOM shortly after page load.
+    // Useful if header/panel is injected dynamically.
+    setTimeout(() => {
+      cacheDom();
+      render();
+    }, 300);
+
+    setTimeout(() => {
+      cacheDom();
+      render();
+    }, 1000);
   }
 
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, { once: true });
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      init,
+      { once: true }
+    );
+
   } else {
+
     init();
+
   }
+
 })();
