@@ -325,6 +325,38 @@
      */
     currentUser = data.user;
 
+    /*
+     * Verify referral after successful signup.
+     */
+    try {
+      const referralParams = new URLSearchParams(
+        window.location.search
+      );
+
+      const referralCode = referralParams.get("ref");
+      const visitorId =
+        localStorage.getItem("earnRushVisitorId");
+
+      if (referralCode && visitorId) {
+        await fetch("/api/verify-referral", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            ref: referralCode,
+            visitor: visitorId,
+            userId: data.user.id
+          })
+        });
+      }
+    } catch (error) {
+      console.warn(
+        "[EarnRush Auth] Referral verification failed:",
+        error
+      );
+    }
+
     await ensureProfileName(
       data.user.id,
       name
