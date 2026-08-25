@@ -791,3 +791,242 @@ body.mini-game-active {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
 }
+/* =========================================================
+   EARNRUSH MINI GAME - COMPACT CONVERTER
+========================================================= */
+
+.mg-convert-bar {
+  padding: 14px 14px 12px !important;
+  border-radius: 18px !important;
+}
+
+.mg-convert-top {
+  margin-bottom: 9px !important;
+}
+
+.mg-convert-box {
+  padding: 8px;
+  margin-top: 7px;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 31, 49, 0.72),
+      rgba(8, 20, 34, 0.72)
+    );
+
+  border: 1px solid rgba(90, 190, 255, 0.10);
+}
+
+.mg-convert-box-title {
+  margin: 0 0 6px 2px;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .45px;
+
+  color: var(--text-soft, #8d9bb0);
+}
+
+.mg-convert-row {
+  gap: 8px !important;
+}
+
+.mg-convert-input {
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 12px !important;
+}
+
+.mg-convert-btn {
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 18px !important;
+}
+
+.mg-convert-preview {
+  margin-top: 5px !important;
+  font-size: 11px !important;
+}
+
+.mg-token-to-coin {
+  margin-top: 7px;
+}
+
+.mg-convert-msg {
+  min-height: 16px;
+  margin: 5px 2px 0 !important;
+  font-size: 10px !important;
+}
+
+
+/* =========================================================
+   HIDE OLD PERMANENT TAB BAR
+========================================================= */
+
+.mg-insights-drawer .mg-tabs {
+  display: flex;
+}
+
+
+/* =========================================================
+   ACTIVITY / STATS TOGGLE
+========================================================= */
+
+.mg-insights-toggle {
+  width: 100%;
+  min-height: 42px;
+
+  margin: 10px 0 0;
+  padding: 0 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: 1px solid rgba(55, 190, 255, 0.14);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 34, 53, 0.94),
+      rgba(9, 21, 36, 0.94)
+    );
+
+  color: #8fdcff;
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .2px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 20px rgba(0,0,0,.12);
+
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease;
+}
+
+.mg-insights-toggle:active {
+  transform: scale(.985);
+}
+
+.mg-insights-toggle:hover {
+  border-color: rgba(55, 190, 255, 0.25);
+}
+
+.mg-insights-arrow {
+  font-size: 15px;
+  line-height: 1;
+
+  transition:
+    transform .22s ease;
+}
+
+
+/* =========================================================
+   SLIDING DRAWER
+========================================================= */
+
+.mg-insights-drawer {
+  display: block;
+
+  max-height: 0;
+  overflow: hidden;
+
+  opacity: 0;
+
+  transform: translateY(8px);
+
+  margin-top: 0;
+
+  transition:
+    max-height .28s ease,
+    opacity .20s ease,
+    transform .28s ease,
+    margin-top .28s ease;
+}
+
+.mg-insights-drawer.open {
+  max-height: 650px;
+
+  opacity: 1;
+
+  transform: translateY(0);
+
+  margin-top: 8px;
+}
+
+
+/* =========================================================
+   DRAWER INNER
+========================================================= */
+
+.mg-insights-inner {
+  padding: 10px;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(12, 27, 44, .96),
+      rgba(7, 17, 30, .96)
+    );
+
+  border: 1px solid rgba(60, 180, 255, .13);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.18);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .mg-convert-bar {
+    padding: 12px !important;
+  }
+
+  .mg-convert-box {
+    padding: 7px;
+  }
+
+  .mg-convert-input {
+    font-size: 13px !important;
+  }
+
+  .mg-convert-btn {
+    padding: 0 14px !important;
+    font-size: 12px !important;
+  }
+
+  .mg-insights-toggle {
+    min-height: 40px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .mg-insights-drawer,
+  .mg-insights-arrow,
+  .mg-insights-toggle {
+    transition: none !important;
+  }
+
+}
