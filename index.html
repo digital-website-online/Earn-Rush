@@ -1881,79 +1881,114 @@ STEP 1 UI MICRO-INTERACTIONS
     </div>
 
 
-    <!-- =========================================
-         COINS → ARCADE TOKENS
-         ONE WAY ONLY
-    ========================================== -->
+  <!-- =========================================
+     COMPACT COINS / ARCADE TOKEN CONVERTER
+========================================= -->
 
-    <div
-      class="mg-convert-bar"
-      id="mgConvertBar"
+<div class="mg-convert-bar" id="mgConvertBar">
+
+  <div class="mg-convert-top">
+    <span class="mg-convert-label">
+      Your Coins
+    </span>
+
+    <strong
+      id="mgCoinBalance"
+      class="mg-convert-coins"
     >
-
-      <div class="mg-convert-top">
-
-        <span class="mg-convert-label">
-          Your Coins
-        </span>
-
-        <strong
-          id="mgCoinBalance"
-          class="mg-convert-coins"
-        >
-          0
-        </strong>
-
-      </div>
+      0
+    </strong>
+  </div>
 
 
-      <div class="mg-convert-row">
+  <!-- COINS → TOKENS -->
 
-        <input
-          type="number"
-          id="mgCoinConvertInput"
-          class="mg-convert-input"
-          placeholder="Min 10 Coins"
-          min="10"
-          step="10"
-          inputmode="numeric"
-        >
+  <div class="mg-convert-box">
 
-        <button
-          id="mgConvertBtn"
-          class="mg-convert-btn"
-          type="button"
-        >
-          Convert
-        </button>
+    <div class="mg-convert-box-title">
+      Coins → Arcade Tokens
+    </div>
 
-      </div>
+    <div class="mg-convert-row">
 
-
-      <div
-        class="mg-convert-preview"
-        id="mgConvertPreview"
+      <input
+        type="number"
+        id="mgCoinConvertInput"
+        class="mg-convert-input"
+        placeholder="Min 10 Coins"
+        min="10"
+        step="1"
+        inputmode="numeric"
       >
-        = 0 Arcade Tokens
-      </div>
 
-
-      <p
-        id="mgConvertMsg"
-        class="mg-convert-msg"
-        role="status"
-        aria-live="polite"
-      ></p>
-
-
-      <p class="mg-convert-note">
-        One-way only — Arcade Tokens are for
-        this game only and can't be converted
-        back to Coins or withdrawn.
-      </p>
+      <button
+        id="mgConvertBtn"
+        class="mg-convert-btn"
+        type="button"
+      >
+        Convert
+      </button>
 
     </div>
 
+    <div
+      class="mg-convert-preview"
+      id="mgConvertPreview"
+    >
+      = 0 Arcade Tokens
+    </div>
+
+  </div>
+
+
+  <!-- TOKENS → COINS -->
+
+  <div class="mg-convert-box mg-token-to-coin">
+
+    <div class="mg-convert-box-title">
+      Arcade Tokens → Coins
+    </div>
+
+    <div class="mg-convert-row">
+
+      <input
+        type="number"
+        id="mgTokenConvertInput"
+        class="mg-convert-input"
+        placeholder="Min 10 Tokens"
+        min="10"
+        step="1"
+        inputmode="numeric"
+      >
+
+      <button
+        id="mgTokenConvertBtn"
+        class="mg-convert-btn"
+        type="button"
+      >
+        Convert
+      </button>
+
+    </div>
+
+    <div
+      class="mg-convert-preview"
+      id="mgTokenConvertPreview"
+    >
+      = 0 Coins
+    </div>
+
+  </div>
+
+
+  <p
+    id="mgConvertMsg"
+    class="mg-convert-msg"
+    role="status"
+    aria-live="polite"
+  ></p>
+
+</div>
 
     <!-- =========================================
          GRAPH SCREEN
