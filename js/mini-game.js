@@ -184,11 +184,13 @@
     dom.history = byId("mgHistory");
 
     dom.tokenBalance = byId("mgTokenBalance");
+
     dom.coinBalance =
       byId("mgCoinBalance") ||
       byId("miniGameCoins");
 
-    dom.livePlayers = byId("mgLivePlayers");
+    dom.livePlayers =
+      byId("mgLivePlayers");
 
     dom.liveBetsList =
       byId("mgLiveBetsList");
@@ -216,36 +218,35 @@
     };
 
     dom.convertInput =
-  byId("mgCoinConvertInput");
+      byId("mgCoinConvertInput");
 
     dom.convertBtn =
-  byId("mgConvertBtn");
+      byId("mgConvertBtn");
 
     dom.convertPreview =
-  byId("mgConvertPreview");
+      byId("mgConvertPreview");
 
     dom.tokenConvertInput =
-  byId("mgTokenConvertInput");
+      byId("mgTokenConvertInput");
 
     dom.tokenConvertBtn =
-  byId("mgTokenConvertBtn");
+      byId("mgTokenConvertBtn");
 
     dom.tokenConvertPreview =
-  byId("mgTokenConvertPreview");
+      byId("mgTokenConvertPreview");
 
     dom.convertMsg =
-  byId("mgConvertMsg");
+      byId("mgConvertMsg");
 
     dom.insightsToggle =
-  byId("mgInsightsToggle");
+      byId("mgInsightsToggle");
 
     dom.insightsDrawer =
-  byId("mgInsightsDrawer");
+      byId("mgInsightsDrawer");
 
     dom.insightsArrow =
-  byId("mgInsightsArrow");
-
- }
+      byId("mgInsightsArrow");
+  }
 
   /* =========================================================
      FORMAT
@@ -452,266 +453,480 @@
   }
 
   /* =========================================================
-   COINS -> ARCADE TOKENS
-   ========================================================= */
+     COINS -> ARCADE TOKENS
+     ========================================================= */
 
-function updateConvertPreview() {
+  function updateConvertPreview() {
 
-  /* Coins → Tokens */
+    /* Coins → Tokens */
 
-  if (
-    dom.convertInput &&
-    dom.convertPreview
-  ) {
-    const amount =
-      Math.floor(
-        Number(dom.convertInput.value) || 0
-      );
-
-    if (amount <= 0) {
-      dom.convertPreview.textContent =
-        "= 0 Arcade Tokens";
-    } else {
-      const tokens =
+    if (
+      dom.convertInput &&
+      dom.convertPreview
+    ) {
+      const amount =
         Math.floor(
-          amount /
-          CONFIG.COINS_PER_TOKEN
+          Number(dom.convertInput.value) || 0
         );
 
-      dom.convertPreview.textContent =
-        `= ${fmt(tokens)} Arcade Tokens`;
+      if (amount <= 0) {
+        dom.convertPreview.textContent =
+          "= 0 Arcade Tokens";
+      } else {
+        const tokens =
+          Math.floor(
+            amount /
+            CONFIG.COINS_PER_TOKEN
+          );
+
+        dom.convertPreview.textContent =
+          `= ${fmt(tokens)} Arcade Tokens`;
+      }
+    }
+
+    /* Tokens → Coins */
+
+    if (
+      dom.tokenConvertInput &&
+      dom.tokenConvertPreview
+    ) {
+      const tokens =
+        Math.floor(
+          Number(
+            dom.tokenConvertInput.value
+          ) || 0
+        );
+
+      if (tokens <= 0) {
+        dom.tokenConvertPreview.textContent =
+          "= 0 Coins";
+      } else {
+        const coins =
+          Math.floor(
+            tokens *
+            CONFIG.COINS_PER_TOKEN
+          );
+
+        dom.tokenConvertPreview.textContent =
+          `= ${fmt(coins)} Coins`;
+      }
     }
   }
 
-
-  /* Tokens → Coins */
-
-  if (
-    dom.tokenConvertInput &&
-    dom.tokenConvertPreview
+  function showConvertMessage(
+    text,
+    isError
   ) {
+    if (!dom.convertMsg) return;
+
+    dom.convertMsg.textContent = text;
+
+    dom.convertMsg.classList.toggle(
+      "is-error",
+      !!isError
+    );
+
+    dom.convertMsg.classList.toggle(
+      "is-success",
+      !isError
+    );
+  }
+
+  function handleConvert() {
+    if (!dom.convertInput) return;
+
+    const raw =
+      dom.convertInput.value;
+
+    const amount =
+      Math.floor(Number(raw));
+
+    if (
+      !raw ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
+      showConvertMessage(
+        "Enter a valid Coins amount.",
+        true
+      );
+      return;
+    }
+
+    if (
+      amount <
+      CONFIG.MIN_CONVERT_COINS
+    ) {
+      showConvertMessage(
+        `Minimum conversion is ${fmt(
+          CONFIG.MIN_CONVERT_COINS
+        )} Coins.`,
+        true
+      );
+      return;
+    }
+
+    const available =
+      getEarnRushCoins();
+
+    if (amount > available) {
+      showConvertMessage(
+        "Not enough Coins for this conversion.",
+        true
+      );
+      return;
+    }
+
+    /* =========================================
+       CALCULATE ARCADE TOKENS
+
+       1 Coin = 10 Tokens
+       10 Coins = 100 Tokens
+       100 Coins = 1,000 Tokens
+       1,000 Coins = 10,000 Tokens
+    ========================================= */
+
     const tokens =
       Math.floor(
-        Number(
-          dom.tokenConvertInput.value
-        ) || 0
+        amount /
+        CONFIG.COINS_PER_TOKEN
       );
 
     if (tokens <= 0) {
-      dom.tokenConvertPreview.textContent =
-        "= 0 Coins";
-    } else {
-      const coins =
-        Math.floor(
-          tokens * CONFIG.COINS_PER_TOKEN
-        );
-
-      dom.tokenConvertPreview.textContent =
-        `= ${fmt(coins)} Coins`;
+      showConvertMessage(
+        "Conversion amount is too small.",
+        true
+      );
+      return;
     }
-  }
-}
 
-function handleTokenConvert() {
-
-  if (!dom.tokenConvertInput) return;
-
-  const raw =
-    dom.tokenConvertInput.value;
-
-  const amount =
-    Math.floor(Number(raw));
-
-  if (
-    !raw ||
-    !Number.isFinite(amount) ||
-    amount <= 0
-  ) {
-    showConvertMessage(
-      "Enter a valid Arcade Token amount.",
-      true
-    );
-    return;
-  }
-
-
-  if (amount < 10) {
-    showConvertMessage(
-      "Minimum conversion is 10 Arcade Tokens.",
-      true
-    );
-    return;
-  }
-
-
-  /* 10 Tokens = 1 Coin */
-
-  const coins =
-    Math.floor(
-      amount *
-      CONFIG.COINS_PER_TOKEN
-    );
-
-
-  if (coins <= 0) {
-    showConvertMessage(
-      "Conversion amount is too small.",
-      true
-    );
-    return;
-  }
-
-
-  if (getTokens() < amount) {
-    showConvertMessage(
-      "Not enough Arcade Tokens.",
-      true
-    );
-    return;
-  }
-
-
-  /* Remove Arcade Tokens */
-
-  setTokens(
-    getTokens() - amount
-  );
-
-
-  /*
-   * Add Coins back through the existing
-   * EarnRush coin state when available.
-   */
-
-  let added = false;
-
-  try {
+    /* =========================================
+       REMOVE COINS
+    ========================================= */
 
     if (
-      window.EarnRushGame &&
-      typeof window.EarnRushGame.getState ===
-        "function"
+      !spendEarnRushCoins(amount)
     ) {
-
-      const gameState =
-        window.EarnRushGame.getState();
-
-      if (
-        gameState &&
-        Number.isFinite(
-          Number(gameState.coins)
-        )
-      ) {
-
-        gameState.coins =
-          Number(gameState.coins) + coins;
-
-        if (
-          typeof window.EarnRushGame.updateUI ===
-          "function"
-        ) {
-          window.EarnRushGame.updateUI();
-        }
-
-        if (
-          typeof window.EarnRushGame.save ===
-          "function"
-        ) {
-          window.EarnRushGame.save();
-        }
-
-        added = true;
-      }
-    }
-
-  } catch (e) {}
-
-
-  /*
-   * Fallback for existing EarnRush storage.
-   */
-
-  if (!added) {
-
-    try {
-
-      const before =
-        getEarnRushCoins();
-
-      const newBalance =
-        before + coins;
-
-      const mainBalance =
-        byId("balance");
-
-      if (mainBalance) {
-        mainBalance.textContent =
-          fmt(newBalance);
-      }
-
-      if (dom.coinBalance) {
-        dom.coinBalance.textContent =
-          fmt(newBalance);
-      }
-
-      let targetKey = null;
-
-      for (
-        const key of COIN_FALLBACK_KEYS
-      ) {
-
-        if (
-          localStorage.getItem(key) !==
-          null
-        ) {
-          targetKey = key;
-          break;
-        }
-      }
-
-      localStorage.setItem(
-        targetKey ||
-        COIN_FALLBACK_KEYS[0],
-        String(newBalance)
+      showConvertMessage(
+        "Conversion failed. Please try again.",
+        true
       );
-
-      added = true;
-
-    } catch (e) {
-      added = false;
+      return;
     }
-  }
 
-
-  if (!added) {
-
-    /* Roll back tokens if coin update failed */
+    /* =========================================
+       ADD ARCADE TOKENS
+    ========================================= */
 
     setTokens(
-      getTokens() + amount
+      getTokens() + tokens
     );
+
+    updateWalletUI();
+
+    /* Clear input before preview update */
+    dom.convertInput.value = "";
+
+    updateConvertPreview();
 
     showConvertMessage(
-      "Conversion failed. Please try again.",
-      true
+      `Converted ${fmt(amount)} Coins → ${fmt(
+        tokens
+      )} Arcade Tokens.`,
+      false
     );
-
-    return;
   }
 
+  /* =========================================================
+     ARCADE TOKENS -> COINS
+     ========================================================= */
 
-  updateWalletUI();
+  function handleTokenConvert() {
 
-  dom.tokenConvertInput.value = "";
+    if (!dom.tokenConvertInput) return;
 
-  updateConvertPreview();
+    const raw =
+      dom.tokenConvertInput.value;
 
-  showConvertMessage(
-    `Converted ${fmt(amount)} Arcade Tokens → ${fmt(coins)} Coin${coins === 1 ? "" : "s"}.`,
-    false
-  );
-}
+    const amount =
+      Math.floor(Number(raw));
 
+    if (
+      !raw ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
+      showConvertMessage(
+        "Enter a valid Arcade Token amount.",
+        true
+      );
+      return;
+    }
+
+    if (amount < 10) {
+      showConvertMessage(
+        "Minimum conversion is 10 Arcade Tokens.",
+        true
+      );
+      return;
+    }
+
+    /* 10 Tokens = 1 Coin */
+
+    const coins =
+      Math.floor(
+        amount *
+        CONFIG.COINS_PER_TOKEN
+      );
+
+    if (coins <= 0) {
+      showConvertMessage(
+        "Conversion amount is too small.",
+        true
+      );
+      return;
+    }
+
+    if (getTokens() < amount) {
+      showConvertMessage(
+        "Not enough Arcade Tokens.",
+        true
+      );
+      return;
+    }
+
+    /* Remove Arcade Tokens */
+
+    setTokens(
+      getTokens() - amount
+    );
+
+    /*
+     * Add Coins back through the existing
+     * EarnRush coin state when available.
+     */
+
+    let added = false;
+
+    try {
+      if (
+        window.EarnRushGame &&
+        typeof window.EarnRushGame.getState ===
+          "function"
+      ) {
+        const gameState =
+          window.EarnRushGame.getState();
+
+        if (
+          gameState &&
+          Number.isFinite(
+            Number(gameState.coins)
+          )
+        ) {
+          gameState.coins =
+            Number(gameState.coins) + coins;
+
+          if (
+            typeof window.EarnRushGame.updateUI ===
+            "function"
+          ) {
+            window.EarnRushGame.updateUI();
+          }
+
+          if (
+            typeof window.EarnRushGame.save ===
+            "function"
+          ) {
+            window.EarnRushGame.save();
+          }
+
+          added = true;
+        }
+      }
+    } catch (e) {}
+
+    /*
+     * Fallback for existing EarnRush storage.
+     */
+
+    if (!added) {
+      try {
+        const before =
+          getEarnRushCoins();
+
+        const newBalance =
+          before + coins;
+
+        const mainBalance =
+          byId("balance");
+
+        if (mainBalance) {
+          mainBalance.textContent =
+            fmt(newBalance);
+        }
+
+        if (dom.coinBalance) {
+          dom.coinBalance.textContent =
+            fmt(newBalance);
+        }
+
+        let targetKey = null;
+
+        for (
+          const key of COIN_FALLBACK_KEYS
+        ) {
+          if (
+            localStorage.getItem(key) !==
+            null
+          ) {
+            targetKey = key;
+            break;
+          }
+        }
+
+        localStorage.setItem(
+          targetKey ||
+          COIN_FALLBACK_KEYS[0],
+          String(newBalance)
+        );
+
+        added = true;
+
+      } catch (e) {
+        added = false;
+      }
+    }
+
+    if (!added) {
+
+      /* Roll back tokens if coin update failed */
+
+      setTokens(
+        getTokens() + amount
+      );
+
+      showConvertMessage(
+        "Conversion failed. Please try again.",
+        true
+      );
+
+      return;
+    }
+
+    updateWalletUI();
+
+    dom.tokenConvertInput.value = "";
+
+    updateConvertPreview();
+
+    showConvertMessage(
+      `Converted ${fmt(amount)} Arcade Tokens → ${fmt(
+        coins
+      )} Coin${coins === 1 ? "" : "s"}.`,
+      false
+    );
+  }
+
+  /* =========================================================
+     CONVERSION SETUP
+     ========================================================= */
+
+  function setupConversion() {
+
+    /* Coins → Tokens */
+
+    if (dom.convertInput) {
+      dom.convertInput.addEventListener(
+        "input",
+        updateConvertPreview
+      );
+    }
+
+    if (dom.convertBtn) {
+      dom.convertBtn.addEventListener(
+        "click",
+        handleConvert
+      );
+    }
+
+    /* Tokens → Coins */
+
+    if (dom.tokenConvertInput) {
+      dom.tokenConvertInput.addEventListener(
+        "input",
+        updateConvertPreview
+      );
+    }
+
+    if (dom.tokenConvertBtn) {
+      dom.tokenConvertBtn.addEventListener(
+        "click",
+        handleTokenConvert
+      );
+    }
+  }
+
+  /* =========================================================
+     INSIGHTS DRAWER
+     ========================================================= */
+
+  function setInsightsDrawer(open) {
+    if (!dom.insightsDrawer) return;
+
+    dom.insightsDrawer.classList.toggle(
+      "open",
+      open
+    );
+
+    dom.insightsDrawer.classList.toggle(
+      "active",
+      open
+    );
+
+    dom.insightsDrawer.setAttribute(
+      "aria-hidden",
+      open ? "false" : "true"
+    );
+
+    if (dom.insightsToggle) {
+      dom.insightsToggle.setAttribute(
+        "aria-expanded",
+        open ? "true" : "false"
+      );
+    }
+
+    if (dom.insightsArrow) {
+      dom.insightsArrow.textContent =
+        open ? "↑" : "↓";
+    }
+
+    if (open) {
+      renderLiveBets();
+      renderHistory();
+      renderStatistics();
+    }
+  }
+
+  function setupInsights() {
+    if (!dom.insightsToggle) return;
+
+    setInsightsDrawer(false);
+
+    dom.insightsToggle.addEventListener(
+      "click",
+      () => {
+        const isOpen =
+          dom.insightsDrawer?.classList.contains(
+            "open"
+          ) ||
+          dom.insightsDrawer?.classList.contains(
+            "active"
+          );
+
+        setInsightsDrawer(!isOpen);
+      }
+    );
+  }
 
   /* =========================================================
      OPEN / CLOSE
@@ -750,6 +965,8 @@ function handleTokenConvert() {
     renderHistory();
     renderStatistics();
 
+    setInsightsDrawer(false);
+
     startLivePlayerTimer();
 
     if (!state.cycleActive) {
@@ -787,6 +1004,8 @@ function handleTokenConvert() {
 
     document.body
       .classList.remove("mg-open");
+
+    setInsightsDrawer(false);
 
     stopLivePlayerTimer();
     stopCycle();
@@ -1635,6 +1854,7 @@ function handleTokenConvert() {
         button.addEventListener(
           "click",
           () => {
+
             $$("[data-mg-tab]")
               .forEach(btn =>
                 btn.classList.remove(
@@ -1672,6 +1892,13 @@ function handleTokenConvert() {
                       "stats"
                   ) {
                     renderStatistics();
+                  }
+
+                  if (
+                    tab ===
+                    "demo"
+                  ) {
+                    renderLiveBets();
                   }
                 } else {
                   panel.style.display =
@@ -1735,6 +1962,7 @@ function handleTokenConvert() {
     setupBetControls();
     setupConversion();
     setupTabs();
+    setupInsights();
 
     byId("mgClose")
       ?.addEventListener(
