@@ -2271,7 +2271,161 @@ STEP 1 UI MICRO-INTERACTIONS
       </div>
 
     </div>
+<!-- =========================================
+     ACTIVITY / HISTORY / STATS TOGGLE
+========================================= -->
 
+<button
+  type="button"
+  id="mgInsightsToggle"
+  class="mg-insights-toggle"
+  aria-expanded="false"
+>
+  <span class="mg-insights-toggle-text">
+    Activity &amp; Stats
+  </span>
+
+  <span
+    id="mgInsightsArrow"
+    class="mg-insights-arrow"
+  >
+    ↓
+  </span>
+</button>
+
+
+<!-- =========================================
+     HIDDEN / FLOATING INSIGHTS PANEL
+========================================= -->
+
+<div
+  id="mgInsightsDrawer"
+  class="mg-insights-drawer"
+>
+
+  <div class="mg-insights-inner">
+
+    <!-- TABS -->
+
+    <div class="mg-tabs">
+
+      <button
+        data-mg-tab="current"
+        class="active"
+        type="button"
+      >
+        Demo Activity
+      </button>
+
+      <button
+        data-mg-tab="history"
+        type="button"
+      >
+        History
+      </button>
+
+      <button
+        data-mg-tab="statistics"
+        type="button"
+      >
+        Stats
+      </button>
+
+    </div>
+
+
+    <!-- TAB CONTENT -->
+
+    <div class="mg-panel-container">
+
+      <!-- CURRENT / DEMO -->
+
+      <div
+        data-mg-panel="current"
+        class="mg-panel"
+      >
+
+        <div class="mg-live-bets-header">
+
+          <span>
+            Demo Activity
+          </span>
+
+          <span>
+            Amount
+          </span>
+
+        </div>
+
+        <div class="mg-stats-strip">
+
+          <span>
+            <strong id="mgDemoBetsCount">
+              0
+            </strong>
+            demo bets shown
+          </span>
+
+          <span>
+            Total shown:
+            <strong id="mgDemoTotal">
+              0
+            </strong>
+            Tokens
+          </span>
+
+        </div>
+
+        <div class="mg-demo-note">
+          🎮 Simulated game activity for
+          atmosphere only — not real players
+          or real bets.
+        </div>
+
+        <div
+          class="mg-live-bets-list"
+          id="mgLiveBetsList"
+        ></div>
+
+      </div>
+
+
+      <!-- HISTORY -->
+
+      <div
+        data-mg-panel="history"
+        class="mg-panel"
+        style="display:none;"
+      >
+
+        <div
+          class="mg-history-list"
+          id="mgHistoryList"
+        ></div>
+
+      </div>
+
+
+      <!-- STATISTICS -->
+
+      <div
+        data-mg-panel="statistics"
+        class="mg-panel"
+        style="display:none;"
+      >
+
+        <div
+          id="mgStatistics"
+          class="mg-statistics"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 
     <!-- =========================================
          TABS
