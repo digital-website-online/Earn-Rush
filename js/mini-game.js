@@ -111,8 +111,12 @@
     stageRect: null,
 
     lastMultiplierText: "",
-    lastPlaneX: null,
-    lastPlaneY: null
+lastPlaneX: null,
+lastPlaneY: null,
+
+lastRenderTime: 0,
+lastMultiplierRender: 0
+
   };
 
   /* =========================================================
