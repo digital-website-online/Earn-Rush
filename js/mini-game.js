@@ -1429,55 +1429,64 @@
   }
 
   function runAnimation() {
-    cancelAnimationFrame(
-      state.animationFrame
-    );
+  cancelAnimationFrame(
+    state.animationFrame
+  );
 
-    const startTime =
-      performance.now();
+  const startTime =
+    performance.now();
 
-    function frame(now) {
-      if (
-        state.round !==
-        "running"
-      ) {
-        return;
-      }
+  state.lastRenderTime = 0;
 
-      const elapsed =
-        (now - startTime) / 1000;
+  function frame(now) {
+    if (
+      state.round !==
+      "running"
+    ) {
+      return;
+    }
 
+    const elapsed =
+      (now - startTime) / 1000;
+
+    state.multiplier =
+      1 +
+      (
+        Math.pow(
+          elapsed,
+          1.3
+        ) * 0.15
+      );
+
+    const crashed =
+      state.multiplier >=
+      state.crashPoint;
+
+    if (crashed) {
       state.multiplier =
-        1 +
-        (
-          Math.pow(
-            elapsed,
-            1.3
-          ) * 0.15
-        );
-
-      const crashed =
-        state.multiplier >=
         state.crashPoint;
+    }
 
-      if (crashed) {
-        state.multiplier =
-          state.crashPoint;
-      }
+    /*
+     * Rendering is limited to about 30 FPS.
+     * Game calculation itself still runs every
+     * animation frame, so timing/game logic is
+     * not changed.
+     */
+    if (
+      state.open &&
+      (
+        now - state.lastRenderTime >= 33 ||
+        crashed
+      )
+    ) {
+      state.lastRenderTime = now;
+      updateScreenUI();
+    }
 
-      if (state.open) {
-        updateScreenUI();
-      }
-
-      if (crashed) {
-        finishRound();
-        return;
-      }
-
-      state.animationFrame =
-        requestAnimationFrame(
-          frame
-        );
+    if (crashed) {
+      finishRound();
+      return;
     }
 
     state.animationFrame =
@@ -1486,123 +1495,133 @@
       );
   }
 
+  state.animationFrame =
+    requestAnimationFrame(
+      frame
+    );
+}
   function updateScreenUI() {
-    const value =
-      Math.min(
-        CONFIG.DISPLAY_MAX_MULTIPLIER,
-        state.multiplier
-      );
+  const value =
+    Math.min(
+      CONFIG.DISPLAY_MAX_MULTIPLIER,
+      state.multiplier
+    );
 
-    const text =
-      `${value.toFixed(2)}x`;
+  const text =
+    `${value.toFixed(2)}x`;
 
-    if (
-      dom.multiplier &&
-      text !==
-      state.lastMultiplierText
-    ) {
-      dom.multiplier.textContent =
-        text;
+  /*
+   * Only update multiplier DOM when the
+   * displayed value actually changes.
+   */
+  if (
+    dom.multiplier &&
+    text !== state.lastMultiplierText
+  ) {
+    dom.multiplier.textContent =
+      text;
 
-      state.lastMultiplierText =
-        text;
+    state.lastMultiplierText =
+      text;
 
-      [1, 2].forEach(id => {
-        const bet =
-          state.bets[id];
+    [1, 2].forEach(id => {
+      const bet =
+        state.bets[id];
 
-        const btn =
-          dom.startBtns[id];
-
-        if (
-          btn &&
-          bet.active &&
-          !bet.cashedOut
-        ) {
-          const span =
-            btn.querySelector(
-              "span"
-            );
-
-          if (span) {
-            span.textContent =
-              text;
-          }
-        }
-      });
-    }
-
-    if (dom.plane) {
-      const pos =
-        Math.min(
-          75,
-          (state.multiplier / 10) *
-            75
-        );
-
-      const rect =
-        state.stageRect;
-
-      const width =
-        rect
-          ? rect.width
-          : 300;
-
-      const height =
-        rect
-          ? rect.height
-          : 220;
-
-      const x =
-        Math.round(
-          (pos / 75) *
-          (width * 0.6)
-        );
-
-      const y =
-        Math.round(
-          (pos / 75) *
-          (height * 0.5)
-        );
+      const btn =
+        dom.startBtns[id];
 
       if (
-        x !== state.lastPlaneX ||
-        y !== state.lastPlaneY
+        btn &&
+        bet.active &&
+        !bet.cashedOut
       ) {
-        dom.plane.style.transform =
-          `translate3d(${x}px, ${-y}px, 0)`;
+        const span =
+          btn.querySelector("span");
 
-        state.lastPlaneX = x;
-        state.lastPlaneY = y;
-
-        if (dom.trail) {
-          const length =
-            Math.round(
-              Math.sqrt(
-                x * x +
-                y * y
-              )
-            );
-
-          const angle =
-            -(
-              Math.atan2(
-                y,
-                x
-              ) *
-              (180 / Math.PI)
-            );
-
-          dom.trail.style.width =
-            `${length}px`;
-
-          dom.trail.style.transform =
-            `rotate(${angle}deg)`;
+        if (span && span.textContent !== text) {
+          span.textContent =
+            text;
         }
+      }
+    });
+  }
+
+  /*
+   * Plane/trail rendering.
+   * Only writes styles when the actual
+   * position changes.
+   */
+  if (dom.plane) {
+    const pos =
+      Math.min(
+        75,
+        (state.multiplier / 10) *
+          75
+      );
+
+    const rect =
+      state.stageRect;
+
+    const width =
+      rect
+        ? rect.width
+        : 300;
+
+    const height =
+      rect
+        ? rect.height
+        : 220;
+
+    const x =
+      Math.round(
+        (pos / 75) *
+        (width * 0.6)
+      );
+
+    const y =
+      Math.round(
+        (pos / 75) *
+        (height * 0.5)
+      );
+
+    if (
+      x !== state.lastPlaneX ||
+      y !== state.lastPlaneY
+    ) {
+      dom.plane.style.transform =
+        `translate3d(${x}px, ${-y}px, 0)`;
+
+      state.lastPlaneX = x;
+      state.lastPlaneY = y;
+
+      if (dom.trail) {
+        const length =
+          Math.round(
+            Math.sqrt(
+              x * x +
+              y * y
+            )
+          );
+
+        const angle =
+          -(
+            Math.atan2(
+              y,
+              x
+            ) *
+            (180 / Math.PI)
+          );
+
+        dom.trail.style.width =
+          `${length}px`;
+
+        dom.trail.style.transform =
+          `rotate(${angle}deg)`;
       }
     }
   }
-
+}
   /* =========================================================
      CASH OUT
      ========================================================= */
