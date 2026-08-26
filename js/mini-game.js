@@ -1445,8 +1445,7 @@ lastMultiplierRender: 0
 
   function frame(now) {
     if (
-      state.round !==
-      "running"
+      state.round !== "running"
     ) {
       return;
     }
@@ -1473,21 +1472,23 @@ lastMultiplierRender: 0
     }
 
     /*
-     * Performance:
-     * Screen rendering is limited instead of
-     * updating DOM on every animation frame.
-     * Game calculation itself remains unchanged.
+     * Render only when the browser has
+     * actually given us enough time.
+     * This prevents unnecessary DOM work
+     * without changing game timing.
      */
     if (
       state.open &&
       (
-        now -
-        state.lastRenderTime >= 33 ||
-        crashed
+        now - state.lastRenderTime >= 16 ||
+        state.lastRenderTime === 0
       )
     ) {
       state.lastRenderTime = now;
-      updateScreenUI(now);
+
+      updateScreenUI(
+        now
+      );
     }
 
     if (crashed) {
@@ -1506,6 +1507,7 @@ lastMultiplierRender: 0
       frame
     );
 }
+
   function updateScreenUI(now) {
   const value =
     Math.min(
@@ -1517,18 +1519,28 @@ lastMultiplierRender: 0
     `${value.toFixed(2)}x`;
 
   /*
-   * Only update multiplier DOM when the
-   * displayed value actually changes.
+   * Multiplier text does NOT need to be
+   * rewritten on every animation frame.
+   * Update it at most every 50ms.
    */
   if (
     dom.multiplier &&
-    text !== state.lastMultiplierText
+    (
+      text !== state.lastMultiplierText &&
+      (
+        state.lastMultiplierRender === 0 ||
+        now - state.lastMultiplierRender >= 50
+      )
+    )
   ) {
     dom.multiplier.textContent =
       text;
 
     state.lastMultiplierText =
       text;
+
+    state.lastMultiplierRender =
+      now;
 
     [1, 2].forEach(id => {
       const bet =
@@ -1545,7 +1557,7 @@ lastMultiplierRender: 0
         const span =
           btn.querySelector("span");
 
-        if (span && span.textContent !== text) {
+        if (span) {
           span.textContent =
             text;
         }
@@ -1554,9 +1566,8 @@ lastMultiplierRender: 0
   }
 
   /*
-   * Plane/trail rendering.
-   * Only writes styles when the actual
-   * position changes.
+   * Plane movement remains smooth.
+   * Only transform-based movement is used.
    */
   if (dom.plane) {
     const pos =
