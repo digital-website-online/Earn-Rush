@@ -159,14 +159,11 @@ body.mg-open {
   font-weight: 900;
   color: #22c55e;
   letter-spacing: -1px;
-  text-shadow: 0 0 26px rgba(34, 197, 94, 0.35);
-  transition: color 0.2s ease, text-shadow 0.2s ease;
   z-index: 3;
 }
 
 .mg-multiplier.crashed {
   color: #ef4444;
-  text-shadow: 0 0 26px rgba(239, 68, 68, 0.4);
   animation: mgCrashPulse 0.3s ease;
 }
 
@@ -194,6 +191,7 @@ body.mg-open {
   background: linear-gradient(90deg, rgba(239, 68, 68, 0), #ff3b5c 70%, #ff8a9a);
   border-radius: 4px;
   transform-origin: left center;
+  will-change: width, transform;
   z-index: 1;
   pointer-events: none;
 }
@@ -208,7 +206,6 @@ body.mg-open {
      would fight with the per-frame rAF updates and cost extra paint work. */
   transform: translate3d(0, 0, 0);
   will-change: transform;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
   z-index: 2;
 }
 
@@ -764,10 +761,10 @@ body.mg-open {
 
 #miniGameOverlay .mg-screen {
     width: 100%;
-    height: clamp(180px, 34dvh, 280px);
-    min-height: 180px;
-    max-height: 280px;
-    flex-shrink: 1;
+    height: 220px;
+    min-height: 220px;
+    max-height: 220px;
+    flex-shrink: 0;
 }
 
 html.mini-game-active,
