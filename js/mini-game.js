@@ -1441,6 +1441,7 @@ lastMultiplierRender: 0
     performance.now();
 
   state.lastRenderTime = 0;
+  state.lastMultiplierRender = 0;
 
   function frame(now) {
     if (
@@ -1472,20 +1473,21 @@ lastMultiplierRender: 0
     }
 
     /*
-     * Rendering is limited to about 30 FPS.
-     * Game calculation itself still runs every
-     * animation frame, so timing/game logic is
-     * not changed.
+     * Performance:
+     * Screen rendering is limited instead of
+     * updating DOM on every animation frame.
+     * Game calculation itself remains unchanged.
      */
     if (
       state.open &&
       (
-        now - state.lastRenderTime >= 33 ||
+        now -
+        state.lastRenderTime >= 33 ||
         crashed
       )
     ) {
       state.lastRenderTime = now;
-      updateScreenUI();
+      updateScreenUI(now);
     }
 
     if (crashed) {
@@ -1504,7 +1506,7 @@ lastMultiplierRender: 0
       frame
     );
 }
-  function updateScreenUI() {
+  function updateScreenUI(now) {
   const value =
     Math.min(
       CONFIG.DISPLAY_MAX_MULTIPLIER,
