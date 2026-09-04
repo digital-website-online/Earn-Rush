@@ -2,14 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
 <meta
 name="viewport"
 content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
+
 <meta
 name="description"
-content="EarnRush — a fast, simple and exciting mobile game."
+content="EarnRush is a simple browser game where players can tap, earn Coins, gain XP, complete missions, unlock rewards, and manage their progress."
 >
+
 <meta
 name="theme-color"
 content="#07111f"
@@ -17,23 +20,35 @@ content="#07111f"
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ6VQKXPYX"></script>
+
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+
+  function gtag(){
+    dataLayer.push(arguments);
+  }
+
   gtag('js', new Date());
 
   gtag('config', 'G-MZ6VQKXPYX');
 </script>
 
+
 <!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6947736087992351"
-     crossorigin="anonymous"></script>
+<script
+  async
+  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6947736087992351"
+  crossorigin="anonymous">
+</script>
+
 
 <title>EarnRush — Play. Rush. Level Up.</title>
+
 
 <!-- =========================================
 STYLES
 ========================================== -->
+
 <link rel="stylesheet" href="css/style.css?v=2">
 <link rel="stylesheet" href="css/header.css">
 <link rel="stylesheet" href="css/withdrawal.css">
@@ -43,7 +58,9 @@ STYLES
 <link rel="stylesheet" href="css/style-enhancements.css">
 <link rel="stylesheet" href="css/mini-game.css">
 
+
 <style>
+
 /* =========================================================
    EARNRUSH — NOTIFICATION MOBILE FIX
 ========================================================= */
@@ -107,6 +124,7 @@ STYLES
 
 
 /* MOBILE */
+
 @media (max-width: 600px) {
 
   #notifOverlay {
@@ -123,98 +141,12 @@ STYLES
     border-radius: 20px 20px 0 0 !important;
   }
 }
-</style>
 
 
-<!-- =========================================
-STEP 1 PREMIUM UI OVERRIDES
-These styles only upgrade the existing UI.
-Existing JS IDs/classes are preserved.
-========================================== -->
-<style>
-/* =========================================
-   LIVE ACTIVE PLAYERS
-========================================= */
-
-.earnrush-live-counter {
-  width: fit-content;
-  max-width: calc(100% - 24px);
-  margin: 0 auto 12px;
-  padding: 7px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 1px solid rgba(255, 70, 90, 0.20);
-  border-radius: 999px;
-  background: rgba(7, 17, 31, 0.82);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.earnrush-live-dot {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 7px;
-  border-radius: 50%;
-  background: #ff5364;
-  box-shadow: 0 0 0 0 rgba(255, 83, 100, 0.45);
-  animation: earnrushLivePulse 1.45s ease-out infinite;
-}
-
-.earnrush-live-label {
-  color: var(--text-soft);
-  font-size: 9px;
-  line-height: 1;
-  font-weight: 900;
-  letter-spacing: 0.9px;
-  text-transform: uppercase;
-}
-
-.earnrush-live-number {
-  min-width: 28px;
-  color: var(--text-main);
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 950;
-  text-align: right;
-}
-
-.earnrush-live-number.is-changing {
-  animation: earnrushLiveNumber 0.28s ease-out;
-}
-
-@keyframes earnrushLivePulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 83, 100, 0.45);
-    opacity: 1;
-  }
-
-  65% {
-    box-shadow: 0 0 0 7px rgba(255, 83, 100, 0);
-    opacity: 0.68;
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 83, 100, 0);
-    opacity: 1;
-  }
-}
-
-@keyframes earnrushLiveNumber {
-  0% {
-    opacity: 0.35;
-    transform: translateY(2px) scale(0.96);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+/* =========================================================
+   STEP 1 PREMIUM UI OVERRIDES
+   Existing UI IDs/classes preserved.
+========================================================= */
 
 
 /* =========================================
@@ -253,8 +185,11 @@ Existing JS IDs/classes are preserved.
   margin-bottom: 11px;
   padding: 19px 16px 15px;
   text-align: center;
+
   border: 1px solid rgba(39, 200, 255, 0.20);
+
   border-radius: 18px;
+
   background:
     radial-gradient(
       circle at 50% 10%,
@@ -266,6 +201,7 @@ Existing JS IDs/classes are preserved.
       rgba(10, 29, 46, 0.98),
       rgba(5, 17, 30, 0.98)
     );
+
   box-shadow:
     0 14px 38px rgba(0, 0, 0, 0.23),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -273,30 +209,45 @@ Existing JS IDs/classes are preserved.
 
 .earnrush-coins-card::before {
   content: "";
+
   position: absolute;
   z-index: -1;
+
   width: 170px;
   height: 170px;
+
   top: -105px;
   left: 50%;
+
   transform: translateX(-50%);
+
   border-radius: 50%;
+
   background: rgba(39, 200, 255, 0.08);
+
   filter: blur(28px);
+
   pointer-events: none;
 }
 
 .earnrush-coins-card::after {
   content: "";
+
   position: absolute;
   z-index: -1;
+
   width: 85px;
   height: 85px;
+
   right: -42px;
   bottom: -42px;
+
   border-radius: 50%;
+
   background: rgba(39, 200, 255, 0.045);
+
   filter: blur(16px);
+
   pointer-events: none;
 }
 
@@ -310,45 +261,68 @@ Existing JS IDs/classes are preserved.
 .earnrush-coin-badge {
   width: 23px;
   height: 23px;
+
   display: grid;
   place-items: center;
+
   border-radius: 50%;
+
   background: rgba(255, 200, 61, 0.10);
+
   border: 1px solid rgba(255, 200, 61, 0.20);
+
   font-size: 13px;
-  box-shadow: 0 0 18px rgba(255, 200, 61, 0.07);
+
+  box-shadow:
+    0 0 18px rgba(255, 200, 61, 0.07);
 }
 
 .earnrush-coins-label {
   color: var(--text-soft);
+
   font-size: 10px;
   line-height: 1;
+
   font-weight: 950;
+
   letter-spacing: 1.7px;
+
   text-transform: uppercase;
 }
 
 .earnrush-coins-row {
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   gap: 7px;
+
   margin-top: 6px;
 }
 
 .earnrush-coins-number {
   display: inline-block;
+
   color: var(--text-main);
+
   font-size: clamp(34px, 9vw, 47px);
+
   line-height: 1;
+
   font-weight: 950;
+
   letter-spacing: -1.7px;
+
   text-shadow:
     0 0 24px rgba(39, 200, 255, 0.17);
 }
 
 .earnrush-coins-number.is-collecting {
-  animation: earnrushCoinCollect 0.30s ease-out;
+  animation:
+    earnrushCoinCollect
+    0.30s
+    ease-out;
 }
 
 .earnrush-coins-icon {
@@ -358,38 +332,53 @@ Existing JS IDs/classes are preserved.
 
 .earnrush-coins-meta {
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   gap: 8px;
+
   margin-top: 10px;
   padding-top: 9px;
-  border-top: 1px solid rgba(120, 190, 220, 0.09);
+
+  border-top:
+    1px solid
+    rgba(120, 190, 220, 0.09);
 }
 
 .earnrush-coins-meta span {
   color: var(--text-muted);
+
   font-size: 9px;
   line-height: 1;
+
   font-weight: 850;
+
   letter-spacing: 0.75px;
+
   text-transform: uppercase;
 }
 
 .earnrush-coins-meta strong {
   color: var(--cyan);
+
   font-size: 9px;
   line-height: 1;
+
   font-weight: 950;
+
   letter-spacing: 0.4px;
 }
 
 @keyframes earnrushCoinCollect {
+
   0% {
     transform: scale(1);
   }
 
   45% {
     transform: scale(1.07);
+
     text-shadow:
       0 0 30px rgba(39, 200, 255, 0.38);
   }
@@ -397,6 +386,7 @@ Existing JS IDs/classes are preserved.
   100% {
     transform: scale(1);
   }
+
 }
 
 
@@ -412,49 +402,71 @@ Existing JS IDs/classes are preserved.
 
 .earnrush-xp-header {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 10px;
+
   margin-bottom: 7px;
 }
 
 .earnrush-xp-title {
   color: var(--text-soft);
+
   font-size: 9px;
   line-height: 1;
+
   font-weight: 950;
+
   letter-spacing: 0.9px;
+
   text-transform: uppercase;
 }
 
 .earnrush-xp-value {
   color: var(--text-muted);
+
   font-size: 10px;
   line-height: 1;
+
   font-weight: 850;
 }
 
 .earnrush-xp-track {
   position: relative;
+
   width: 100%;
   height: 5px;
+
   overflow: hidden;
+
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
+
+  background:
+    rgba(255, 255, 255, 0.07);
 }
 
 .earnrush-xp-fill {
   height: 100%;
+
   min-width: 0;
+
   border-radius: inherit;
-  background: linear-gradient(
-    90deg,
-    var(--blue),
-    var(--cyan)
-  );
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--blue),
+      var(--cyan)
+    );
+
   box-shadow:
-    0 0 10px rgba(39, 200, 255, 0.22);
-  transition: width 0.35s ease;
+    0 0 10px
+    rgba(39, 200, 255, 0.22);
+
+  transition:
+    width 0.35s ease;
 }
 
 
@@ -469,7 +481,9 @@ Existing JS IDs/classes are preserved.
 
 .quick-actions .quick-card {
   min-height: 0 !important;
+
   padding: 10px 8px !important;
+
   border-radius: 13px !important;
 }
 
@@ -486,15 +500,303 @@ Existing JS IDs/classes are preserved.
 }
 
 
+/* =========================================================
+   EARNRUSH CONTENT / INFORMATION SECTION
+   Added for useful publisher content and navigation.
+========================================================= */
+
+.earnrush-info-section {
+  margin: 24px 0 18px;
+  padding: 20px;
+
+  border:
+    1px solid
+    rgba(39, 200, 255, 0.14);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(10, 28, 45, 0.96),
+      rgba(6, 18, 31, 0.96)
+    );
+
+  box-shadow:
+    0 12px 32px
+    rgba(0, 0, 0, 0.16);
+}
+
+.earnrush-info-kicker {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--cyan);
+
+  font-size: 9px;
+  line-height: 1;
+
+  font-weight: 950;
+
+  letter-spacing: 1.4px;
+
+  text-transform: uppercase;
+}
+
+.earnrush-info-title {
+  margin: 0 0 9px;
+
+  color: var(--text-main);
+
+  font-size: 21px;
+  line-height: 1.2;
+
+  font-weight: 950;
+}
+
+.earnrush-info-intro {
+  margin: 0;
+
+  color: var(--text-soft);
+
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+
+/* CONTENT GRID */
+
+.earnrush-info-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 16px;
+}
+
+.earnrush-info-card {
+  padding: 14px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  border-radius: 14px;
+
+  background:
+    rgba(7, 20, 34, 0.72);
+}
+
+.earnrush-info-card-icon {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-size: 20px;
+}
+
+.earnrush-info-card h3 {
+  margin: 0 0 5px;
+
+  color: var(--text-main);
+
+  font-size: 13px;
+  line-height: 1.3;
+
+  font-weight: 900;
+}
+
+.earnrush-info-card p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+
+/* GUIDE ROW */
+
+.earnrush-guide {
+  margin-top: 12px;
+
+  padding: 15px;
+
+  border-radius: 14px;
+
+  background:
+    rgba(39, 200, 255, 0.045);
+
+  border:
+    1px solid
+    rgba(39, 200, 255, 0.10);
+}
+
+.earnrush-guide-title {
+  margin: 0 0 8px;
+
+  color: var(--text-main);
+
+  font-size: 13px;
+
+  font-weight: 900;
+}
+
+.earnrush-guide p {
+  margin: 0;
+
+  color: var(--text-soft);
+
+  font-size: 11px;
+
+  line-height: 1.65;
+}
+
+
+/* CONTENT LINKS */
+
+.earnrush-info-links {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.earnrush-info-link {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 8px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  border-radius: 11px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: var(--text-soft);
+
+  text-decoration: none;
+
+  font-size: 10px;
+
+  font-weight: 850;
+
+  text-align: center;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.earnrush-info-link:hover {
+  transform: translateY(-1px);
+
+  background:
+    rgba(39, 200, 255, 0.07);
+
+  border-color:
+    rgba(39, 200, 255, 0.16);
+
+  color: var(--text-main);
+}
+
+
+/* =========================================================
+   EARNRUSH FOOTER
+========================================================= */
+
+.earnrush-footer {
+  margin-top: 24px;
+  padding: 24px 16px 28px;
+
+  border-top:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+
+  text-align: center;
+}
+
+.earnrush-footer-brand {
+  margin-bottom: 6px;
+
+  color: var(--text-main);
+
+  font-size: 16px;
+
+  font-weight: 950;
+}
+
+.earnrush-footer-text {
+  max-width: 520px;
+
+  margin: 0 auto 14px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+.earnrush-footer-links {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 7px 14px;
+
+  margin-bottom: 12px;
+}
+
+.earnrush-footer-links a {
+  color: var(--text-soft);
+
+  text-decoration: none;
+
+  font-size: 10px;
+
+  font-weight: 800;
+}
+
+.earnrush-footer-links a:hover {
+  color: var(--cyan);
+}
+
+.earnrush-footer-copy {
+  color: var(--text-muted);
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+
 /* =========================================
    RESPONSIVE MOBILE
 ========================================= */
 
 @media (max-width: 480px) {
-  .earnrush-live-counter {
-    margin-bottom: 9px;
-    padding: 6px 10px;
-  }
 
   .earnrush-coins-card {
     padding: 17px 14px 14px;
@@ -516,6 +818,20 @@ Existing JS IDs/classes are preserved.
   .earnrush-xp-card {
     padding: 10px 12px !important;
   }
+
+  .earnrush-info-section {
+    padding: 16px;
+  }
+
+  .earnrush-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .earnrush-info-links {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
 }
 
 
@@ -524,8 +840,7 @@ Existing JS IDs/classes are preserved.
 ========================================= */
 
 @media (prefers-reduced-motion: reduce) {
-  .earnrush-live-dot,
-  .earnrush-live-number.is-changing,
+
   .earnrush-coins-number.is-collecting {
     animation: none !important;
   }
@@ -533,32 +848,49 @@ Existing JS IDs/classes are preserved.
   .earnrush-xp-fill {
     transition: none !important;
   }
+
 }
+
 </style>
+
 </head>
+
 
 <body>
 
 <!-- =========================================
 EARNRUSH APP
 ========================================== -->
+
 <div id="app">
+
 
 <!-- =========================================
 HEADER
 ========================================== -->
+
 <header class="game-header">
+
   <div class="brand">
-    <div class="brand-mark">E</div>
+
+    <div class="brand-mark">
+      E
+    </div>
 
     <div class="brand-name">
       EarnRush
     </div>
+
   </div>
+
 
   <div class="header-actions">
 
-    <div id="authGuestActions" class="auth-guest-actions">
+    <div
+      id="authGuestActions"
+      class="auth-guest-actions"
+    >
+
       <button
         type="button"
         id="authLoginBtn"
@@ -574,11 +906,14 @@ HEADER
       >
         CREATE ACCOUNT
       </button>
+
     </div>
+
 
     <div class="header-icons">
 
       <!-- NOTIFICATIONS -->
+
       <button
         type="button"
         id="notifBellBtn"
@@ -587,16 +922,27 @@ HEADER
         aria-haspopup="true"
         aria-expanded="false"
       >
-        <span class="notification-icon" aria-hidden="true">🔔</span>
+
+        <span
+          class="notification-icon"
+          aria-hidden="true"
+        >
+          🔔
+        </span>
 
         <span
           id="notifBadge"
           class="notif-badge"
           hidden
-        >0</span>
+        >
+          0
+        </span>
+
       </button>
 
+
       <!-- SETTINGS -->
+
       <button
         type="button"
         id="settingsBtn"
@@ -610,12 +956,14 @@ HEADER
 
     </div>
 
+
     <button
       type="button"
       id="authUserChip"
       class="auth-user-chip"
       hidden
     ></button>
+
 
     <button
       type="button"
@@ -628,122 +976,300 @@ HEADER
     </button>
 
   </div>
+
 </header>
 
+
 <!-- =========================================
-ADMIN WITHDRAWALS PANEL (built/wired by js/admin.js)
-Only ever shown after a REAL public.is_admin() RPC check succeeds —
-never based on any client-side/localStorage flag.
+ADMIN WITHDRAWALS PANEL
 ========================================== -->
-<div id="adminOverlay" class="panel-overlay" hidden>
-  <div id="adminPanel" class="slide-panel admin-panel" role="dialog" aria-label="Admin — Withdrawals">
+
+<div
+  id="adminOverlay"
+  class="panel-overlay"
+  hidden
+>
+
+  <div
+    id="adminPanel"
+    class="slide-panel admin-panel"
+    role="dialog"
+    aria-label="Admin — Withdrawals"
+  >
+
     <div class="slide-panel-header">
-      <h3>Withdrawal Requests</h3>
-      <button type="button" id="adminCloseBtn" class="icon-button" aria-label="Close">✕</button>
+
+      <h3>
+        Withdrawal Requests
+      </h3>
+
+      <button
+        type="button"
+        id="adminCloseBtn"
+        class="icon-button"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+
     </div>
-    <div id="adminList" class="slide-panel-body">
+
+    <div
+      id="adminList"
+      class="slide-panel-body"
+    >
       <!-- Populated by js/admin.js -->
     </div>
+
   </div>
+
 </div>
 
+
 <!-- =========================================
-AUTH MODAL (login / signup) — built/wired by js/auth.js
+AUTH MODAL
 ========================================== -->
-<div id="authOverlay" class="panel-overlay auth-overlay" hidden>
-  <div id="authPanel" class="auth-modal" role="dialog" aria-label="Account">
+
+<div
+  id="authOverlay"
+  class="panel-overlay auth-overlay"
+  hidden
+>
+
+  <div
+    id="authPanel"
+    class="auth-modal"
+    role="dialog"
+    aria-label="Account"
+  >
+
     <div class="slide-panel-header">
-      <h3>Your Account</h3>
-      <button type="button" id="authCloseBtn" class="icon-button" aria-label="Close">✕</button>
+
+      <h3>
+        Your Account
+      </h3>
+
+      <button
+        type="button"
+        id="authCloseBtn"
+        class="icon-button"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+
     </div>
+
 
     <div class="auth-tabs">
-      <button type="button" id="authTabLogin" class="auth-tab active">Login</button>
-      <button type="button" id="authTabSignup" class="auth-tab">Create Account</button>
+
+      <button
+        type="button"
+        id="authTabLogin"
+        class="auth-tab active"
+      >
+        Login
+      </button>
+
+      <button
+        type="button"
+        id="authTabSignup"
+        class="auth-tab"
+      >
+        Create Account
+      </button>
+
     </div>
 
-    <p class="auth-note">An account is required to withdraw. Your Coins keep earning either way.</p>
 
-    <div id="authError" class="auth-error" hidden></div>
+    <p class="auth-note">
+      An account is required to withdraw.
+      Your Coins keep earning either way.
+    </p>
 
-    <form id="authLoginForm" class="auth-form">
-      <input type="email" id="authLoginEmail" placeholder="Email" required autocomplete="email">
-      <input type="password" id="authLoginPassword" placeholder="Password" required autocomplete="current-password">
-      <button type="submit" class="auth-submit-btn">Log In</button>
+
+    <div
+      id="authError"
+      class="auth-error"
+      hidden
+    ></div>
+
+
+    <form
+      id="authLoginForm"
+      class="auth-form"
+    >
+
+      <input
+        type="email"
+        id="authLoginEmail"
+        placeholder="Email"
+        required
+        autocomplete="email"
+      >
+
+      <input
+        type="password"
+        id="authLoginPassword"
+        placeholder="Password"
+        required
+        autocomplete="current-password"
+      >
+
+      <button
+        type="submit"
+        class="auth-submit-btn"
+      >
+        Log In
+      </button>
+
     </form>
 
-    <form id="authSignupForm" class="auth-form" hidden>
-      <input type="text" id="authSignupName" placeholder="Name" required autocomplete="name">
-      <input type="email" id="authSignupEmail" placeholder="Email" required autocomplete="email">
-      <input type="password" id="authSignupPassword" placeholder="Password (min 6 characters)" required autocomplete="new-password">
-      <button type="submit" class="auth-submit-btn">Create Account</button>
+
+    <form
+      id="authSignupForm"
+      class="auth-form"
+      hidden
+    >
+
+      <input
+        type="text"
+        id="authSignupName"
+        placeholder="Name"
+        required
+        autocomplete="name"
+      >
+
+      <input
+        type="email"
+        id="authSignupEmail"
+        placeholder="Email"
+        required
+        autocomplete="email"
+      >
+
+      <input
+        type="password"
+        id="authSignupPassword"
+        placeholder="Password (min 6 characters)"
+        required
+        autocomplete="new-password"
+      >
+
+      <button
+        type="submit"
+        class="auth-submit-btn"
+      >
+        Create Account
+      </button>
+
     </form>
+
   </div>
+
 </div>
 
+
 <!-- =========================================
-NOTIFICATIONS PANEL (built/wired by js/notifications.js)
+NOTIFICATIONS PANEL
 ========================================== -->
-<div id="notifOverlay" class="panel-overlay" hidden>
-  <div id="notifPanel" class="slide-panel" role="dialog" aria-label="Notifications">
+
+<div
+  id="notifOverlay"
+  class="panel-overlay"
+  hidden
+>
+
+  <div
+    id="notifPanel"
+    class="slide-panel"
+    role="dialog"
+    aria-label="Notifications"
+  >
+
     <div class="slide-panel-header">
-      <h3>Notifications</h3>
-      <button type="button" id="notifCloseBtn" class="icon-button" aria-label="Close notifications">✕</button>
+
+      <h3>
+        Notifications
+      </h3>
+
+      <button
+        type="button"
+        id="notifCloseBtn"
+        class="icon-button"
+        aria-label="Close notifications"
+      >
+        ✕
+      </button>
+
     </div>
-    <div id="notifList" class="slide-panel-body">
+
+    <div
+      id="notifList"
+      class="slide-panel-body"
+    >
       <!-- Populated by js/notifications.js -->
     </div>
+
   </div>
+
 </div>
 
+
 <!-- =========================================
-SETTINGS PANEL (built/wired by js/settings.js)
+SETTINGS PANEL
 ========================================== -->
-<div id="settingsOverlay" class="panel-overlay" hidden>
-  <div id="settingsPanel" class="slide-panel" role="dialog" aria-label="Settings">
+
+<div
+  id="settingsOverlay"
+  class="panel-overlay"
+  hidden
+>
+
+  <div
+    id="settingsPanel"
+    class="slide-panel"
+    role="dialog"
+    aria-label="Settings"
+  >
+
     <div class="slide-panel-header">
-      <h3>Settings</h3>
-      <button type="button" id="settingsCloseBtn" class="icon-button" aria-label="Close settings">✕</button>
+
+      <h3>
+        Settings
+      </h3>
+
+      <button
+        type="button"
+        id="settingsCloseBtn"
+        class="icon-button"
+        aria-label="Close settings"
+      >
+        ✕
+      </button>
+
     </div>
-    <div id="settingsList" class="slide-panel-body">
+
+    <div
+      id="settingsList"
+      class="slide-panel-body"
+    >
       <!-- Populated by js/settings.js -->
     </div>
+
   </div>
-</div>
 
-
-<!-- =========================================
-LIVE ACTIVE PLAYERS
-Compact gaming-style counter
-========================================== -->
-<div
-  class="earnrush-live-counter"
-  aria-label="Active players"
->
-  <span
-    class="earnrush-live-dot"
-    aria-hidden="true"
-  ></span>
-
-  <span class="earnrush-live-label">
-    Active Players
-  </span>
-
-  <strong
-    class="earnrush-live-number"
-    id="liveUsersCounter"
-  >
-    240
-  </strong>
 </div>
 
 
 <!-- =========================================
 PLAYER STATUS
 ========================================== -->
+
 <section class="player-status">
 
   <div class="status-card">
+
     <span class="status-label">
       Level
     </span>
@@ -754,9 +1280,12 @@ PLAYER STATUS
     >
       01
     </span>
+
   </div>
 
+
   <div class="status-card">
+
     <span class="status-label">
       Streak
     </span>
@@ -767,6 +1296,7 @@ PLAYER STATUS
     >
       🔥 1 Day
     </span>
+
   </div>
 
 </section>
@@ -776,6 +1306,7 @@ PLAYER STATUS
 PREMIUM TOTAL COINS
 Existing #balance ID preserved
 ========================================== -->
+
 <section class="earnrush-coins-card">
 
   <div class="earnrush-coins-heading">
@@ -792,6 +1323,7 @@ Existing #balance ID preserved
     </span>
 
   </div>
+
 
   <div class="earnrush-coins-row">
 
@@ -811,6 +1343,7 @@ Existing #balance ID preserved
 
   </div>
 
+
   <div class="earnrush-coins-meta">
 
     <span>
@@ -828,8 +1361,8 @@ Existing #balance ID preserved
 
 <!-- =========================================
 XP / LEVEL PROGRESS
-Existing IDs preserved
 ========================================== -->
+
 <section class="xp-card earnrush-xp-card">
 
   <div class="earnrush-xp-header">
@@ -847,12 +1380,15 @@ Existing IDs preserved
 
   </div>
 
+
   <div class="earnrush-xp-track">
+
     <div
       class="earnrush-xp-fill"
       id="xpBar"
       style="width: 0%;"
     ></div>
+
   </div>
 
 </section>
@@ -861,11 +1397,13 @@ Existing IDs preserved
 <!-- =========================================
 REACTOR
 ========================================== -->
+
 <section class="reactor-section">
 
   <span class="reactor-label">
     TAP TAP
   </span>
+
 
   <div class="reactor">
 
@@ -881,9 +1419,8 @@ REACTOR
   </div>
 
 
-  <!-- =====================================
-  COMBO
-  ====================================== -->
+  <!-- COMBO -->
+
   <div class="combo-area">
 
     <div class="combo-top">
@@ -898,6 +1435,7 @@ REACTOR
 
     </div>
 
+
     <div class="progress-track">
 
       <div
@@ -910,9 +1448,8 @@ REACTOR
   </div>
 
 
-  <!-- =====================================
-  TAP BUTTON
-  ====================================== -->
+  <!-- TAP BUTTON -->
+
   <button
     class="tap-button"
     id="tapButton"
@@ -927,6 +1464,7 @@ REACTOR
 <!-- =========================================
 QUICK ACTIONS
 ========================================== -->
+
 <section class="quick-actions">
 
   <button
@@ -993,9 +1531,234 @@ QUICK ACTIONS
 
 </section>
 
+
+<!-- =======================================================
+     EARNRUSH INFORMATION / PUBLISHER CONTENT
+     Useful content for visitors.
+======================================================= -->
+
+<section
+  class="earnrush-info-section"
+  aria-labelledby="earnrushInfoTitle"
+>
+
+  <span class="earnrush-info-kicker">
+    EARNRUSH GUIDE
+  </span>
+
+
+  <h2
+    id="earnrushInfoTitle"
+    class="earnrush-info-title"
+  >
+    What is EarnRush?
+  </h2>
+
+
+  <p class="earnrush-info-intro">
+    EarnRush is a browser-based game focused on simple,
+    interactive gameplay and player progression. Tap the
+    reactor, collect Coins, gain XP, complete available
+    missions, and work toward your in-game milestones.
+  </p>
+
+
+  <!-- INFORMATION CARDS -->
+
+  <div class="earnrush-info-grid">
+
+    <article class="earnrush-info-card">
+
+      <span
+        class="earnrush-info-card-icon"
+        aria-hidden="true"
+      >
+        ⚡
+      </span>
+
+      <h3>
+        Tap &amp; Progress
+      </h3>
+
+      <p>
+        Use the Tap-Tap reactor to play and build your
+        in-game Coin balance while progressing through
+        the available game levels.
+      </p>
+
+    </article>
+
+
+    <article class="earnrush-info-card">
+
+      <span
+        class="earnrush-info-card-icon"
+        aria-hidden="true"
+      >
+        ⭐
+      </span>
+
+      <h3>
+        Coins &amp; XP
+      </h3>
+
+      <p>
+        Coins are the main in-game balance, while XP
+        contributes to your level progression and helps
+        track your progress.
+      </p>
+
+    </article>
+
+
+    <article class="earnrush-info-card">
+
+      <span
+        class="earnrush-info-card-icon"
+        aria-hidden="true"
+      >
+        🎯
+      </span>
+
+      <h3>
+        Missions
+      </h3>
+
+      <p>
+        Check the Missions section for available tasks
+        and progress opportunities that are supported
+        by the current game.
+      </p>
+
+    </article>
+
+
+    <article class="earnrush-info-card">
+
+      <span
+        class="earnrush-info-card-icon"
+        aria-hidden="true"
+      >
+        🎁
+      </span>
+
+      <h3>
+        Rewards
+      </h3>
+
+      <p>
+        Rewards are designed around game milestones and
+        progression. Available rewards and requirements
+        are shown inside EarnRush.
+      </p>
+
+    </article>
+
+
+    <article class="earnrush-info-card">
+
+      <span
+        class="earnrush-info-card-icon"
+        aria-hidden="true"
+      >
+        🔥
+      </span>
+
+      <h3>
+        Daily Progress
+      </h3>
+
+      <p>
+        Your streak and level provide additional ways to
+        follow your progress as you continue using the
+        game.
+      </p>
+
+    </article>
+
+
+    <article class="earnrush-info-card">
+
+      <span
+        class="earnrush-info-card-icon"
+        aria-hidden="true"
+      >
+        👤
+      </span>
+
+      <h3>
+        Your Account
+      </h3>
+
+      <p>
+        Creating an account allows supported account
+        features to be used, including access to your
+        withdrawal history.
+      </p>
+
+    </article>
+
+  </div>
+
+
+  <!-- HOW IT WORKS SUMMARY -->
+
+  <div class="earnrush-guide">
+
+    <h3 class="earnrush-guide-title">
+      How EarnRush Works
+    </h3>
+
+    <p>
+      Start by playing the main Tap-Tap game. Your Coins,
+      XP, level, combo and streak are displayed on the
+      main screen. Missions and Rewards provide additional
+      progression areas, while account and settings controls
+      are available from the header. For a detailed
+      explanation of the available features, visit the
+      How It Works guide.
+    </p>
+
+  </div>
+
+
+  <!-- USEFUL NAVIGATION -->
+
+  <nav
+    class="earnrush-info-links"
+    aria-label="EarnRush information"
+  >
+
+    <a
+      class="earnrush-info-link"
+      href="about.html"
+    >
+      About EarnRush
+    </a>
+
+    <a
+      class="earnrush-info-link"
+      href="how-it-works.html"
+    >
+      How It Works
+    </a>
+
+    <a
+      class="earnrush-info-link"
+      href="faq.html"
+    >
+      FAQ
+    </a>
+
+  </nav>
+
+</section>
+
+
 <!-- =========================================
 MINI GAME CARD
 ========================================== -->
+
 <div
   class="mg-card"
   id="miniGameCard"
@@ -1015,6 +1778,7 @@ MINI GAME CARD
     justify-content: space-between;
   "
 >
+
   <div
     class="mg-card-content"
     style="
@@ -1024,6 +1788,7 @@ MINI GAME CARD
       width: 100%;
     "
   >
+
     <div class="mg-card-left">
 
       <span
@@ -1038,6 +1803,7 @@ MINI GAME CARD
         🚀 MINI GAME
       </span>
 
+
       <h3
         class="mg-card-title"
         style="
@@ -1049,6 +1815,7 @@ MINI GAME CARD
       >
         EarnRush Crash
       </h3>
+
 
       <p
         class="mg-card-text"
@@ -1063,6 +1830,7 @@ MINI GAME CARD
 
     </div>
 
+
     <div
       class="mg-card-plane"
       style="font-size: 28px;"
@@ -1071,11 +1839,14 @@ MINI GAME CARD
     </div>
 
   </div>
+
 </div>
+
 
 <!-- =========================================
 WITHDRAWAL SECTION
 ========================================== -->
+
 <section
   id="withdrawalSection"
   style="
@@ -1114,6 +1885,7 @@ WITHDRAWAL SECTION
 
 
   <!-- COINS TO RS CONVERSION INFO -->
+
   <div
     style="
       padding:14px;
@@ -1135,6 +1907,7 @@ WITHDRAWAL SECTION
       Exchange Rate
     </div>
 
+
     <div
       style="
         font-size:16px;
@@ -1149,6 +1922,7 @@ WITHDRAWAL SECTION
 
 
   <!-- COINS INPUT -->
+
   <div style="margin-bottom:14px;">
 
     <label
@@ -1162,6 +1936,7 @@ WITHDRAWAL SECTION
     >
       Enter Coins
     </label>
+
 
     <div style="display:flex;gap:8px;">
 
@@ -1180,6 +1955,7 @@ WITHDRAWAL SECTION
         "
       >
 
+
       <div
         style="
           padding:12px 14px;
@@ -1192,12 +1968,15 @@ WITHDRAWAL SECTION
           white-space:nowrap;
         "
       >
+
         <span id="rsDisplay">
           = 0 Rs
         </span>
+
       </div>
 
     </div>
+
 
     <div
       style="
@@ -1213,6 +1992,7 @@ WITHDRAWAL SECTION
 
 
   <!-- ACCOUNT TYPE SELECTION -->
+
   <div style="margin-bottom:14px;">
 
     <label
@@ -1226,6 +2006,7 @@ WITHDRAWAL SECTION
     >
       Account Type
     </label>
+
 
     <select
       id="accountType"
@@ -1258,6 +2039,7 @@ WITHDRAWAL SECTION
 
 
   <!-- MOBILE INPUT -->
+
   <div
     id="mobileInputGroup"
     style="
@@ -1278,6 +2060,7 @@ WITHDRAWAL SECTION
       Phone Number
     </label>
 
+
     <input
       type="tel"
       id="mobileNumber"
@@ -1297,6 +2080,7 @@ WITHDRAWAL SECTION
 
 
   <!-- BANK INPUT -->
+
   <div
     id="bankInputGroup"
     style="display:none;"
@@ -1316,12 +2100,13 @@ WITHDRAWAL SECTION
         Select Bank
       </label>
 
+
       <select
         id="bankSelect"
         style="
           width:100%;
           padding:12px;
-border-radius:12px;
+          border-radius:12px;
           background:rgba(9,24,39,0.8);
           border:1px solid var(--border);
           color:var(--text-main);
@@ -1388,6 +2173,7 @@ border-radius:12px;
         Account Number
       </label>
 
+
       <input
         type="text"
         id="bankAccountNumber"
@@ -1409,6 +2195,7 @@ border-radius:12px;
 
 
   <!-- WITHDRAW BUTTON -->
+
   <button
     id="withdrawBtn"
     type="button"
@@ -1431,6 +2218,7 @@ border-radius:12px;
 
 
   <!-- LOADING -->
+
   <div
     id="withdrawLoader"
     style="
@@ -1461,6 +2249,7 @@ border-radius:12px;
         "
       ></div>
 
+
       <div
         style="
           color:var(--text-main);
@@ -1477,6 +2266,7 @@ border-radius:12px;
 
 
   <!-- MESSAGE -->
+
   <div
     id="withdrawMessage"
     style="
@@ -1490,12 +2280,29 @@ border-radius:12px;
     "
   ></div>
 
-  <!-- WITHDRAWAL HISTORY (built/wired by js/withdrawal.js) -->
+
+  <!-- WITHDRAWAL HISTORY -->
+
   <div class="withdraw-history-section">
-    <div class="withdraw-history-title">Your Withdrawal History</div>
-    <div id="withdrawHistoryList">
-      <div class="panel-empty-text" style="padding:14px;text-align:center;">Log in to see your withdrawal history.</div>
+
+    <div class="withdraw-history-title">
+      Your Withdrawal History
     </div>
+
+    <div id="withdrawHistoryList">
+
+      <div
+        class="panel-empty-text"
+        style="
+          padding:14px;
+          text-align:center;
+        "
+      >
+        Log in to see your withdrawal history.
+      </div>
+
+    </div>
+
   </div>
 
 </section>
@@ -1504,6 +2311,7 @@ border-radius:12px;
 <!-- =========================================
 MISSIONS SECTION
 ========================================== -->
+
 <section
   class="missions-section"
   id="missionsSection"
@@ -1523,11 +2331,13 @@ MISSIONS SECTION
 
     </div>
 
+
     <span class="mission-count">
       🎯
     </span>
 
   </div>
+
 
   <div id="missionsList">
     <!-- Missions are generated by missions.js -->
@@ -1539,6 +2349,7 @@ MISSIONS SECTION
 <!-- =========================================
 REWARDS SECTION
 ========================================== -->
+
 <section
   class="rewards-section"
   id="rewardsSection"
@@ -1558,11 +2369,13 @@ REWARDS SECTION
 
     </div>
 
+
     <span class="reward-heading-icon">
       🎁
     </span>
 
   </div>
+
 
   <div id="rewardsList">
     <!-- Rewards are generated by rewards.js -->
@@ -1572,8 +2385,9 @@ REWARDS SECTION
 
 
 <!-- =========================================
-MINI GAME SECTION (Target for mini-game.js)
+MINI GAME SECTION
 ========================================== -->
+
 <section
   id="miniGameSection"
   class="mini-game-section"
@@ -1595,6 +2409,7 @@ MINI GAME SECTION (Target for mini-game.js)
 
   </div>
 
+
   <div
     id="miniGameContainer"
     class="mini-game-container"
@@ -1602,164 +2417,10 @@ MINI GAME SECTION (Target for mini-game.js)
 
 </section>
 
-</div>
-
-
-<!-- =========================================
-STEP 1 UI MICRO-INTERACTIONS
-========================================== -->
-<script>
-(function () {
-  "use strict";
-
-  /* =========================================
-     LIVE PLAYER DISPLAY — SMOOTH COUNTER
-  ========================================== */
-
-  const liveCounter =
-    document.getElementById("liveUsersCounter");
-
-  if (liveCounter) {
-
-    let liveTimer = null;
-
-    let currentNumber =
-      Math.floor(Math.random() * 51) + 200;
-
-    liveCounter.textContent =
-      currentNumber;
-
-    const updateLiveCounter = function () {
-
-      const step =
-        Math.floor(Math.random() * 2) + 1;
-
-      const direction =
-        Math.random() < 0.55 ? 1 : -1;
-
-      let nextNumber =
-        currentNumber +
-        (step * direction);
-
-      nextNumber =
-        Math.max(
-          200,
-          Math.min(
-            350,
-            nextNumber
-          )
-        );
-
-      if (
-        nextNumber ===
-        currentNumber
-      ) {
-        nextNumber =
-          currentNumber < 350
-            ? currentNumber + 1
-            : currentNumber - 1;
-      }
-
-      currentNumber =
-        nextNumber;
-
-      liveCounter.classList.remove(
-        "is-changing"
-      );
-
-      void liveCounter.offsetWidth;
-
-      liveCounter.textContent =
-        currentNumber;
-
-      liveCounter.classList.add(
-        "is-changing"
-      );
-    };
-
-    function scheduleLiveUpdate() {
-
-      const delay =
-        Math.floor(
-          Math.random() * 3000
-        ) + 3000;
-
-      liveTimer =
-        window.setTimeout(
-          function () {
-
-            updateLiveCounter();
-
-            scheduleLiveUpdate();
-
-          },
-          delay
-        );
-    }
-
-    scheduleLiveUpdate();
-
-    window.addEventListener(
-      "beforeunload",
-      function () {
-
-        if (liveTimer) {
-          window.clearTimeout(
-            liveTimer
-          );
-        }
-
-      },
-      { once: true }
-    );
-  }
-
-
-  /* =========================================
-     COIN DISPLAY MICRO ANIMATION
-  ========================================== */
-
-  const balanceElement =
-    document.getElementById("balance");
-
-  if (balanceElement) {
-
-    const balanceObserver =
-      new MutationObserver(
-        function () {
-
-          balanceElement.classList.remove(
-            "is-collecting"
-          );
-
-          void balanceElement.offsetWidth;
-
-          balanceElement.classList.add(
-            "is-collecting"
-          );
-
-        }
-      );
-
-    balanceObserver.observe(
-      balanceElement,
-      {
-        childList: true,
-        characterData: true,
-        subtree: true
-      }
-    );
-  }
-
-})();
-</script>
-
 
 <!-- =======================================================
-     MINI GAME CARD
-     IMPORTANT:
-     No inline scrollIntoView here.
-     mini-game.js handles opening the overlay.
+     SECOND EXISTING MINI GAME CARD
+     Preserved exactly.
 ======================================================= -->
 
 <div
@@ -1809,6 +2470,7 @@ STEP 1 UI MICRO-INTERACTIONS
         🚀 MINI GAME
       </span>
 
+
       <h3
         class="mg-card-title"
         style="
@@ -1820,6 +2482,7 @@ STEP 1 UI MICRO-INTERACTIONS
       >
         EarnRush Crash
       </h3>
+
 
       <p
         class="mg-card-text"
@@ -1833,6 +2496,7 @@ STEP 1 UI MICRO-INTERACTIONS
       </p>
 
     </div>
+
 
     <div
       class="mg-card-plane"
@@ -1848,7 +2512,7 @@ STEP 1 UI MICRO-INTERACTIONS
 
 <!-- =======================================================
      MINI GAME OVERLAY
-     Dual Panels & Live Feed
+     Existing structure preserved.
 ======================================================= -->
 
 <div
@@ -1858,9 +2522,8 @@ STEP 1 UI MICRO-INTERACTIONS
 
   <div class="mg-container">
 
-    <!-- =========================================
-         MINI GAME HEADER
-    ========================================== -->
+
+    <!-- MINI GAME HEADER -->
 
     <div class="mg-header">
 
@@ -1872,128 +2535,148 @@ STEP 1 UI MICRO-INTERACTIONS
         ← Back
       </button>
 
+
       <h2>
         EarnRush Aviator
       </h2>
 
+
       <div class="mg-wallet-badge">
+
         Arcade Tokens:
+
         <span id="mgTokenBalance">
           300
         </span>
+
       </div>
 
     </div>
 
 
-  <!-- =========================================
-     COMPACT COINS / ARCADE TOKEN CONVERTER
-========================================= -->
-
-<div class="mg-convert-bar" id="mgConvertBar">
-
-  <div class="mg-convert-top">
-    <span class="mg-convert-label">
-      Your Coins
-    </span>
-
-    <strong
-      id="mgCoinBalance"
-      class="mg-convert-coins"
-    >
-      0
-    </strong>
-  </div>
-
-
-  <!-- COINS → TOKENS -->
-
-  <div class="mg-convert-box">
-
-    <div class="mg-convert-box-title">
-      Coins → Arcade Tokens
-    </div>
-
-    <div class="mg-convert-row">
-
-      <input
-        type="number"
-        id="mgCoinConvertInput"
-        class="mg-convert-input"
-        placeholder="Min 10 Coins"
-        min="10"
-        step="1"
-        inputmode="numeric"
-      >
-
-      <button
-        id="mgConvertBtn"
-        class="mg-convert-btn"
-        type="button"
-      >
-        Convert
-      </button>
-
-    </div>
+    <!-- =========================================
+         COMPACT COINS / ARCADE TOKEN CONVERTER
+    ========================================== -->
 
     <div
-      class="mg-convert-preview"
-      id="mgConvertPreview"
+      class="mg-convert-bar"
+      id="mgConvertBar"
     >
-      = 0 Arcade Tokens
-    </div>
 
-  </div>
+      <div class="mg-convert-top">
+
+        <span class="mg-convert-label">
+          Your Coins
+        </span>
 
 
-  <!-- TOKENS → COINS -->
+        <strong
+          id="mgCoinBalance"
+          class="mg-convert-coins"
+        >
+          0
+        </strong>
 
-  <div class="mg-convert-box mg-token-to-coin">
+      </div>
 
-    <div class="mg-convert-box-title">
-      Arcade Tokens → Coins
-    </div>
 
-    <div class="mg-convert-row">
+      <!-- COINS → TOKENS -->
 
-      <input
-        type="number"
-        id="mgTokenConvertInput"
-        class="mg-convert-input"
-        placeholder="Min 10 Tokens"
-        min="10"
-        step="1"
-        inputmode="numeric"
+      <div class="mg-convert-box">
+
+        <div class="mg-convert-box-title">
+          Coins → Arcade Tokens
+        </div>
+
+
+        <div class="mg-convert-row">
+
+          <input
+            type="number"
+            id="mgCoinConvertInput"
+            class="mg-convert-input"
+            placeholder="Min 10 Coins"
+            min="10"
+            step="1"
+            inputmode="numeric"
+          >
+
+
+          <button
+            id="mgConvertBtn"
+            class="mg-convert-btn"
+            type="button"
+          >
+            Convert
+          </button>
+
+        </div>
+
+
+        <div
+          class="mg-convert-preview"
+          id="mgConvertPreview"
+        >
+          = 0 Arcade Tokens
+        </div>
+
+      </div>
+
+
+      <!-- TOKENS → COINS -->
+
+      <div
+        class="mg-convert-box mg-token-to-coin"
       >
 
-      <button
-        id="mgTokenConvertBtn"
-        class="mg-convert-btn"
-        type="button"
-      >
-        Convert
-      </button>
+        <div class="mg-convert-box-title">
+          Arcade Tokens → Coins
+        </div>
+
+
+        <div class="mg-convert-row">
+
+          <input
+            type="number"
+            id="mgTokenConvertInput"
+            class="mg-convert-input"
+            placeholder="Min 10 Tokens"
+            min="10"
+            step="1"
+            inputmode="numeric"
+          >
+
+
+          <button
+            id="mgTokenConvertBtn"
+            class="mg-convert-btn"
+            type="button"
+          >
+            Convert
+          </button>
+
+        </div>
+
+
+        <div
+          class="mg-convert-preview"
+          id="mgTokenConvertPreview"
+        >
+          = 0 Coins
+        </div>
+
+      </div>
+
+
+      <p
+        id="mgConvertMsg"
+        class="mg-convert-msg"
+        role="status"
+        aria-live="polite"
+      ></p>
 
     </div>
 
-    <div
-      class="mg-convert-preview"
-      id="mgTokenConvertPreview"
-    >
-      = 0 Coins
-    </div>
-
-  </div>
-
-
-  <p
-    id="mgConvertMsg"
-    class="mg-convert-msg"
-    role="status"
-    aria-live="polite"
-  ></p>
-
-</div>
 
     <!-- =========================================
          GRAPH SCREEN
@@ -2008,12 +2691,14 @@ STEP 1 UI MICRO-INTERACTIONS
         ROUND 1
       </div>
 
+
       <div
         id="mgMultiplier"
         class="mg-multiplier"
       >
         1.00x
       </div>
+
 
       <div
         id="mgStatus"
@@ -2022,10 +2707,12 @@ STEP 1 UI MICRO-INTERACTIONS
         Next flight in 4s
       </div>
 
+
       <div
         id="mgTrail"
         class="mg-trail"
       ></div>
+
 
       <div
         id="mgPlane"
@@ -2034,12 +2721,17 @@ STEP 1 UI MICRO-INTERACTIONS
         ✈️
       </div>
 
+
       <div class="mg-demo-badge">
+
         🎮
+
         <span id="mgLivePlayers">
           136
         </span>
-      Active Player 
+
+        Active Player
+
       </div>
 
     </div>
@@ -2062,9 +2754,7 @@ STEP 1 UI MICRO-INTERACTIONS
     <div class="mg-betting-container">
 
 
-      <!-- =======================================
-           PANEL 1
-      ======================================== -->
+      <!-- PANEL 1 -->
 
       <div
         class="mg-controls"
@@ -2084,6 +2774,7 @@ STEP 1 UI MICRO-INTERACTIONS
               −
             </button>
 
+
             <input
               type="number"
               id="mgBetInput1"
@@ -2094,6 +2785,7 @@ STEP 1 UI MICRO-INTERACTIONS
               step="1"
               inputmode="numeric"
             >
+
 
             <button
               type="button"
@@ -2117,6 +2809,7 @@ STEP 1 UI MICRO-INTERACTIONS
               16
             </button>
 
+
             <button
               type="button"
               data-mg-token="100"
@@ -2124,6 +2817,7 @@ STEP 1 UI MICRO-INTERACTIONS
             >
               100
             </button>
+
 
             <button
               type="button"
@@ -2133,6 +2827,7 @@ STEP 1 UI MICRO-INTERACTIONS
               1000
             </button>
 
+
             <button
               type="button"
               data-mg-token="10000"
@@ -2140,6 +2835,7 @@ STEP 1 UI MICRO-INTERACTIONS
             >
               10K
             </button>
+
 
             <button
               type="button"
@@ -2161,17 +2857,17 @@ STEP 1 UI MICRO-INTERACTIONS
           type="button"
         >
           BET<br>
+
           <span>
             16
           </span>
+
         </button>
 
       </div>
 
 
-      <!-- =======================================
-           PANEL 2
-      ======================================== -->
+      <!-- PANEL 2 -->
 
       <div
         class="mg-controls"
@@ -2191,6 +2887,7 @@ STEP 1 UI MICRO-INTERACTIONS
               −
             </button>
 
+
             <input
               type="number"
               id="mgBetInput2"
@@ -2201,6 +2898,7 @@ STEP 1 UI MICRO-INTERACTIONS
               step="1"
               inputmode="numeric"
             >
+
 
             <button
               type="button"
@@ -2224,6 +2922,7 @@ STEP 1 UI MICRO-INTERACTIONS
               16
             </button>
 
+
             <button
               type="button"
               data-mg-token="100"
@@ -2231,6 +2930,7 @@ STEP 1 UI MICRO-INTERACTIONS
             >
               100
             </button>
+
 
             <button
               type="button"
@@ -2240,6 +2940,7 @@ STEP 1 UI MICRO-INTERACTIONS
               1000
             </button>
 
+
             <button
               type="button"
               data-mg-token="10000"
@@ -2247,6 +2948,7 @@ STEP 1 UI MICRO-INTERACTIONS
             >
               10K
             </button>
+
 
             <button
               type="button"
@@ -2268,161 +2970,189 @@ STEP 1 UI MICRO-INTERACTIONS
           type="button"
         >
           BET<br>
+
           <span>
             16
           </span>
+
         </button>
 
       </div>
 
     </div>
-<!-- =========================================
-     ACTIVITY / HISTORY / STATS TOGGLE
-========================================= -->
-
-<button
-  type="button"
-  id="mgInsightsToggle"
-  class="mg-insights-toggle"
-  aria-expanded="false"
->
-  <span class="mg-insights-toggle-text">
-    Activity &amp; Stats
-  </span>
-
-  <span
-    id="mgInsightsArrow"
-    class="mg-insights-arrow"
-  >
-    ↓
-  </span>
-</button>
 
 
-<!-- =========================================
-     HIDDEN / FLOATING INSIGHTS PANEL
-========================================= -->
+    <!-- =========================================
+         ACTIVITY / HISTORY / STATS TOGGLE
+    ========================================== -->
 
-<div
-  id="mgInsightsDrawer"
-  class="mg-insights-drawer"
->
+    <button
+      type="button"
+      id="mgInsightsToggle"
+      class="mg-insights-toggle"
+      aria-expanded="false"
+    >
 
-  <div class="mg-insights-inner">
+      <span class="mg-insights-toggle-text">
+        Activity &amp; Stats
+      </span>
 
-    <!-- TABS -->
 
-    <div class="mg-tabs">
-
-      <button
-        data-mg-tab="current"
-        class="active"
-        type="button"
+      <span
+        id="mgInsightsArrow"
+        class="mg-insights-arrow"
       >
-        Demo Activity
-      </button>
+        ↓
+      </span>
 
-      <button
-        data-mg-tab="history"
-        type="button"
-      >
-        History
-      </button>
-
-      <button
-        data-mg-tab="statistics"
-        type="button"
-      >
-        Stats
-      </button>
-
-    </div>
+    </button>
 
 
-    <!-- TAB CONTENT -->
+    <!-- =========================================
+         HIDDEN / FLOATING INSIGHTS PANEL
+    ========================================== -->
 
-    <div class="mg-panel-container">
+    <div
+      id="mgInsightsDrawer"
+      class="mg-insights-drawer"
+    >
 
-      <!-- CURRENT / DEMO -->
+      <div class="mg-insights-inner">
 
-      <div
-        data-mg-panel="current"
-        class="mg-panel"
-      >
 
-        <div class="mg-live-bets-header">
+        <!-- TABS -->
 
-          <span>
+        <div class="mg-tabs">
+
+          <button
+            data-mg-tab="current"
+            class="active"
+            type="button"
+          >
             Demo Activity
-          </span>
+          </button>
 
-          <span>
-            Amount
-          </span>
 
-        </div>
+          <button
+            data-mg-tab="history"
+            type="button"
+          >
+            History
+          </button>
 
-        <div class="mg-stats-strip">
 
-          <span>
-            <strong id="mgDemoBetsCount">
-              0
-            </strong>
-            demo bets shown
-          </span>
-
-          <span>
-            Total shown:
-            <strong id="mgDemoTotal">
-              0
-            </strong>
-            Tokens
-          </span>
+          <button
+            data-mg-tab="statistics"
+            type="button"
+          >
+            Stats
+          </button>
 
         </div>
 
-        <div class="mg-demo-note">
-          🎮 Simulated game activity for
-          atmosphere only — not real players
-          or real bets.
+
+        <!-- TAB CONTENT -->
+
+        <div class="mg-panel-container">
+
+
+          <!-- CURRENT / DEMO -->
+
+          <div
+            data-mg-panel="current"
+            class="mg-panel"
+          >
+
+            <div class="mg-live-bets-header">
+
+              <span>
+                Demo Activity
+              </span>
+
+              <span>
+                Amount
+              </span>
+
+            </div>
+
+
+            <div class="mg-stats-strip">
+
+              <span>
+
+                <strong id="mgDemoBetsCount">
+                  0
+                </strong>
+
+                demo bets shown
+
+              </span>
+
+
+              <span>
+
+                Total shown:
+
+                <strong id="mgDemoTotal">
+                  0
+                </strong>
+
+                Tokens
+
+              </span>
+
+            </div>
+
+
+            <div class="mg-demo-note">
+
+              🎮 Simulated game activity for
+              atmosphere only — not real players
+              or real bets.
+
+            </div>
+
+
+            <div
+              class="mg-live-bets-list"
+              id="mgLiveBetsList"
+            ></div>
+
+          </div>
+
+
+          <!-- HISTORY -->
+
+          <div
+            data-mg-panel="history"
+            class="mg-panel"
+            style="display:none;"
+          >
+
+            <div
+              class="mg-history-list"
+              id="mgHistoryList"
+            ></div>
+
+          </div>
+
+
+          <!-- STATISTICS -->
+
+          <div
+            data-mg-panel="statistics"
+            class="mg-panel"
+            style="display:none;"
+          >
+
+            <div
+              id="mgStatistics"
+              class="mg-statistics"
+            ></div>
+
+          </div>
+
         </div>
-
-        <div
-          class="mg-live-bets-list"
-          id="mgLiveBetsList"
-        ></div>
-
-      </div>
-
-
-      <!-- HISTORY -->
-
-      <div
-        data-mg-panel="history"
-        class="mg-panel"
-        style="display:none;"
-      >
-
-        <div
-          class="mg-history-list"
-          id="mgHistoryList"
-        ></div>
-
-      </div>
-
-
-      <!-- STATISTICS -->
-
-      <div
-        data-mg-panel="statistics"
-        class="mg-panel"
-        style="display:none;"
-      >
-
-        <div
-          id="mgStatistics"
-          class="mg-statistics"
-        ></div>
 
       </div>
 
@@ -2432,14 +3162,10 @@ STEP 1 UI MICRO-INTERACTIONS
 
 </div>
 
-  </div>
-
-</div>
-
 
 <!-- =========================================
-     POPUP MODAL
-========================================= -->
+POPUP MODAL
+========================================== -->
 
 <div
   class="mg-popup"
@@ -2452,9 +3178,11 @@ STEP 1 UI MICRO-INTERACTIONS
       Notice
     </h3>
 
+
     <p>
       Message text here...
     </p>
+
 
     <button
       class="mg-popup-close"
@@ -2468,20 +3196,144 @@ STEP 1 UI MICRO-INTERACTIONS
 
 </div>
 
+
+<!-- =======================================================
+     EARNRUSH FOOTER
+======================================================= -->
+
+<footer class="earnrush-footer">
+
+  <div class="earnrush-footer-brand">
+    EarnRush
+  </div>
+
+
+  <p class="earnrush-footer-text">
+    EarnRush is a browser-based game focused on simple
+    gameplay, progression, Coins, XP, missions and
+    milestones. Explore the guides below to learn more
+    about the platform and its features.
+  </p>
+
+
+  <nav
+    class="earnrush-footer-links"
+    aria-label="Footer navigation"
+  >
+
+    <a href="index.html">
+      Home
+    </a>
+
+    <a href="about.html">
+      About
+    </a>
+
+    <a href="how-it-works.html">
+      How It Works
+    </a>
+
+    <a href="faq.html">
+      FAQ
+    </a>
+
+  </nav>
+
+
+  <div class="earnrush-footer-copy">
+    © 2026 EarnRush. All rights reserved.
+  </div>
+
+</footer>
+
+
+</div>
+
+
+<!-- =======================================================
+     EXISTING UI MICRO-INTERACTIONS
+======================================================= -->
+
+<script>
+
+(function () {
+
+  "use strict";
+
+
+  /* =========================================
+     COIN DISPLAY MICRO ANIMATION
+  ========================================== */
+
+  const balanceElement =
+    document.getElementById("balance");
+
+
+  if (balanceElement) {
+
+    const balanceObserver =
+      new MutationObserver(
+        function () {
+
+          balanceElement.classList.remove(
+            "is-collecting"
+          );
+
+
+          void balanceElement.offsetWidth;
+
+
+          balanceElement.classList.add(
+            "is-collecting"
+          );
+
+        }
+      );
+
+
+    balanceObserver.observe(
+      balanceElement,
+      {
+        childList: true,
+        characterData: true,
+        subtree: true
+      }
+    );
+
+  }
+
+
+})();
+
+</script>
+
+
 <!-- =========================================
 JAVASCRIPT SCRIPTS
 ========================================== -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 <script src="js/supabase-client.js"></script>
+
 <script src="js/ui.js"></script>
+
 <script src="js/auth.js"></script>
+
 <script src="js/game.js"></script>
+
 <script src="js/missions.js"></script>
+
 <script src="js/withdrawal.js"></script>
+
 <script src="js/notifications.js"></script>
+
 <script src="js/settings.js"></script>
+
 <script src="js/admin.js"></script>
+
 <script src="js/mini-game.js"></script>
+
 
 </body>
 </html>
