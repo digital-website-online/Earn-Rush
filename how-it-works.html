@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Learn how EarnRush works, including gameplay, Coins, XP, levels, missions, streaks, account features and withdrawals."
+    >
+
+    <meta
+        name="robots"
+        content="index, follow"
+    >
+
+    <meta name="theme-color" content="#07111f">
+
+    <title>How EarnRush Works | Gameplay & Progress Guide</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ6VQKXPYX"></script>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'G-MZ6VQKXPYX');
+    </script>
+
+    <!-- Google AdSense -->
+    <script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6947736087992351"
+        crossorigin="anonymous">
+    </script>
+
+    <style>
+        :root {
+            --bg: #07111f;
+            --card: #0d1b2d;
+            --card-2: #10233a;
+            --text: #f4f7fb;
+            --muted: #aab8c8;
+            --green: #20c77a;
+            --green-dark: #11945a;
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            color: var(--text);
+            background:
+                radial-gradient(
+                    circle at top,
+                    rgba(32, 199, 122, 0.08),
+                    transparent 35%
+                ),
+                var(--bg);
+
+            line-height: 1.7;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .page {
+            width: min(1100px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+
+            background: rgba(7, 17, 31, 0.94);
+
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar-inner {
+            width: min(1100px, calc(100% - 32px));
+            min-height: 70px;
+            margin: 0 auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--green),
+                    var(--green-dark)
+                );
+
+            box-shadow:
+                0 8px 25px rgba(32, 199, 122, 0.2);
+        }
+
+        .brand-name {
+            color: #fff;
+        }
+
+        .brand-name span {
+            color: var(--green);
+        }
+
+        .home-link {
+            min-height: 42px;
+            padding: 0 17px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: rgba(255, 255, 255, 0.04);
+
+            font-size: 14px;
+            font-weight: 700;
+
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .home-link:hover {
+            transform: translateY(-1px);
+            background: rgba(32, 199, 122, 0.1);
+            border-color: rgba(32, 199, 122, 0.35);
+        }
+
+        /* HERO */
+
+        .hero {
+            padding: 72px 0 45px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+
+            padding: 7px 12px;
+            margin-bottom: 18px;
+
+            border: 1px solid rgba(32, 199, 122, 0.2);
+            border-radius: 999px;
+
+            background: rgba(32, 199, 122, 0.07);
+
+            color: var(--green);
+
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            max-width: 800px;
+            margin: 0 auto 18px;
+
+            font-size: clamp(34px, 6vw, 56px);
+            line-height: 1.08;
+            letter-spacing: -1.5px;
+        }
+
+        .hero h1 span {
+            color: var(--green);
+        }
+
+        .hero p {
+            max-width: 730px;
+            margin: 0 auto;
+
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        /* CONTENT */
+
+        .content {
+            padding-bottom: 70px;
+        }
+
+        .content-card {
+            margin-bottom: 22px;
+            padding: 30px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(16, 35, 58, 0.95),
+                    rgba(13, 27, 45, 0.95)
+                );
+
+            border: 1px solid var(--border);
+            border-radius: 20px;
+
+            box-shadow: var(--shadow);
+        }
+
+        .content-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .content-card h2 {
+            margin-bottom: 13px;
+
+            font-size: clamp(23px, 4vw, 30px);
+            line-height: 1.2;
+        }
+
+        .content-card h2 span {
+            color: var(--green);
+        }
+
+        .content-card p {
+            margin-bottom: 13px;
+            color: var(--muted);
+        }
+
+        .content-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* STEPS */
+
+        .steps {
+            display: grid;
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+
+            padding: 18px;
+
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .step-number {
+            flex: 0 0 auto;
+
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 11px;
+
+            background: rgba(32, 199, 122, 0.12);
+            color: var(--green);
+
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .step h3 {
+            margin-bottom: 4px;
+            font-size: 17px;
+        }
+
+        .step p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* INFO GRID */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            margin-top: 22px;
+        }
+
+        .info-box {
+            padding: 21px;
+
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .info-icon {
+            width: 42px;
+            height: 42px;
+
+            display: grid;
+            place-items: center;
+
+            margin-bottom: 12px;
+
+            border-radius: 12px;
+
+            background: rgba(32, 199, 122, 0.1);
+            color: var(--green);
+
+            font-size: 20px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 7px;
+            font-size: 17px;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* NOTICE */
+
+        .notice {
+            margin-top: 20px;
+            padding: 17px 18px;
+
+            border-left: 3px solid var(--green);
+            border-radius: 10px;
+
+            background: rgba(32, 199, 122, 0.06);
+
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .notice strong {
+            color: var(--text);
+        }
+
+        /* CTA */
+
+        .cta {
+            margin-top: 22px;
+            padding: 35px 28px;
+
+            text-align: center;
+
+            border: 1px solid rgba(32, 199, 122, 0.18);
+            border-radius: 22px;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    rgba(32, 199, 122, 0.12),
+                    transparent 65%
+                ),
+                rgba(13, 27, 45, 0.95);
+        }
+
+        .cta h2 {
+            margin-bottom: 9px;
+            font-size: 28px;
+        }
+
+        .cta p {
+            max-width: 650px;
+            margin: 0 auto 20px;
+            color: var(--muted);
+        }
+
+        .cta-button {
+            min-height: 46px;
+            padding: 0 22px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 13px;
+
+            background: var(--green);
+            color: #06150e;
+
+            font-weight: 800;
+
+            transition:
+                transform 0.2s ease,
+                filter 0.2s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.06);
+        }
+
+        /* FOOTER */
+
+        footer {
+            border-top: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .footer-inner {
+            width: min(1100px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 32px 0;
+        }
+
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 25px;
+        }
+
+        .footer-brand {
+            max-width: 360px;
+        }
+
+        .footer-brand strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .footer-brand p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            justify-content: flex-end;
+            gap: 9px 18px;
+        }
+
+        .footer-links a {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .footer-links a:hover {
+            color: var(--green);
+        }
+
+        .copyright {
+            margin-top: 25px;
+            padding-top: 20px;
+
+            border-top: 1px solid var(--border);
+
+            color: #718096;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
+            .topbar-inner {
+                min-height: 62px;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+
+            .brand-icon {
+                width: 34px;
+                height: 34px;
+            }
+
+            .home-link {
+                min-height: 38px;
+                padding: 0 13px;
+                font-size: 13px;
+            }
+
+            .hero {
+                padding: 52px 0 32px;
+            }
+
+            .hero p {
+                font-size: 15px;
+            }
+
+            .content-card {
+                padding: 23px 20px;
+                border-radius: 17px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta {
+                padding: 28px 20px;
+            }
+
+            .footer-top {
+                flex-direction: column;
+            }
+
+            .footer-links {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+            <a
+                class="brand"
+                href="index.html"
+                aria-label="EarnRush Home"
+            >
+                <span class="brand-icon">⚡</span>
+
+                <span class="brand-name">
+                    Earn<span>Rush</span>
+                </span>
+            </a>
+
+            <a
+                class="home-link"
+                href="index.html"
+            >
+                ← Back to Game
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="hero">
+
+            <div class="page">
+
+                <div class="eyebrow">
+                    EarnRush Guide
+                </div>
+
+                <h1>
+                    How <span>EarnRush</span> works
+                </h1>
+
+                <p>
+                    Learn the basic gameplay, progression system,
+                    Coins, XP, missions and account features available
+                    on EarnRush.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="content">
+
+            <div class="page">
+
+                <!-- BASIC STEPS -->
+
+                <article class="content-card">
+
+                    <h2>
+                        Getting started with <span>EarnRush</span>
+                    </h2>
+
+                    <p>
+                        EarnRush is designed around a simple progression
+                        experience. You can start from the main dashboard
+                        and use the available game features to build your
+                        in-game progress.
+                    </p>
+
+                    <div class="steps">
+
+                        <div class="step">
+
+                            <div class="step-number">
+                                1
+                            </div>
+
+                            <div>
+                                <h3>
+                                    Open the game
+                                </h3>
+
+                                <p>
+                                    Visit the EarnRush home screen to see
+                                    your current Coins, XP, level, streak
+                                    and available activities.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="step">
+
+                            <div class="step-number">
+                                2
+                            </div>
+
+                            <div>
+                                <h3>
+                                    Play and interact
+                                </h3>
+
+                                <p>
+                                    Use the available gameplay controls
+                                    and follow the instructions shown
+                                    inside the game.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="step">
+
+                            <div class="step-number">
+                                3
+                            </div>
+
+                            <div>
+                                <h3>
+                                    Build your progress
+                                </h3>
+
+                                <p>
+                                    Gameplay activity can increase your
+                                    in-game Coins and XP and contribute
+                                    to your overall progression.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="step">
+
+                            <div class="step-number">
+                                4
+                            </div>
+
+                            <div>
+                                <h3>
+                                    Check missions and rewards
+                                </h3>
+
+                                <p>
+                                    Review the missions and reward
+                                    features available to your account
+                                    and complete eligible objectives.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- COINS -->
+
+                <article class="content-card">
+
+                    <h2>
+                        Understanding <span>Coins</span>
+                    </h2>
+
+                    <p>
+                        Coins are the main in-game currency displayed
+                        throughout EarnRush. Your current balance can be
+                        viewed from the dashboard.
+                    </p>
+
+                    <div class="info-grid">
+
+                        <div class="info-box">
+
+                            <div class="info-icon">
+                                🪙
+                            </div>
+
+                            <h3>
+                                Coin Balance
+                            </h3>
+
+                            <p>
+                                Your balance shows the Coins currently
+                                associated with your EarnRush game state
+                                or account.
+                            </p>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <div class="info-icon">
+                                🎯
+                            </div>
+
+                            <h3>
+                                Gameplay Progress
+                            </h3>
+
+                            <p>
+                                Eligible gameplay actions can affect your
+                                Coin balance according to the current
+                                game rules.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- XP AND LEVELS -->
+
+                <article class="content-card">
+
+                    <h2>
+                        XP and <span>Levels</span>
+                    </h2>
+
+                    <p>
+                        XP represents your progression through the
+                        EarnRush level system. As your XP increases,
+                        the game can move you toward the next level.
+                    </p>
+
+                    <div class="info-grid">
+
+                        <div class="info-box">
+
+                            <div class="info-icon">
+                                ⭐
+                            </div>
+
+                            <h3>
+                                Earn XP
+                            </h3>
+
+                            <p>
+                                Eligible gameplay activities can award
+                                XP according to the current game logic.
+                            </p>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <div class="info-icon">
+                                📊
+                            </div>
+
+                            <h3>
+                                Level Progress
+                            </h3>
+
+                            <p>
+                                Your current level and XP progress are
+                                displayed on the main game interface.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- STREAK -->
+
+                <article class="content-card">
+
+                    <h2>
+                        Daily activity and <span>streaks</span>
+                    </h2>
+
+                    <p>
+                        EarnRush includes a streak system that can track
+                        consecutive activity. Your current streak is
+                        displayed in the player status area when available.
+                    </p>
+
+                    <div class="notice">
+                        <strong>Important:</strong>
+                        Streaks and other progression features follow the
+                        rules implemented in the current version of the
+                        platform and may change as EarnRush is updated.
+                    </div>
+
+                </article>
+
+
+                <!-- MISSIONS -->
+
+                <article class="content-card">
+
+                    <h2>
+                        Missions and <span>rewards</span>
+                    </h2>
+
+                    <p>
+                        Missions give players additional objectives to
+                        work toward. The Missions area can display
+                        available tasks and their corresponding progress
+                        or rewards.
+                    </p>
+
+                    <p>
+                        Reward availability and requirements depend on
+                        the specific mission. Always review the current
+                        information shown inside EarnRush before claiming
+                        a reward.
+                    </p>
+
+                    <div class="info-grid">
+
+                        <div class="info-box">
+
+                            <div class="info-icon">
+                                📋
+                            </div>
+
+                            <h3>
+                                Available Missions
+                            </h3>
+
+                            <p>
+                                Check the Missions section to see which
+                                objectives are currently available.
+                            </p>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <div class="info-icon">
+                                🎁
+                            </div>
+
+                            <h3>
+                                Claimable Rewards
+                            </h3>
+
+                            <p>
+                                When a mission is eligible for a reward,
+                                follow the instructions displayed by the
+                                platform.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- ACCOUNT -->
+
+                <article class="content-card">
+
+                    <h2>
+                        Account and <span>settings</span>
+                    </h2>
+
+                    <p>
+                        Creating or signing in to an EarnRush account
+                        provides access to the account-related features
+                        available on the platform.
+                    </p>
+
+                    <p>
+                        The Settings area can be used to manage supported
+                        preferences and account options. Available
+                        controls may change as new versions are released.
+                    </p>
+
+                </article>
+
+
+                <!-- WITHDRAWAL -->
+
+                <article class="content-card">
+
+                    <h2>
+                        Withdrawal <span>information</span>
+                    </h2>
+
+                    <p>
+                        Where withdrawal functionality is available,
+                        eligible users can use the Withdrawal section
+                        from the EarnRush dashboard.
+                    </p>
+
+                    <p>
+                        The platform displays the applicable minimum
+                        requirement, available payment methods and
+                        account information fields before a withdrawal
+                        request is submitted.
+                    </p>
+
+                    <p>
+                        Withdrawal requests are subject to the current
+                        EarnRush rules, account eligibility, available
+                        balance and system processing.
+                    </p>
+
+                    <div class="notice">
+                        <strong>Keep in mind:</strong>
+                        The information displayed inside the live EarnRush
+                        dashboard is the current source for applicable
+                        requirements and availability.
+                    </div>
+
+                </article>
+
+
+                <!-- GOOD USE -->
+
+                <article class="content-card">
+
+                    <h2>
+                        Use EarnRush <span>fairly</span>
+                    </h2>
+
+                    <p>
+                        Use your own account and interact with the platform
+                        as intended. Attempts to manipulate game data,
+                        exploit technical issues or interfere with other
+                        users may result in account restrictions.
+                    </p>
+
+                    <p>
+                        Never rely on outdated information when a current
+                        requirement is shown inside the application.
+                        Always check the relevant screen before completing
+                        an account action.
+                    </p>
+
+                </article>
+
+
+                <!-- CTA -->
+
+                <div class="cta">
+
+                    <h2>
+                        Ready to play?
+                    </h2>
+
+                    <p>
+                        Return to EarnRush and explore the current game,
+                        missions, progression and account features.
+                    </p>
+
+                    <a
+                        class="cta-button"
+                        href="index.html"
+                    >
+                        Open EarnRush
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <div class="footer-inner">
+
+            <div class="footer-top">
+
+                <div class="footer-brand">
+
+                    <strong>
+                        ⚡ EarnRush
+                    </strong>
+
+                    <p>
+                        A browser gaming platform focused on simple
+                        gameplay, progression and a clear user experience.
+                    </p>
+
+                </div>
+
+
+                <nav
+                    class="footer-links"
+                    aria-label="Footer navigation"
+                >
+
+                    <a href="index.html">
+                        Home
+                    </a>
+
+                    <a href="about.html">
+                        About
+                    </a>
+
+                    <a href="how-it-works.html">
+                        How It Works
+                    </a>
+
+                    <a href="faq.html">
+                        FAQ
+                    </a>
+
+                    <a href="contact.html">
+                        Contact
+                    </a>
+
+                    <a href="privacy.html">
+                        Privacy Policy
+                    </a>
+
+                    <a href="terms.html">
+                        Terms &amp; Conditions
+                    </a>
+
+                </nav>
+
+            </div>
+
+
+            <div class="copyright">
+                © 2026 EarnRush. All rights reserved.
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+</html>
