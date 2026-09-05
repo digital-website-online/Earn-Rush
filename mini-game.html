@@ -1810,6 +1810,55 @@ POPUP MODAL
 
   const STORAGE_KEY = "earnrush_minigame_tokens_v2";
 
+  /*
+   * The main EarnRush game (js/game.js) persists its whole save —
+   * including the real Coins balance — as a single JSON object
+   * under this localStorage key (see game.js: SAVE_KEY = "earnRushSave",
+   * gameState.coins). On this standalone page window.EarnRushGame
+   * isn't loaded, so this is how the actual Coins balance is read
+   * and updated directly, matching game.js's own save format exactly.
+   */
+  const EARNRUSH_SAVE_KEY = "earnRushSave";
+
+  function readEarnRushSave() {
+    try {
+      const raw = localStorage.getItem(EARNRUSH_SAVE_KEY);
+
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw);
+
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        Number.isFinite(Number(parsed.coins))
+      ) {
+        return parsed;
+      }
+    } catch (e) {}
+
+    return null;
+  }
+
+  function writeEarnRushSaveCoins(newCoinsValue) {
+    try {
+      const save = readEarnRushSave();
+
+      if (!save) return false;
+
+      save.coins = Math.max(0, Number(newCoinsValue) || 0);
+
+      localStorage.setItem(
+        EARNRUSH_SAVE_KEY,
+        JSON.stringify(save)
+      );
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   const COIN_FALLBACK_KEYS = [
     "earnrush_coins",
     "earnrushCoins",
@@ -2106,6 +2155,13 @@ lastMultiplierRender: 0
       }
     } catch (e) {}
 
+    /* Standalone page: read straight from game.js's own save file */
+    const save = readEarnRushSave();
+
+    if (save) {
+      return Number(save.coins) || 0;
+    }
+
     try {
       const balance = byId("balance");
 
@@ -2184,6 +2240,22 @@ lastMultiplierRender: 0
         }
       }
     } catch (e) {}
+
+    /* Standalone page: spend directly from game.js's own save file */
+    const save = readEarnRushSave();
+
+    if (save) {
+      const current = Number(save.coins) || 0;
+
+      if (current < amount) {
+        return false;
+      }
+
+      if (writeEarnRushSaveCoins(current - amount)) {
+        updateWalletUI();
+        return true;
+      }
+    }
 
     /* Fallback */
 
@@ -2522,6 +2594,19 @@ lastMultiplierRender: 0
         }
       }
     } catch (e) {}
+
+    /* Standalone page: add directly to game.js's own save file */
+    if (!added) {
+      const save = readEarnRushSave();
+
+      if (save) {
+        const current = Number(save.coins) || 0;
+
+        if (writeEarnRushSaveCoins(current + coins)) {
+          added = true;
+        }
+      }
+    }
 
     /*
      * Fallback for existing EarnRush storage.
