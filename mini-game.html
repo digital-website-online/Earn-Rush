@@ -3860,5 +3860,17 @@ lastMultiplierRender: 0
 })();
 </script>
 
+<script>
+  // Auto-open the game overlay on this standalone landing page.
+  // This reuses the existing [data-open-mini-game] hook that
+  // minigame.js's init() already listens for above — no game
+  // logic is touched, this just clicks the hidden trigger once
+  // the page (and the script above) has finished loading.
+  document.addEventListener("DOMContentLoaded", function () {
+    var trigger = document.querySelector("[data-open-mini-game]");
+    if (trigger) trigger.click();
+  });
+</script>
+
 </body>
 </html>
