@@ -15,7 +15,7 @@
     const defaultState = {
         saveVersion: SAVE_VERSION,
 
-        coins: 50000,
+        coins: 0,
 
         level: 1,
         xp: 0,
