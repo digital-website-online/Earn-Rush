@@ -3869,6 +3869,19 @@ lastMultiplierRender: 0
   document.addEventListener("DOMContentLoaded", function () {
     var trigger = document.querySelector("[data-open-mini-game]");
     if (trigger) trigger.click();
+
+    // The game's own "← Back" button only hides the overlay
+    // (closeGame()) — on this standalone landing page there is
+    // nothing else behind it, so hiding it leaves a blank/white
+    // page. This extra listener runs alongside the game's own
+    // Back handler (added separately above, untouched) and simply
+    // sends the user back to the main site afterward.
+    var backBtn = document.getElementById("mgClose");
+    if (backBtn) {
+      backBtn.addEventListener("click", function () {
+        window.location.href = "index.html";
+      });
+    }
   });
 </script>
 
