@@ -1,73 +1,86 @@
-/* =========================================================
-   EarnRush — Premium Daily Check-in
-   Version 2.0
+/* ============================================================
+   EarnRush — DAILY REWARD / CHECK-IN
+   Premium 7-Day Weekly System
+   ============================================================
 
-   Rules:
-   • 7 days per week
-   • Only current day is claimable
-   • Days 2–7 remain locked until their turn
-   • Unclaimed reward shows automatically whenever the game opens
-   • Closing the popup does NOT claim the reward
-   • After claiming, exactly 24 hours must pass
-   • After 24 hours, the next day becomes available
-   • After Day 7, the next week starts after 24 hours
-   • Week 1 starts at 1,000 Coins
-   • Week 2 starts at 1,500 Coins
-   • Week 3 starts at 2,000 Coins
-   • Every following week increases the Day-1 reward by 500 Coins
-   ========================================================= */
+   WEEK 1
+   Day 1 = 1,000
+   Day 2 = 2,000
+   Day 3 = 3,000
+   Day 4 = 4,000
+   Day 5 = 5,000
+   Day 6 = 6,000
+   Day 7 = 7,000
+
+   WEEK 2
+   Day 1 = 1,500
+   Day 2 = 3,000
+   ...
+   Day 7 = 10,500
+
+   WEEK 3
+   Day 1 = 2,000
+   Day 2 = 4,000
+   ...
+   Day 7 = 14,000
+
+   Every new week:
+   Day-1 reward +500 Coins
+
+   RULES
+   ------------------------------------------------------------
+   • Only current day can be claimed.
+   • Future days are locked.
+   • Closing popup does NOT claim reward.
+   • If user does not claim, popup appears again on next open.
+   • After claiming, next reward becomes available exactly 24h later.
+   • Day 7 completion moves to the next week after 24h.
+   • Existing EarnRushGame.addCoins() is used.
+   • No second/fake coin system.
+   • No external assets or guessed files required.
+   ============================================================ */
 
 (function () {
     "use strict";
 
-    /* =========================================================
+    /* ============================================================
        CONFIG
-       ========================================================= */
+       ============================================================ */
 
     const STORAGE_KEY = "earnRushDailyCheckin";
 
-    const DAY_COUNT = 7;
+    const DAYS_PER_WEEK = 7;
 
-    const COOLDOWN_MS = 24 * 60 * 60 * 1000;
+    const DAY_COOLDOWN =
+        24 * 60 * 60 * 1000;
 
-    const FIRST_WEEK_DAY_1_REWARD = 1000;
+    const WEEK_1_START_REWARD = 1000;
 
     const WEEK_INCREMENT = 500;
 
-    const AUTO_OPEN_DELAY = 600;
+    const AUTO_OPEN_DELAY = 550;
 
 
-    /* =========================================================
-       STATE
-       ========================================================= */
+    /* ============================================================
+       RUNTIME
+       ============================================================ */
 
-    let state = loadState();
-
-    let countdownTimer = null;
+    let state = null;
 
     let modal = null;
 
-    let card = null;
+    let rewardsCard = null;
+
+    let countdownInterval = null;
+
+    let claimInProgress = false;
 
 
-    /* =========================================================
-       WEEK REWARD CALCULATION
-       ========================================================= */
-
-    function getDayReward(week, day) {
-        const weekStartReward =
-            FIRST_WEEK_DAY_1_REWARD +
-            ((week - 1) * WEEK_INCREMENT);
-
-        return weekStartReward * day;
-    }
-
-
-    /* =========================================================
+    /* ============================================================
        DEFAULT STATE
-       ========================================================= */
+       ============================================================ */
 
-    function getDefaultState() {
+    function defaultState() {
         return {
             week: 1,
             day: 1,
@@ -78,70 +91,93 @@
     }
 
 
-    /* =========================================================
+    /* ============================================================
        LOAD STATE
-       ========================================================= */
+       ============================================================ */
 
     function loadState() {
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const raw =
+                localStorage.getItem(
+                    STORAGE_KEY
+                );
 
-            if (!saved) {
-                return getDefaultState();
+            if (!raw) {
+                return defaultState();
             }
 
-            const parsed = JSON.parse(saved);
+            const saved =
+                JSON.parse(raw);
 
-            if (!parsed || typeof parsed !== "object") {
-                return getDefaultState();
+            if (
+                !saved ||
+                typeof saved !== "object"
+            ) {
+                return defaultState();
             }
 
             return {
                 week:
-                    Number.isFinite(Number(parsed.week)) &&
-                    Number(parsed.week) >= 1
-                        ? Math.floor(Number(parsed.week))
+                    Number.isFinite(
+                        Number(saved.week)
+                    ) &&
+                    Number(saved.week) >= 1
+                        ? Math.floor(
+                              Number(saved.week)
+                          )
                         : 1,
 
                 day:
-                    Number.isFinite(Number(parsed.day)) &&
-                    Number(parsed.day) >= 1 &&
-                    Number(parsed.day) <= DAY_COUNT
-                        ? Math.floor(Number(parsed.day))
+                    Number.isFinite(
+                        Number(saved.day)
+                    ) &&
+                    Number(saved.day) >= 1 &&
+                    Number(saved.day) <= 7
+                        ? Math.floor(
+                              Number(saved.day)
+                          )
                         : 1,
 
                 claimedAt:
-                    Number.isFinite(Number(parsed.claimedAt)) &&
-                    Number(parsed.claimedAt) > 0
-                        ? Number(parsed.claimedAt)
+                    Number.isFinite(
+                        Number(saved.claimedAt)
+                    ) &&
+                    Number(saved.claimedAt) > 0
+                        ? Number(saved.claimedAt)
                         : null,
 
                 completedDays:
-                    Array.isArray(parsed.completedDays)
-                        ? parsed.completedDays
+                    Array.isArray(
+                        saved.completedDays
+                    )
+                        ? saved.completedDays
                         : [],
 
                 totalClaims:
-                    Number.isFinite(Number(parsed.totalClaims)) &&
-                    Number(parsed.totalClaims) >= 0
-                        ? Math.floor(Number(parsed.totalClaims))
+                    Number.isFinite(
+                        Number(saved.totalClaims)
+                    ) &&
+                    Number(saved.totalClaims) >= 0
+                        ? Math.floor(
+                              Number(saved.totalClaims)
+                          )
                         : 0
             };
 
         } catch (error) {
             console.error(
-                "EarnRush Daily Check-in: Could not load state.",
+                "Daily Check-in: state load failed.",
                 error
             );
 
-            return getDefaultState();
+            return defaultState();
         }
     }
 
 
-    /* =========================================================
+    /* ============================================================
        SAVE STATE
-       ========================================================= */
+       ============================================================ */
 
     function saveState() {
         try {
@@ -151,916 +187,1155 @@
             );
         } catch (error) {
             console.error(
-                "EarnRush Daily Check-in: Could not save state.",
+                "Daily Check-in: state save failed.",
                 error
             );
         }
     }
 
 
-    /* =========================================================
-       HELPERS
-       ========================================================= */
+    /* ============================================================
+       REWARD CALCULATION
+       ============================================================ */
 
-    function formatNumber(number) {
-        return Number(number).toLocaleString("en-US");
+    function getWeekStartReward(
+        week
+    ) {
+        return (
+            WEEK_1_START_REWARD +
+            (
+                (week - 1) *
+                WEEK_INCREMENT
+            )
+        );
+    }
+
+
+    function getReward(
+        week,
+        day
+    ) {
+        return (
+            getWeekStartReward(week) *
+            day
+        );
     }
 
 
     function getCurrentReward() {
-        return getDayReward(
+        return getReward(
             state.week,
             state.day
         );
     }
 
 
-    function getCooldownEnd() {
+    /* ============================================================
+       FORMATTING
+       ============================================================ */
+
+    function number(value) {
+        return Number(value).toLocaleString(
+            "en-US"
+        );
+    }
+
+
+    function dayKey(
+        week,
+        day
+    ) {
+        return `${week}-${day}`;
+    }
+
+
+    function isCompleted(
+        week,
+        day
+    ) {
+        return state.completedDays.includes(
+            dayKey(week, day)
+        );
+    }
+
+
+    /* ============================================================
+       24 HOUR COOLDOWN
+       ============================================================ */
+
+    function cooldownEnd() {
         if (!state.claimedAt) {
-            return null;
+            return 0;
         }
 
-        return state.claimedAt + COOLDOWN_MS;
+        return (
+            state.claimedAt +
+            DAY_COOLDOWN
+        );
     }
 
 
-    function isCooldownActive() {
-        const cooldownEnd = getCooldownEnd();
-
-        if (!cooldownEnd) {
-            return false;
-        }
-
-        return Date.now() < cooldownEnd;
+    function cooldownActive() {
+        return (
+            !!state.claimedAt &&
+            Date.now() <
+                cooldownEnd()
+        );
     }
 
 
-    function getRemainingMs() {
-        const cooldownEnd = getCooldownEnd();
-
-        if (!cooldownEnd) {
+    function remainingTime() {
+        if (!state.claimedAt) {
             return 0;
         }
 
         return Math.max(
             0,
-            cooldownEnd - Date.now()
+            cooldownEnd() -
+                Date.now()
         );
     }
 
 
-    function isCurrentRewardClaimable() {
-        return !isCooldownActive();
+    /* ============================================================
+       MOVE TO NEXT DAY / WEEK
+       ============================================================ */
+
+    function advanceAfterCooldown() {
+
+        if (!state.claimedAt) {
+            return false;
+        }
+
+        if (cooldownActive()) {
+            return false;
+        }
+
+        /*
+         * Previous reward has completed its
+         * full 24-hour cooldown.
+         */
+
+        if (
+            state.day <
+            DAYS_PER_WEEK
+        ) {
+            state.day += 1;
+        } else {
+            /*
+             * Day 7 finished.
+             * Start a completely new week.
+             */
+
+            state.week += 1;
+
+            state.day = 1;
+        }
+
+        state.claimedAt = null;
+
+        saveState();
+
+        return true;
     }
 
 
-    function getDayKey(week, day) {
-        return `${week}-${day}`;
-    }
+    /* ============================================================
+       PREMIUM CSS
+       ============================================================ */
 
+    function injectCSS() {
 
-    function isDayCompleted(week, day) {
-        return state.completedDays.includes(
-            getDayKey(week, day)
-        );
-    }
-
-
-    /* =========================================================
-       CSS
-       ========================================================= */
-
-    function injectStyles() {
-        if (document.getElementById(
-            "earnrush-daily-checkin-styles"
-        )) {
+        if (
+            document.getElementById(
+                "erDailyRewardCSS"
+            )
+        ) {
             return;
         }
 
-        const style = document.createElement("style");
+        const style =
+            document.createElement(
+                "style"
+            );
 
         style.id =
-            "earnrush-daily-checkin-styles";
+            "erDailyRewardCSS";
 
         style.textContent = `
-            /* =================================================
-               DAILY CHECK-IN CARD
-               ================================================= */
 
-            .er-daily-card {
-                position: relative;
-                width: 100%;
-                margin: 0 0 16px;
-                padding: 20px;
-                border-radius: 22px;
-                border: 1px solid rgba(255,255,255,.08);
-                background:
-                    linear-gradient(
-                        145deg,
-                        rgba(20,34,53,.98),
-                        rgba(8,18,31,.98)
-                    );
-                box-shadow:
-                    0 18px 45px rgba(0,0,0,.22),
-                    inset 0 1px 0 rgba(255,255,255,.035);
-                overflow: hidden;
-                cursor: pointer;
-                transition:
-                    transform .22s ease,
-                    border-color .22s ease,
-                    box-shadow .22s ease;
-                box-sizing: border-box;
+        /* ========================================================
+           MAIN REWARD CARD
+           ======================================================== */
+
+        .er-reward-launcher {
+            position: relative;
+            margin: 0 0 18px;
+            padding: 18px;
+            width: 100%;
+            box-sizing: border-box;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #16283d 0%,
+                    #0b1727 55%,
+                    #07111d 100%
+                );
+
+            border: 1px solid
+                rgba(255,255,255,.09);
+
+            box-shadow:
+                0 18px 45px
+                    rgba(0,0,0,.25),
+                inset 0 1px 0
+                    rgba(255,255,255,.04);
+
+            overflow: hidden;
+
+            cursor: pointer;
+
+            transition:
+                transform .2s ease,
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .er-reward-launcher:hover {
+            transform: translateY(-2px);
+
+            border-color:
+                rgba(255,196,50,.25);
+
+            box-shadow:
+                0 23px 55px
+                    rgba(0,0,0,.30);
+        }
+
+        .er-reward-launcher-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .er-reward-launcher-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .er-reward-launcher-icon {
+            width: 46px;
+            height: 46px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,196,50,.18),
+                    rgba(255,196,50,.05)
+                );
+
+            border: 1px solid
+                rgba(255,196,50,.18);
+
+            font-size: 23px;
+        }
+
+        .er-reward-launcher-kicker {
+            margin: 0 0 3px;
+
+            color:
+                rgba(255,255,255,.42);
+
+            font-size: 9px;
+            font-weight: 900;
+
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+        }
+
+        .er-reward-launcher-title {
+            margin: 0;
+
+            color: #fff;
+
+            font-size: 17px;
+            font-weight: 900;
+        }
+
+        .er-reward-launcher-status {
+            padding: 7px 10px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(255,196,50,.10);
+
+            border: 1px solid
+                rgba(255,196,50,.16);
+
+            color: #ffc432;
+
+            font-size: 9px;
+            font-weight: 900;
+
+            white-space: nowrap;
+        }
+
+        .er-reward-launcher-bottom {
+            margin-top: 15px;
+
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+
+            gap: 12px;
+        }
+
+        .er-reward-launcher-label {
+            margin: 0 0 4px;
+
+            color:
+                rgba(255,255,255,.40);
+
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .er-reward-launcher-value {
+            margin: 0;
+
+            color: #fff;
+
+            font-size: 23px;
+            font-weight: 950;
+        }
+
+        .er-reward-launcher-value span {
+            color: #ffc432;
+
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .er-reward-launcher-button {
+            min-height: 37px;
+
+            padding: 0 14px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 11px;
+
+            background:
+                rgba(255,196,50,.10);
+
+            border: 1px solid
+                rgba(255,196,50,.18);
+
+            color: #ffc432;
+
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+
+        /* ========================================================
+           FULL SCREEN MODAL
+           ======================================================== */
+
+        .er-reward-modal {
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 999999;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 18px;
+
+            box-sizing: border-box;
+
+            background:
+                rgba(3,7,12,.84);
+
+            backdrop-filter:
+                blur(13px);
+
+            -webkit-backdrop-filter:
+                blur(13px);
+
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+
+            transition:
+                opacity .22s ease,
+                visibility .22s ease;
+        }
+
+        .er-reward-modal.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+
+        /* ========================================================
+           REWARD PANEL
+           ======================================================== */
+
+        .er-reward-panel {
+            position: relative;
+
+            width:
+                min(720px, 100%);
+
+            max-height:
+                calc(100vh - 36px);
+
+            overflow-y: auto;
+
+            box-sizing: border-box;
+
+            padding: 0 0 22px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #202b36,
+                    #0b1016 70%
+                );
+
+            border:
+                1px solid
+                rgba(255,255,255,.14);
+
+            border-radius: 8px;
+
+            box-shadow:
+                0 35px 100px
+                    rgba(0,0,0,.65),
+                0 0 50px
+                    rgba(255,196,50,.04);
+
+            transform:
+                translateY(18px)
+                scale(.975);
+
+            transition:
+                transform .25s
+                cubic-bezier(.2,.8,.2,1);
+        }
+
+        .er-reward-modal.open
+        .er-reward-panel {
+            transform:
+                translateY(0)
+                scale(1);
+        }
+
+
+        /* ========================================================
+           MODAL HEADER
+           ======================================================== */
+
+        .er-reward-header {
+            position: relative;
+
+            min-height: 72px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 12px 65px 12px 20px;
+
+            box-sizing: border-box;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,.08),
+                    rgba(255,255,255,.025)
+                );
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.09);
+        }
+
+        .er-reward-header-title {
+            margin: 0;
+
+            color: #fff;
+
+            font-size:
+                clamp(25px, 5vw, 39px);
+
+            line-height: 1;
+
+            font-weight: 900;
+
+            letter-spacing:
+                1.5px;
+
+            text-transform:
+                uppercase;
+
+            text-align: center;
+
+            text-shadow:
+                0 2px 12px
+                    rgba(0,0,0,.4);
+        }
+
+        .er-reward-close {
+            position: absolute;
+
+            top: 50%;
+            right: 12px;
+
+            transform:
+                translateY(-50%);
+
+            width: 52px;
+            height: 52px;
+
+            display: grid;
+            place-items: center;
+
+            border: 0;
+
+            border-radius: 3px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #f31616,
+                    #b60000
+                );
+
+            color: #fff;
+
+            font-size: 33px;
+            font-weight: 300;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+            box-shadow:
+                inset 0 1px 0
+                    rgba(255,255,255,.18),
+                0 5px 18px
+                    rgba(0,0,0,.25);
+
+            transition:
+                filter .18s ease,
+                transform .18s ease;
+        }
+
+        .er-reward-close:hover {
+            filter: brightness(1.1);
+
+            transform:
+                translateY(-50%)
+                scale(1.03);
+        }
+
+
+        /* ========================================================
+           REWARD GRID
+           ======================================================== */
+
+        .er-reward-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            grid-template-rows:
+                repeat(2, minmax(130px, 1fr));
+
+            gap: 12px;
+
+            padding: 18px 20px 10px;
+
+            box-sizing: border-box;
+        }
+
+
+        /* ========================================================
+           REWARD TILE
+           ======================================================== */
+
+        .er-reward-tile {
+            position: relative;
+
+            min-width: 0;
+            min-height: 145px;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow: hidden;
+
+            border-radius: 3px;
+
+            border:
+                2px solid
+                rgba(255,255,255,.18);
+
+            background:
+                linear-gradient(
+                    160deg,
+                    #050505,
+                    #151515 48%,
+                    #080808
+                );
+
+            box-shadow:
+                inset 0 0 0 1px
+                    rgba(0,0,0,.8),
+                0 7px 18px
+                    rgba(0,0,0,.30);
+
+            transition:
+                transform .2s ease,
+                border-color .2s ease,
+                filter .2s ease;
+        }
+
+        .er-reward-tile.current {
+            border-color:
+                #20f000;
+
+            box-shadow:
+                0 0 0 1px
+                    rgba(32,240,0,.40),
+                0 8px 22px
+                    rgba(0,0,0,.40);
+        }
+
+        .er-reward-tile.locked {
+            filter:
+                saturate(.45)
+                brightness(.70);
+        }
+
+        .er-reward-tile.claimed {
+            border-color:
+                rgba(37,211,102,.65);
+
+            filter:
+                saturate(.75);
+        }
+
+        .er-reward-tile.day-seven {
+            grid-column: 4;
+            grid-row: 1 / span 2;
+        }
+
+
+        /* ========================================================
+           TILE DAY LABEL
+           ======================================================== */
+
+        .er-reward-tile-day {
+            position: relative;
+            z-index: 2;
+
+            padding: 8px 5px 3px;
+
+            color: #fff;
+
+            font-size:
+                clamp(13px, 2vw, 17px);
+
+            line-height: 1;
+
+            font-weight: 900;
+
+            letter-spacing:
+                1.2px;
+
+            text-transform:
+                uppercase;
+
+            text-align: center;
+
+            text-shadow:
+                0 2px 5px
+                    rgba(0,0,0,.8);
+        }
+
+
+        /* ========================================================
+           TILE VISUAL
+           ======================================================== */
+
+        .er-reward-visual {
+            flex: 1;
+
+            min-height: 0;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 3px 8px;
+
+            box-sizing: border-box;
+
+            font-size:
+                clamp(44px, 8vw, 75px);
+
+            line-height: 1;
+
+            text-shadow:
+                0 8px 15px
+                    rgba(0,0,0,.8);
+
+            transform:
+                translateZ(0);
+        }
+
+        .er-reward-tile.day-seven
+        .er-reward-visual {
+            font-size:
+                clamp(65px, 11vw, 105px);
+        }
+
+
+        /* ========================================================
+           TILE REWARD STRIP
+           ======================================================== */
+
+        .er-reward-tile-footer {
+            position: relative;
+            z-index: 2;
+
+            min-height: 36px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 5px 6px;
+
+            box-sizing: border-box;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,223,85,.20),
+                    rgba(255,223,85,.07)
+                );
+
+            border-top:
+                1px solid
+                rgba(255,223,85,.14);
+
+            color: #fff;
+
+            font-size:
+                clamp(10px, 1.8vw, 14px);
+
+            font-weight: 900;
+
+            text-align: center;
+
+            text-shadow:
+                0 2px 4px
+                    rgba(0,0,0,.7);
+        }
+
+        .er-reward-tile.locked
+        .er-reward-tile-footer {
+            color:
+                rgba(255,255,255,.50);
+        }
+
+        .er-reward-tile.current
+        .er-reward-tile-footer {
+            color: #fff;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,222,60,.28),
+                    rgba(255,196,50,.12)
+                );
+        }
+
+        .er-reward-tile.claimed
+        .er-reward-tile-footer {
+            color: #25d366;
+
+            background:
+                rgba(37,211,102,.10);
+        }
+
+
+        /* ========================================================
+           LOCK
+           ======================================================== */
+
+        .er-reward-lock {
+            position: absolute;
+
+            top: 50%;
+            left: 50%;
+
+            transform:
+                translate(-50%, -50%);
+
+            width: 36px;
+            height: 36px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background:
+                rgba(0,0,0,.55);
+
+            border:
+                1px solid
+                rgba(255,255,255,.15);
+
+            font-size: 17px;
+
+            z-index: 5;
+        }
+
+
+        /* ========================================================
+           CLAIM AREA
+           ======================================================== */
+
+        .er-reward-action-area {
+            padding:
+                12px 20px 0;
+
+            text-align: center;
+        }
+
+        .er-reward-week {
+            margin: 0 0 11px;
+
+            color:
+                rgba(255,255,255,.35);
+
+            font-size: 10px;
+
+            font-weight: 900;
+
+            letter-spacing:
+                1.2px;
+
+            text-transform:
+                uppercase;
+        }
+
+        .er-reward-claim {
+            width:
+                min(255px, 100%);
+
+            min-height: 58px;
+
+            border:
+                2px solid
+                rgba(255,196,50,.85);
+
+            border-radius: 3px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #ffd72e,
+                    #e7a800
+                );
+
+            color: #fff;
+
+            font-size: 17px;
+
+            font-weight: 900;
+
+            letter-spacing:
+                1px;
+
+            text-transform:
+                uppercase;
+
+            text-shadow:
+                0 2px 4px
+                    rgba(0,0,0,.55);
+
+            box-shadow:
+                0 8px 25px
+                    rgba(0,0,0,.28),
+                inset 0 1px 0
+                    rgba(255,255,255,.35);
+
+            cursor: pointer;
+
+            transition:
+                transform .18s ease,
+                filter .18s ease;
+        }
+
+        .er-reward-claim:hover {
+            filter:
+                brightness(1.08);
+
+            transform:
+                translateY(-1px);
+        }
+
+        .er-reward-claim:active {
+            transform:
+                translateY(1px);
+        }
+
+        .er-reward-claim:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
+            filter: none;
+        }
+
+        .er-reward-countdown {
+            display: none;
+
+            margin: 11px auto 0;
+
+            color:
+                rgba(255,255,255,.45);
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .er-reward-countdown strong {
+            color: #ffc432;
+        }
+
+
+        /* ========================================================
+           MOBILE
+           ======================================================== */
+
+        @media (max-width: 600px) {
+
+            .er-reward-modal {
+                padding: 8px;
             }
 
-            .er-daily-card:hover {
-                transform: translateY(-2px);
-                border-color: rgba(37,211,102,.28);
-                box-shadow:
-                    0 22px 50px rgba(0,0,0,.28),
-                    0 0 0 1px rgba(37,211,102,.04);
+            .er-reward-panel {
+                max-height:
+                    calc(100vh - 16px);
+
+                border-radius: 6px;
             }
 
-            .er-daily-card:active {
-                transform: translateY(0);
+            .er-reward-header {
+                min-height: 62px;
+
+                padding:
+                    9px 55px 9px 10px;
             }
 
-            .er-daily-card::before {
-                content: "";
-                position: absolute;
-                width: 180px;
-                height: 180px;
-                top: -90px;
-                right: -70px;
-                border-radius: 50%;
-                background: rgba(37,211,102,.10);
-                filter: blur(8px);
-                pointer-events: none;
+            .er-reward-header-title {
+                font-size:
+                    clamp(22px, 8vw, 30px);
+
+                letter-spacing:
+                    1px;
             }
 
-            .er-daily-card-top {
-                position: relative;
-                z-index: 1;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 14px;
+            .er-reward-close {
+                right: 8px;
+
+                width: 45px;
+                height: 45px;
+
+                font-size: 29px;
             }
 
-            .er-daily-card-title-wrap {
-                display: flex;
-                align-items: center;
-                gap: 13px;
-                min-width: 0;
-            }
-
-            .er-daily-card-icon {
-                width: 48px;
-                height: 48px;
-                flex: 0 0 48px;
-                display: grid;
-                place-items: center;
-                border-radius: 15px;
-                background:
-                    linear-gradient(
-                        145deg,
-                        rgba(37,211,102,.20),
-                        rgba(37,211,102,.07)
-                    );
-                border: 1px solid rgba(37,211,102,.16);
-                font-size: 24px;
-            }
-
-            .er-daily-card-kicker {
-                margin: 0 0 4px;
-                color: rgba(255,255,255,.48);
-                font-size: 10px;
-                font-weight: 800;
-                letter-spacing: 1.4px;
-                text-transform: uppercase;
-            }
-
-            .er-daily-card-title {
-                margin: 0;
-                color: #fff;
-                font-size: 18px;
-                font-weight: 800;
-                line-height: 1.15;
-            }
-
-            .er-daily-card-status {
-                flex: 0 0 auto;
-                padding: 7px 10px;
-                border-radius: 999px;
-                background: rgba(37,211,102,.10);
-                border: 1px solid rgba(37,211,102,.16);
-                color: #25d366;
-                font-size: 10px;
-                font-weight: 800;
-                text-transform: uppercase;
-                letter-spacing: .7px;
-                white-space: nowrap;
-            }
-
-            .er-daily-card-status.locked {
-                color: rgba(255,255,255,.55);
-                background: rgba(255,255,255,.055);
-                border-color: rgba(255,255,255,.08);
-            }
-
-            .er-daily-card-reward {
-                position: relative;
-                z-index: 1;
-                margin-top: 17px;
-                display: flex;
-                align-items: flex-end;
-                justify-content: space-between;
-                gap: 14px;
-            }
-
-            .er-daily-reward-label {
-                margin: 0 0 4px;
-                color: rgba(255,255,255,.45);
-                font-size: 11px;
-                font-weight: 600;
-            }
-
-            .er-daily-reward-value {
-                margin: 0;
-                color: #fff;
-                font-size: 24px;
-                line-height: 1;
-                font-weight: 900;
-                letter-spacing: -.5px;
-            }
-
-            .er-daily-reward-value span {
-                color: #25d366;
-                font-size: 12px;
-                font-weight: 800;
-                margin-left: 4px;
-                letter-spacing: .2px;
-            }
-
-            .er-daily-card-action {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 38px;
-                padding: 0 15px;
-                border-radius: 12px;
-                border: 1px solid rgba(37,211,102,.18);
-                background: rgba(37,211,102,.12);
-                color: #25d366;
-                font-size: 11px;
-                font-weight: 800;
-                white-space: nowrap;
-            }
-
-            .er-daily-card.locked {
-                cursor: default;
-            }
-
-            .er-daily-card.locked:hover {
-                transform: none;
-                border-color: rgba(255,255,255,.08);
-                box-shadow:
-                    0 18px 45px rgba(0,0,0,.22),
-                    inset 0 1px 0 rgba(255,255,255,.035);
-            }
-
-            .er-daily-progress {
-                position: relative;
-                z-index: 1;
-                display: grid;
+            .er-reward-grid {
                 grid-template-columns:
-                    repeat(7, minmax(0, 1fr));
+                    repeat(3, minmax(0, 1fr));
+
+                grid-template-rows:
+                    repeat(3, minmax(105px, 1fr));
+
                 gap: 7px;
-                margin-top: 20px;
+
+                padding:
+                    10px 9px 7px;
             }
 
-            .er-daily-progress-day {
-                min-width: 0;
-                text-align: center;
+            .er-reward-tile {
+                min-height: 105px;
             }
 
-            .er-daily-day-box {
-                position: relative;
-                width: 100%;
-                aspect-ratio: 1;
-                display: grid;
-                place-items: center;
-                border-radius: 11px;
-                background: rgba(255,255,255,.045);
-                border: 1px solid rgba(255,255,255,.07);
-                color: rgba(255,255,255,.48);
+            .er-reward-tile.day-seven {
+                grid-column: 3;
+                grid-row: 2 / span 2;
+            }
+
+            .er-reward-tile-day {
+                padding:
+                    6px 2px 2px;
+
                 font-size: 11px;
-                font-weight: 800;
-                box-sizing: border-box;
+
+                letter-spacing: .7px;
             }
 
-            .er-daily-progress-day.active
-                .er-daily-day-box {
-                color: #25d366;
-                background: rgba(37,211,102,.10);
-                border-color: rgba(37,211,102,.28);
-                box-shadow:
-                    0 0 0 2px rgba(37,211,102,.04);
+            .er-reward-visual {
+                font-size: 42px;
             }
 
-            .er-daily-progress-day.completed
-                .er-daily-day-box {
-                color: #fff;
-                background:
-                    linear-gradient(
-                        145deg,
-                        rgba(37,211,102,.85),
-                        rgba(37,211,102,.55)
-                    );
-                border-color: rgba(37,211,102,.35);
+            .er-reward-tile.day-seven
+            .er-reward-visual {
+                font-size: 58px;
             }
 
-            .er-daily-progress-day.completed
-                .er-daily-day-box::after {
-                content: "✓";
-                position: absolute;
-                right: 3px;
-                top: 2px;
-                font-size: 7px;
-                font-weight: 900;
-            }
+            .er-reward-tile-footer {
+                min-height: 29px;
 
-            .er-daily-progress-day.locked
-                .er-daily-day-box {
-                color: rgba(255,255,255,.28);
-            }
-
-            .er-daily-day-label {
-                margin-top: 5px;
-                color: rgba(255,255,255,.32);
                 font-size: 8px;
-                font-weight: 700;
+
+                padding:
+                    4px 2px;
             }
 
-            .er-daily-progress-day.active
-                .er-daily-day-label {
-                color: #25d366;
-            }
+            .er-reward-lock {
+                width: 28px;
+                height: 28px;
 
-            /* =================================================
-               MODAL
-               ================================================= */
-
-            .er-daily-modal {
-                position: fixed;
-                inset: 0;
-                z-index: 999999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-                background: rgba(2,8,15,.78);
-                backdrop-filter: blur(14px);
-                -webkit-backdrop-filter: blur(14px);
-                opacity: 0;
-                visibility: hidden;
-                pointer-events: none;
-                transition:
-                    opacity .22s ease,
-                    visibility .22s ease;
-                box-sizing: border-box;
-            }
-
-            .er-daily-modal.open {
-                opacity: 1;
-                visibility: visible;
-                pointer-events: auto;
-            }
-
-            .er-daily-dialog {
-                position: relative;
-                width: min(430px, 100%);
-                max-height: min(700px, calc(100vh - 40px));
-                overflow-y: auto;
-                border-radius: 28px;
-                border: 1px solid rgba(255,255,255,.09);
-                background:
-                    linear-gradient(
-                        155deg,
-                        #13243a 0%,
-                        #081321 72%
-                    );
-                box-shadow:
-                    0 35px 100px rgba(0,0,0,.55),
-                    0 0 0 1px rgba(255,255,255,.015);
-                transform:
-                    translateY(16px)
-                    scale(.97);
-                transition:
-                    transform .24s cubic-bezier(.2,.8,.2,1);
-                box-sizing: border-box;
-                scrollbar-width: thin;
-            }
-
-            .er-daily-modal.open
-                .er-daily-dialog {
-                transform:
-                    translateY(0)
-                    scale(1);
-            }
-
-            .er-daily-dialog::before {
-                content: "";
-                position: absolute;
-                width: 230px;
-                height: 230px;
-                top: -120px;
-                left: 50%;
-                transform: translateX(-50%);
-                border-radius: 50%;
-                background: rgba(37,211,102,.13);
-                filter: blur(28px);
-                pointer-events: none;
-            }
-
-            .er-daily-close {
-                position: absolute;
-                z-index: 5;
-                top: 15px;
-                right: 15px;
-                width: 36px;
-                height: 36px;
-                display: grid;
-                place-items: center;
-                padding: 0;
-                border: 1px solid rgba(255,255,255,.08);
-                border-radius: 50%;
-                background: rgba(255,255,255,.055);
-                color: rgba(255,255,255,.72);
-                font-size: 18px;
-                line-height: 1;
-                cursor: pointer;
-                transition:
-                    background .18s ease,
-                    transform .18s ease;
-            }
-
-            .er-daily-close:hover {
-                background: rgba(255,255,255,.10);
-                transform: rotate(5deg);
-            }
-
-            .er-daily-modal-content {
-                position: relative;
-                z-index: 1;
-                padding: 34px 24px 24px;
-                text-align: center;
-            }
-
-            .er-daily-modal-icon {
-                width: 74px;
-                height: 74px;
-                margin: 0 auto 16px;
-                display: grid;
-                place-items: center;
-                border-radius: 23px;
-                background:
-                    linear-gradient(
-                        145deg,
-                        rgba(37,211,102,.20),
-                        rgba(37,211,102,.06)
-                    );
-                border: 1px solid rgba(37,211,102,.20);
-                box-shadow:
-                    0 12px 30px rgba(37,211,102,.08);
-                font-size: 36px;
-            }
-
-            .er-daily-modal-kicker {
-                margin: 0 0 7px;
-                color: #25d366;
-                font-size: 11px;
-                font-weight: 900;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
-            }
-
-            .er-daily-modal-title {
-                margin: 0;
-                color: #fff;
-                font-size: 27px;
-                line-height: 1.1;
-                font-weight: 900;
-                letter-spacing: -.6px;
-            }
-
-            .er-daily-modal-subtitle {
-                margin: 9px auto 0;
-                max-width: 320px;
-                color: rgba(255,255,255,.53);
                 font-size: 13px;
-                line-height: 1.55;
             }
 
-            .er-daily-modal-reward {
-                margin: 22px 0 18px;
-                padding: 20px 16px;
-                border-radius: 19px;
-                background: rgba(255,255,255,.045);
-                border: 1px solid rgba(255,255,255,.07);
+            .er-reward-action-area {
+                padding:
+                    8px 10px 12px;
             }
 
-            .er-daily-modal-reward-label {
-                margin: 0 0 7px;
-                color: rgba(255,255,255,.42);
-                font-size: 10px;
-                font-weight: 800;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            .er-daily-modal-reward-value {
-                margin: 0;
-                color: #fff;
-                font-size: 36px;
-                line-height: 1;
-                font-weight: 950;
-                letter-spacing: -1px;
-            }
-
-            .er-daily-modal-reward-value span {
-                color: #25d366;
-                font-size: 13px;
-                margin-left: 5px;
-                letter-spacing: 0;
-            }
-
-            .er-daily-week-label {
-                margin: 0 0 12px;
-                color: rgba(255,255,255,.42);
-                font-size: 10px;
-                font-weight: 800;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            .er-daily-modal-days {
-                display: grid;
-                grid-template-columns:
-                    repeat(7, minmax(0, 1fr));
-                gap: 6px;
-                margin-bottom: 20px;
-            }
-
-            .er-daily-modal-day {
-                min-width: 0;
-                padding: 9px 3px;
-                border-radius: 10px;
-                background: rgba(255,255,255,.035);
-                border: 1px solid rgba(255,255,255,.06);
-            }
-
-            .er-daily-modal-day.active {
-                background: rgba(37,211,102,.10);
-                border-color: rgba(37,211,102,.28);
-            }
-
-            .er-daily-modal-day.completed {
-                background: rgba(37,211,102,.58);
-                border-color: rgba(37,211,102,.30);
-            }
-
-            .er-daily-modal-day-number {
-                color: rgba(255,255,255,.45);
-                font-size: 9px;
-                font-weight: 800;
-            }
-
-            .er-daily-modal-day.active
-                .er-daily-modal-day-number,
-            .er-daily-modal-day.completed
-                .er-daily-modal-day-number {
-                color: #fff;
-            }
-
-            .er-daily-modal-day-reward {
-                margin-top: 3px;
-                color: rgba(255,255,255,.78);
-                font-size: 8px;
-                font-weight: 800;
-                line-height: 1.2;
-            }
-
-            .er-daily-claim-btn {
-                width: 100%;
+            .er-reward-claim {
                 min-height: 52px;
-                border: 0;
-                border-radius: 16px;
-                background:
-                    linear-gradient(
-                        135deg,
-                        #25d366,
-                        #18b957
-                    );
-                color: #06140c;
-                font-size: 14px;
-                font-weight: 900;
-                letter-spacing: .1px;
-                cursor: pointer;
-                box-shadow:
-                    0 12px 30px rgba(37,211,102,.18);
-                transition:
-                    transform .18s ease,
-                    filter .18s ease,
-                    box-shadow .18s ease;
+
+                width:
+                    min(260px, 100%);
+
+                font-size: 15px;
+            }
+        }
+
+
+        /* ========================================================
+           VERY SMALL SCREENS
+           ======================================================== */
+
+        @media (max-width: 360px) {
+
+            .er-reward-grid {
+                gap: 5px;
             }
 
-            .er-daily-claim-btn:hover {
-                filter: brightness(1.05);
-                transform: translateY(-1px);
-                box-shadow:
-                    0 15px 35px rgba(37,211,102,.23);
+            .er-reward-tile {
+                min-height: 94px;
             }
 
-            .er-daily-claim-btn:active {
-                transform: translateY(0);
+            .er-reward-visual {
+                font-size: 36px;
             }
 
-            .er-daily-claim-btn:disabled {
-                opacity: .65;
-                cursor: not-allowed;
-                transform: none;
+            .er-reward-tile.day-seven
+            .er-reward-visual {
+                font-size: 50px;
             }
 
-            .er-daily-countdown {
-                display: none;
-                margin-top: 14px;
-                padding: 13px;
-                border-radius: 14px;
-                background: rgba(255,255,255,.04);
-                border: 1px solid rgba(255,255,255,.06);
-                color: rgba(255,255,255,.55);
-                font-size: 11px;
-                font-weight: 700;
+            .er-reward-tile-footer {
+                font-size: 7px;
             }
+        }
 
-            .er-daily-countdown strong {
-                color: #fff;
+
+        /* ========================================================
+           REDUCED MOTION
+           ======================================================== */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .er-reward-modal,
+            .er-reward-panel,
+            .er-reward-launcher,
+            .er-reward-close,
+            .er-reward-claim {
+                transition: none !important;
             }
+        }
 
-            .er-daily-note {
-                margin: 13px 0 0;
-                color: rgba(255,255,255,.30);
-                font-size: 9px;
-                line-height: 1.45;
-            }
-
-            @media (max-width: 430px) {
-                .er-daily-modal {
-                    padding: 12px;
-                }
-
-                .er-daily-dialog {
-                    border-radius: 24px;
-                    max-height: calc(100vh - 24px);
-                }
-
-                .er-daily-modal-content {
-                    padding: 29px 17px 18px;
-                }
-
-                .er-daily-modal-icon {
-                    width: 64px;
-                    height: 64px;
-                    border-radius: 20px;
-                    font-size: 31px;
-                }
-
-                .er-daily-modal-title {
-                    font-size: 24px;
-                }
-
-                .er-daily-modal-reward-value {
-                    font-size: 32px;
-                }
-
-                .er-daily-card {
-                    padding: 16px;
-                    border-radius: 19px;
-                }
-
-                .er-daily-card-icon {
-                    width: 43px;
-                    height: 43px;
-                    flex-basis: 43px;
-                    border-radius: 13px;
-                    font-size: 21px;
-                }
-
-                .er-daily-card-title {
-                    font-size: 16px;
-                }
-
-                .er-daily-card-status {
-                    padding: 6px 8px;
-                    font-size: 8px;
-                }
-
-                .er-daily-reward-value {
-                    font-size: 21px;
-                }
-
-                .er-daily-card-action {
-                    min-height: 34px;
-                    padding: 0 11px;
-                    font-size: 9px;
-                }
-            }
-
-            @media (prefers-reduced-motion: reduce) {
-                .er-daily-card,
-                .er-daily-claim-btn,
-                .er-daily-close,
-                .er-daily-modal,
-                .er-daily-dialog {
-                    transition: none !important;
-                }
-            }
         `;
 
         document.head.appendChild(style);
     }
 
 
-    /* =========================================================
-       CREATE MODAL
-       ========================================================= */
+    /* ============================================================
+       TILE VISUALS
+       ============================================================ */
 
-    function createModal() {
-        if (document.getElementById(
-            "erDailyCheckinModal"
-        )) {
-            modal = document.getElementById(
-                "erDailyCheckinModal"
-            );
+    function getVisual(day) {
 
-            return;
-        }
+        const visuals = {
+            1: "🪙",
+            2: "💰",
+            3: "💰",
+            4: "💵",
+            5: "💰",
+            6: "💎",
+            7: "🏆"
+        };
 
-        modal = document.createElement("div");
-
-        modal.id = "erDailyCheckinModal";
-
-        modal.className = "er-daily-modal";
-
-        modal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-        modal.innerHTML = `
-            <div
-                class="er-daily-dialog"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="erDailyTitle"
-            >
-                <button
-                    type="button"
-                    class="er-daily-close"
-                    id="erDailyClose"
-                    aria-label="Close Daily Check-in"
-                >
-                    ×
-                </button>
-
-                <div class="er-daily-modal-content">
-
-                    <div class="er-daily-modal-icon">
-                        🎁
-                    </div>
-
-                    <p class="er-daily-modal-kicker">
-                        DAILY CHECK-IN
-                    </p>
-
-                    <h2
-                        class="er-daily-modal-title"
-                        id="erDailyTitle"
-                    >
-                        Your Daily Reward
-                    </h2>
-
-                    <p class="er-daily-modal-subtitle">
-                        Claim today's reward and keep your
-                        7-day check-in streak moving.
-                    </p>
-
-                    <div class="er-daily-modal-reward">
-
-                        <p class="er-daily-modal-reward-label">
-                            Today's Reward
-                        </p>
-
-                        <p
-                            class="er-daily-modal-reward-value"
-                            id="erDailyReward"
-                        >
-                            1,000
-                            <span>COINS</span>
-                        </p>
-
-                    </div>
-
-                    <p
-                        class="er-daily-week-label"
-                        id="erDailyWeekLabel"
-                    >
-                        Week 1 • Day 1
-                    </p>
-
-                    <div
-                        class="er-daily-modal-days"
-                        id="erDailyModalDays"
-                    ></div>
-
-                    <button
-                        type="button"
-                        class="er-daily-claim-btn"
-                        id="erDailyClaim"
-                    >
-                        Claim Reward
-                    </button>
-
-                    <div
-                        class="er-daily-countdown"
-                        id="erDailyCountdown"
-                    >
-                        Next reward available in
-                        <strong id="erDailyCountdownValue">
-                            24:00:00
-                        </strong>
-                    </div>
-
-                    <p class="er-daily-note">
-                        Your next check-in becomes available
-                        24 hours after claiming today's reward.
-                    </p>
-
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        const closeButton =
-            document.getElementById(
-                "erDailyClose"
-            );
-
-        const claimButton =
-            document.getElementById(
-                "erDailyClaim"
-            );
-
-        closeButton.addEventListener(
-            "click",
-            closeModal
-        );
-
-        claimButton.addEventListener(
-            "click",
-            claimReward
-        );
-
-        modal.addEventListener(
-            "click",
-            function (event) {
-                if (event.target === modal) {
-                    closeModal();
-                }
-            }
-        );
-
-        document.addEventListener(
-            "keydown",
-            function (event) {
-                if (
-                    event.key === "Escape" &&
-                    modal &&
-                    modal.classList.contains("open")
-                ) {
-                    closeModal();
-                }
-            }
+        return (
+            visuals[day] ||
+            "🪙"
         );
     }
 
 
-    /* =========================================================
-       CREATE REWARDS CARD
-       ========================================================= */
+    /* ============================================================
+       CREATE LAUNCHER CARD
+       ============================================================ */
 
-    function createCard() {
+    function createLauncher() {
+
         const rewardsList =
             document.getElementById(
                 "rewardsList"
@@ -1068,71 +1343,45 @@
 
         if (!rewardsList) {
             console.error(
-                "EarnRush Daily Check-in: #rewardsList was not found."
+                "Daily Check-in: #rewardsList not found."
             );
 
             return;
         }
 
-        const existingCard =
-            document.getElementById(
-                "erDailyCheckinCard"
+        rewardsCard =
+            document.createElement(
+                "div"
             );
 
-        if (existingCard) {
-            card = existingCard;
-            return;
-        }
+        rewardsCard.id =
+            "erDailyRewardLauncher";
 
-        card = document.createElement("div");
+        rewardsCard.className =
+            "er-reward-launcher";
 
-        card.id = "erDailyCheckinCard";
-
-        card.className =
-            "er-daily-card";
-
-        card.setAttribute(
-            "role",
-            "button"
+        rewardsList.prepend(
+            rewardsCard
         );
 
-        card.setAttribute(
-            "tabindex",
-            "0"
-        );
-
-        rewardsList.prepend(card);
-
-        card.addEventListener(
+        rewardsCard.addEventListener(
             "click",
             function () {
                 openModal();
             }
         );
 
-        card.addEventListener(
-            "keydown",
-            function (event) {
-                if (
-                    event.key === "Enter" ||
-                    event.key === " "
-                ) {
-                    event.preventDefault();
-                    openModal();
-                }
-            }
-        );
-
-        updateCard();
+        updateLauncher();
     }
 
 
-    /* =========================================================
-       UPDATE REWARDS CARD
-       ========================================================= */
+    /* ============================================================
+       UPDATE LAUNCHER
+       ============================================================ */
 
-    function updateCard() {
-        if (!card) {
+    function updateLauncher() {
+
+        if (!rewardsCard) {
             return;
         }
 
@@ -1140,112 +1389,296 @@
             getCurrentReward();
 
         const cooldown =
-            isCooldownActive();
+            cooldownActive();
 
-        const completed =
-            isDayCompleted(
-                state.week,
-                state.day
-            );
+        let status =
+            "CLAIM NOW";
 
-        let statusText = "CLAIM NOW";
+        let button =
+            "VIEW REWARD";
 
-        let statusClass = "";
+        if (cooldown) {
+            status =
+                "CLAIMED";
 
-        let actionText = "Claim Reward";
-
-        if (completed && cooldown) {
-            statusText = "CLAIMED";
-            statusClass = "locked";
-            actionText = "24H COOLDOWN";
+            button =
+                "CHECK BACK LATER";
         }
 
-        card.className =
-            "er-daily-card" +
-            (cooldown ? " locked" : "");
+        rewardsCard.innerHTML = `
 
-        card.innerHTML = `
-            <div class="er-daily-card-top">
+            <div class="er-reward-launcher-head">
 
-                <div class="er-daily-card-title-wrap">
+                <div
+                    class="er-reward-launcher-left"
+                >
 
-                    <div class="er-daily-card-icon">
+                    <div
+                        class="er-reward-launcher-icon"
+                    >
                         🎁
                     </div>
 
                     <div>
-                        <p class="er-daily-card-kicker">
+
+                        <p
+                            class="er-reward-launcher-kicker"
+                        >
                             WEEK ${state.week}
+                            • DAY ${state.day}
                         </p>
 
-                        <h3 class="er-daily-card-title">
-                            Daily Check-in
+                        <h3
+                            class="er-reward-launcher-title"
+                        >
+                            Daily Reward
                         </h3>
+
                     </div>
 
                 </div>
 
                 <span
-                    class="er-daily-card-status ${statusClass}"
+                    class="er-reward-launcher-status"
                 >
-                    ${statusText}
-                </span>
-
-            </div>
-
-            <div class="er-daily-card-reward">
-
-                <div>
-                    <p class="er-daily-reward-label">
-                        Day ${state.day} Reward
-                    </p>
-
-                    <p class="er-daily-reward-value">
-                        ${formatNumber(reward)}
-                        <span>COINS</span>
-                    </p>
-                </div>
-
-                <span class="er-daily-card-action">
-                    ${actionText}
+                    ${status}
                 </span>
 
             </div>
 
             <div
-                class="er-daily-progress"
-                aria-label="7 day check-in progress"
+                class="er-reward-launcher-bottom"
             >
-                ${buildProgressDays()}
+
+                <div>
+
+                    <p
+                        class="er-reward-launcher-label"
+                    >
+                        Today's Reward
+                    </p>
+
+                    <p
+                        class="er-reward-launcher-value"
+                    >
+                        ${number(reward)}
+                        <span>COINS</span>
+                    </p>
+
+                </div>
+
+                <span
+                    class="er-reward-launcher-button"
+                >
+                    ${button}
+                </span>
+
+            </div>
+        `;
+    }
+
+
+    /* ============================================================
+       CREATE MODAL
+       ============================================================ */
+
+    function createModal() {
+
+        if (
+            document.getElementById(
+                "erDailyRewardModal"
+            )
+        ) {
+            modal =
+                document.getElementById(
+                    "erDailyRewardModal"
+                );
+
+            return;
+        }
+
+        modal =
+            document.createElement(
+                "div"
+            );
+
+        modal.id =
+            "erDailyRewardModal";
+
+        modal.className =
+            "er-reward-modal";
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        modal.innerHTML = `
+
+            <div
+                class="er-reward-panel"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="erDailyRewardTitle"
+            >
+
+                <div
+                    class="er-reward-header"
+                >
+
+                    <h2
+                        class="er-reward-header-title"
+                        id="erDailyRewardTitle"
+                    >
+                        Daily Reward
+                    </h2>
+
+                    <button
+                        type="button"
+                        class="er-reward-close"
+                        id="erDailyRewardClose"
+                        aria-label="Close"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+                <div
+                    class="er-reward-grid"
+                    id="erDailyRewardGrid"
+                ></div>
+
+                <div
+                    class="er-reward-action-area"
+                >
+
+                    <p
+                        class="er-reward-week"
+                        id="erDailyRewardWeek"
+                    ></p>
+
+                    <button
+                        type="button"
+                        class="er-reward-claim"
+                        id="erDailyRewardClaim"
+                    >
+                        CLAIM
+                    </button>
+
+                    <div
+                        class="er-reward-countdown"
+                        id="erDailyRewardCountdown"
+                    >
+                        Next reward available in
+                        <strong
+                            id="erDailyRewardCountdownValue"
+                        >
+                            24:00:00
+                        </strong>
+                    </div>
+
+                </div>
+
             </div>
         `;
 
-        card.classList.toggle(
-            "locked",
-            cooldown
+        document.body.appendChild(
+            modal
+        );
+
+
+        const close =
+            document.getElementById(
+                "erDailyRewardClose"
+            );
+
+        const claim =
+            document.getElementById(
+                "erDailyRewardClaim"
+            );
+
+
+        close.addEventListener(
+            "click",
+            closeModal
+        );
+
+
+        claim.addEventListener(
+            "click",
+            claimReward
+        );
+
+
+        modal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === modal
+                ) {
+                    closeModal();
+                }
+
+            }
+        );
+
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Escape" &&
+                    modal.classList.contains(
+                        "open"
+                    )
+                ) {
+                    closeModal();
+                }
+
+            }
         );
     }
 
 
-    /* =========================================================
-       BUILD 7 DAYS
-       ========================================================= */
+    /* ============================================================
+       BUILD REWARD GRID
+       ============================================================ */
 
-    function buildProgressDays() {
+    function buildRewardGrid() {
+
+        const grid =
+            document.getElementById(
+                "erDailyRewardGrid"
+            );
+
+        if (!grid) {
+            return;
+        }
+
         let html = "";
 
         for (
             let day = 1;
-            day <= DAY_COUNT;
+            day <= DAYS_PER_WEEK;
             day++
         ) {
-            const completed =
-                isDayCompleted(
+
+            const reward =
+                getReward(
                     state.week,
                     day
                 );
 
-            const active =
+            const completed =
+                isCompleted(
+                    state.week,
+                    day
+                );
+
+            const current =
                 day === state.day &&
                 !completed;
 
@@ -1253,162 +1686,128 @@
                 day > state.day;
 
             let classes =
-                "er-daily-progress-day";
+                "er-reward-tile";
+
+            if (current) {
+                classes +=
+                    " current";
+            }
+
+            if (locked) {
+                classes +=
+                    " locked";
+            }
 
             if (completed) {
-                classes += " completed";
-            } else if (active) {
-                classes += " active";
-            } else if (locked) {
-                classes += " locked";
+                classes +=
+                    " claimed";
+            }
+
+            if (day === 7) {
+                classes +=
+                    " day-seven";
+            }
+
+            let footer =
+                `GET ${number(reward)} COINS`;
+
+            if (completed) {
+                footer =
+                    `✓ ${number(reward)} COINS`;
             }
 
             html += `
-                <div class="${classes}">
 
-                    <div class="er-daily-day-box">
-                        ${
-                            completed
-                                ? "✓"
-                                : day
-                        }
-                    </div>
+                <div
+                    class="${classes}"
+                    data-day="${day}"
+                >
 
-                    <div class="er-daily-day-label">
-                        Day ${day}
-                    </div>
-
-                </div>
-            `;
-        }
-
-        return html;
-    }
-
-
-    /* =========================================================
-       BUILD MODAL DAYS
-       ========================================================= */
-
-    function buildModalDays() {
-        const container =
-            document.getElementById(
-                "erDailyModalDays"
-            );
-
-        if (!container) {
-            return;
-        }
-
-        let html = "";
-
-        for (
-            let day = 1;
-            day <= DAY_COUNT;
-            day++
-        ) {
-            const completed =
-                isDayCompleted(
-                    state.week,
-                    day
-                );
-
-            const active =
-                day === state.day &&
-                !completed;
-
-            let classes =
-                "er-daily-modal-day";
-
-            if (completed) {
-                classes += " completed";
-            }
-
-            if (active) {
-                classes += " active";
-            }
-
-            const reward =
-                getDayReward(
-                    state.week,
-                    day
-                );
-
-            html += `
-                <div class="${classes}">
-
-                    <div class="er-daily-modal-day-number">
-                        ${
-                            completed
-                                ? "✓"
-                                : `D${day}`
-                        }
+                    <div
+                        class="er-reward-tile-day"
+                    >
+                        DAY ${day}
                     </div>
 
                     <div
-                        class="er-daily-modal-day-reward"
+                        class="er-reward-visual"
                     >
-                        ${formatNumber(reward)}
+                        ${getVisual(day)}
+                    </div>
+
+                    ${
+                        locked
+                            ? `
+                                <div
+                                    class="er-reward-lock"
+                                >
+                                    🔒
+                                </div>
+                              `
+                            : ""
+                    }
+
+                    <div
+                        class="er-reward-tile-footer"
+                    >
+                        ${footer}
                     </div>
 
                 </div>
             `;
         }
 
-        container.innerHTML = html;
+        grid.innerHTML =
+            html;
     }
 
 
-    /* =========================================================
+    /* ============================================================
        UPDATE MODAL
-       ========================================================= */
+       ============================================================ */
 
     function updateModal() {
+
         if (!modal) {
             return;
         }
 
+        buildRewardGrid();
+
         const reward =
             getCurrentReward();
 
-        const rewardElement =
+        const week =
             document.getElementById(
-                "erDailyReward"
+                "erDailyRewardWeek"
             );
 
-        const weekLabel =
+        const claim =
             document.getElementById(
-                "erDailyWeekLabel"
-            );
-
-        const claimButton =
-            document.getElementById(
-                "erDailyClaim"
+                "erDailyRewardClaim"
             );
 
         const countdown =
             document.getElementById(
-                "erDailyCountdown"
+                "erDailyRewardCountdown"
             );
 
-        if (rewardElement) {
-            rewardElement.innerHTML =
-                `${formatNumber(reward)}
-                <span>COINS</span>`;
+        if (week) {
+            week.textContent =
+                `WEEK ${state.week} • DAY ${state.day} • ${number(reward)} COINS`;
         }
 
-        if (weekLabel) {
-            weekLabel.textContent =
-                `Week ${state.week} • Day ${state.day}`;
-        }
+        if (
+            cooldownActive()
+        ) {
 
-        buildModalDays();
+            if (claim) {
+                claim.disabled =
+                    true;
 
-        if (isCooldownActive()) {
-            claimButton.disabled = true;
-
-            claimButton.textContent =
-                "Reward Claimed ✓";
+                claim.textContent =
+                    "CLAIMED ✓";
+            }
 
             if (countdown) {
                 countdown.style.display =
@@ -1418,10 +1817,14 @@
             startCountdown();
 
         } else {
-            claimButton.disabled = false;
 
-            claimButton.textContent =
-                `Claim ${formatNumber(reward)} Coins`;
+            if (claim) {
+                claim.disabled =
+                    false;
+
+                claim.textContent =
+                    `CLAIM ${number(reward)} COINS`;
+            }
 
             if (countdown) {
                 countdown.style.display =
@@ -1433,18 +1836,21 @@
     }
 
 
-    /* =========================================================
+    /* ============================================================
        OPEN MODAL
-       ========================================================= */
+       ============================================================ */
 
     function openModal() {
+
         if (!modal) {
             createModal();
         }
 
         updateModal();
 
-        modal.classList.add("open");
+        modal.classList.add(
+            "open"
+        );
 
         modal.setAttribute(
             "aria-hidden",
@@ -1456,132 +1862,186 @@
     }
 
 
-    /* =========================================================
+    /* ============================================================
        CLOSE MODAL
-       ========================================================= */
+       ============================================================ */
 
     function closeModal() {
+
         if (!modal) {
             return;
         }
 
-        modal.classList.remove("open");
+        modal.classList.remove(
+            "open"
+        );
 
         modal.setAttribute(
             "aria-hidden",
             "true"
         );
 
-        document.body.style.overflow = "";
+        document.body.style.overflow =
+            "";
 
         /*
-         * IMPORTANT:
-         * Closing does NOT claim the reward.
-         * Nothing is saved here.
+         * VERY IMPORTANT:
+         *
+         * Closing the popup does not claim
+         * the reward.
+         *
+         * claimedAt is NOT changed here.
          */
     }
 
 
-    /* =========================================================
-       ADD COINS
-       ========================================================= */
+    /* ============================================================
+       ADD COINS THROUGH EXISTING GAME
+       ============================================================ */
 
-    function addCoinsToGame(amount) {
+    function giveCoins(
+        amount
+    ) {
+
         if (
-            window.EarnRushGame &&
-            typeof window.EarnRushGame.addCoins ===
+            !window.EarnRushGame ||
+            typeof window.EarnRushGame.addCoins !==
                 "function"
         ) {
+
+            console.error(
+                "Daily Check-in: EarnRushGame.addCoins() is unavailable."
+            );
+
+            return false;
+        }
+
+        try {
+
+            /*
+             * Existing EarnRush economy.
+             * No duplicate/local fake balance.
+             */
+
             window.EarnRushGame.addCoins(
                 amount
             );
 
             return true;
+
+        } catch (error) {
+
+            console.error(
+                "Daily Check-in: Could not add reward.",
+                error
+            );
+
+            return false;
         }
-
-        /*
-         * Do NOT create a second/fake coin system.
-         * Daily Check-in must use the existing
-         * EarnRush game economy.
-         */
-
-        console.error(
-            "EarnRush Daily Check-in: EarnRushGame.addCoins() is unavailable."
-        );
-
-        return false;
     }
 
 
-    /* =========================================================
-       CLAIM REWARD
-       ========================================================= */
+    /* ============================================================
+       CLAIM
+       ============================================================ */
 
     function claimReward() {
-        if (isCooldownActive()) {
+
+        if (claimInProgress) {
+            return;
+        }
+
+        /*
+         * Current reward must be available.
+         */
+
+        if (
+            cooldownActive()
+        ) {
             return;
         }
 
         const claimButton =
             document.getElementById(
-                "erDailyClaim"
+                "erDailyRewardClaim"
             );
 
         if (!claimButton) {
             return;
         }
 
+        claimInProgress =
+            true;
+
+        claimButton.disabled =
+            true;
+
         const reward =
             getCurrentReward();
 
         /*
-         * Disable immediately so a fast double click
-         * cannot claim the same reward twice.
+         * Add coins first.
          */
 
-        claimButton.disabled = true;
+        const success =
+            giveCoins(reward);
 
-        const added =
-            addCoinsToGame(reward);
+        if (!success) {
 
-        if (!added) {
-            claimButton.disabled = false;
+            claimInProgress =
+                false;
+
+            claimButton.disabled =
+                false;
 
             claimButton.textContent =
-                `Claim ${formatNumber(reward)} Coins`;
+                `CLAIM ${number(reward)} COINS`;
 
             return;
         }
 
-        const currentKey =
-            getDayKey(
+
+        /*
+         * Mark today's exact week/day as completed.
+         */
+
+        const key =
+            dayKey(
                 state.week,
                 state.day
             );
 
         if (
             !state.completedDays.includes(
-                currentKey
+                key
             )
         ) {
             state.completedDays.push(
-                currentKey
+                key
             );
         }
+
+
+        /*
+         * Start the exact 24-hour cooldown
+         * from the moment of claim.
+         */
 
         state.claimedAt =
             Date.now();
 
-        state.totalClaims += 1;
+        state.totalClaims +=
+            1;
 
         saveState();
 
+
         /*
-         * Refresh game UI if the existing game exposes
-         * an update method.
+         * Refresh existing game UI if available.
          */
 
         try {
+
             if (
                 window.EarnRushGame &&
                 typeof window.EarnRushGame.updateUI ===
@@ -1589,162 +2049,156 @@
             ) {
                 window.EarnRushGame.updateUI();
             }
+
         } catch (error) {
+
             console.warn(
-                "EarnRush Daily Check-in: Game UI refresh skipped.",
+                "Daily Check-in: UI refresh unavailable.",
                 error
             );
         }
 
+
         /*
-         * Update the current card/modal immediately.
+         * Update reward card immediately.
          */
 
-        updateCard();
+        updateLauncher();
 
         updateModal();
 
+
         /*
-         * Keep the popup visible briefly so the user
-         * can clearly see that the reward was claimed.
+         * Give the user a short visual confirmation,
+         * then close the popup.
          */
+
+        claimButton.textContent =
+            "CLAIMED ✓";
 
         setTimeout(
             function () {
+
                 closeModal();
+
+                claimInProgress =
+                    false;
+
             },
-            700
+            650
         );
     }
 
 
-    /* =========================================================
-       ADVANCE TO NEXT DAY
-       ========================================================= */
-
-    function advanceIfNeeded() {
-        if (isCooldownActive()) {
-            return;
-        }
-
-        /*
-         * No claim has happened yet.
-         * Current day must remain claimable.
-         */
-
-        if (!state.claimedAt) {
-            return;
-        }
-
-        /*
-         * The 24-hour cooldown has finished.
-         * Move to the next day.
-         */
-
-        if (
-            state.day < DAY_COUNT
-        ) {
-            state.day += 1;
-
-            state.claimedAt = null;
-
-            saveState();
-
-            return;
-        }
-
-        /*
-         * Day 7 completed.
-         * Start the next week.
-         */
-
-        state.week += 1;
-
-        state.day = 1;
-
-        state.claimedAt = null;
-
-        saveState();
-    }
-
-
-    /* =========================================================
+    /* ============================================================
        COUNTDOWN
-       ========================================================= */
+       ============================================================ */
 
-    function formatCountdown(milliseconds) {
-        const totalSeconds =
+    function countdownText(
+        milliseconds
+    ) {
+
+        const seconds =
             Math.max(
                 0,
                 Math.floor(
-                    milliseconds / 1000
+                    milliseconds /
+                        1000
                 )
             );
 
         const hours =
             Math.floor(
-                totalSeconds / 3600
+                seconds / 3600
             );
 
         const minutes =
             Math.floor(
-                (totalSeconds % 3600) / 60
+                (seconds % 3600) /
+                    60
             );
 
-        const seconds =
-            totalSeconds % 60;
+        const secs =
+            seconds % 60;
 
-        return [
-            String(hours).padStart(2, "0"),
-            String(minutes).padStart(2, "0"),
-            String(seconds).padStart(2, "0")
-        ].join(":");
+        return (
+            String(hours)
+                .padStart(2, "0") +
+            ":" +
+            String(minutes)
+                .padStart(2, "0") +
+            ":" +
+            String(secs)
+                .padStart(2, "0")
+        );
     }
 
 
     function updateCountdown() {
-        const countdownValue =
+
+        const value =
             document.getElementById(
-                "erDailyCountdownValue"
+                "erDailyRewardCountdownValue"
             );
 
-        if (!countdownValue) {
+        if (!value) {
             return;
         }
 
         const remaining =
-            getRemainingMs();
+            remainingTime();
 
-        if (remaining <= 0) {
+        if (
+            remaining <= 0
+        ) {
+
             stopCountdown();
 
-            advanceIfNeeded();
-
-            updateCard();
-
-            updateModal();
-
             /*
-             * Once 24 hours are complete, the next
-             * reward should be available.
+             * 24 hours completed.
+             * Move to the next day/week.
              */
+
+            if (
+                advanceAfterCooldown()
+            ) {
+
+                updateLauncher();
+
+                updateModal();
+
+                /*
+                 * If popup is currently open,
+                 * show the newly unlocked day.
+                 */
+
+                if (
+                    modal &&
+                    modal.classList.contains(
+                        "open"
+                    )
+                ) {
+                    updateModal();
+                }
+            }
 
             return;
         }
 
-        countdownValue.textContent =
-            formatCountdown(
+        value.textContent =
+            countdownText(
                 remaining
             );
     }
 
 
     function startCountdown() {
+
         stopCountdown();
 
         updateCountdown();
 
-        countdownTimer =
+        countdownInterval =
             setInterval(
                 updateCountdown,
                 1000
@@ -1753,72 +2207,79 @@
 
 
     function stopCountdown() {
-        if (countdownTimer) {
+
+        if (
+            countdownInterval
+        ) {
+
             clearInterval(
-                countdownTimer
+                countdownInterval
             );
 
-            countdownTimer = null;
+            countdownInterval =
+                null;
         }
     }
 
 
-    /* =========================================================
-       AUTO OPEN LOGIC
-       ========================================================= */
+    /* ============================================================
+       AUTO POPUP
+       ============================================================ */
 
-    function shouldAutoOpen() {
+    function autoOpen() {
+
         /*
-         * If no reward has ever been claimed:
-         * ALWAYS show the popup.
+         * First ever visit:
+         * current reward has never been claimed.
          */
 
         if (!state.claimedAt) {
-            return true;
-        }
 
-        /*
-         * If previous reward was claimed but 24h
-         * have not passed yet, do not show it.
-         */
+            setTimeout(
+                openModal,
+                AUTO_OPEN_DELAY
+            );
 
-        if (isCooldownActive()) {
-            return false;
-        }
-
-        /*
-         * 24h have passed.
-         * Advance to next day/week and show it.
-         */
-
-        advanceIfNeeded();
-
-        return true;
-    }
-
-
-    function autoOpenCheckin() {
-        if (!shouldAutoOpen()) {
-            updateCard();
             return;
         }
 
-        updateCard();
+
+        /*
+         * Still inside 24-hour cooldown:
+         * do NOT show popup.
+         */
+
+        if (
+            cooldownActive()
+        ) {
+            return;
+        }
+
+
+        /*
+         * 24 hours have passed:
+         * unlock next day/week and show it.
+         */
+
+        if (
+            advanceAfterCooldown()
+        ) {
+            updateLauncher();
+        }
 
         setTimeout(
-            function () {
-                openModal();
-            },
+            openModal,
             AUTO_OPEN_DELAY
         );
     }
 
 
-    /* =========================================================
-       VISIBILITY / RETURN TO GAME
-       ========================================================= */
+    /* ============================================================
+       PAGE VISIBILITY
+       ============================================================ */
 
-    function handleVisibilityChange() {
+    function onVisible() {
+
         if (
             document.visibilityState !==
             "visible"
@@ -1826,116 +2287,127 @@
             return;
         }
 
-        /*
-         * Re-read state in case another tab/window
-         * changed the check-in state.
-         */
-
-        state = loadState();
+        state =
+            loadState();
 
         if (
             state.claimedAt &&
-            !isCooldownActive()
+            !cooldownActive()
         ) {
-            advanceIfNeeded();
 
-            updateCard();
+            if (
+                advanceAfterCooldown()
+            ) {
+                updateLauncher();
+            }
         }
     }
 
 
-    /* =========================================================
-       PAGE FOCUS
-       ========================================================= */
+    /* ============================================================
+       WINDOW FOCUS
+       ============================================================ */
 
-    function handleWindowFocus() {
-        state = loadState();
+    function onFocus() {
+
+        state =
+            loadState();
 
         if (
             state.claimedAt &&
-            !isCooldownActive()
+            !cooldownActive()
         ) {
-            advanceIfNeeded();
 
-            updateCard();
+            if (
+                advanceAfterCooldown()
+            ) {
+                updateLauncher();
+            }
         }
     }
 
 
-    /* =========================================================
-       INITIALIZATION
-       ========================================================= */
+    /* ============================================================
+       INITIALIZE
+       ============================================================ */
 
     function init() {
+
         /*
          * Prevent duplicate initialization.
          */
 
         if (
-            window.__EarnRushDailyCheckinInitialized
+            window.__EarnRushDailyRewardStarted
         ) {
             return;
         }
 
-        window.__EarnRushDailyCheckinInitialized =
+        window.__EarnRushDailyRewardStarted =
             true;
 
-        injectStyles();
 
-        createModal();
+        state =
+            loadState();
 
-        createCard();
 
         /*
-         * In case the 24h cooldown has already expired
-         * while the website was closed.
+         * If the previous 24-hour cooldown
+         * has already finished while the game
+         * was closed, unlock next day first.
          */
 
         if (
             state.claimedAt &&
-            !isCooldownActive()
+            !cooldownActive()
         ) {
-            advanceIfNeeded();
+            advanceAfterCooldown();
         }
 
-        updateCard();
+
+        injectCSS();
+
+        createModal();
+
+        createLauncher();
+
+        updateLauncher();
+
+        autoOpen();
+
 
         document.addEventListener(
             "visibilitychange",
-            handleVisibilityChange
+            onVisible
         );
 
         window.addEventListener(
             "focus",
-            handleWindowFocus
+            onFocus
         );
 
-        /*
-         * Automatic popup.
-         */
-
-        autoOpenCheckin();
 
         console.log(
-            "EarnRush Daily Check-in initialized.",
+            "EarnRush Daily Reward initialized:",
             {
                 week: state.week,
                 day: state.day,
-                reward: getCurrentReward(),
-                claimedAt: state.claimedAt
+                reward:
+                    getCurrentReward()
             }
         );
     }
 
 
-    /* =========================================================
-       START
-       ========================================================= */
+    /* ============================================================
+       START AFTER DOM
+       ============================================================ */
 
     if (
         document.readyState ===
         "loading"
     ) {
+
         document.addEventListener(
             "DOMContentLoaded",
             init,
@@ -1943,20 +2415,26 @@
                 once: true
             }
         );
+
     } else {
+
         init();
     }
 
 
-    /* =========================================================
-       OPTIONAL PUBLIC API
-       ========================================================= */
+    /* ============================================================
+       PUBLIC API
+       ============================================================ */
 
     window.EarnRushDailyCheckin = {
 
-        open: openModal,
+        open: function () {
+            openModal();
+        },
 
-        close: closeModal,
+        close: function () {
+            closeModal();
+        },
 
         getState: function () {
             return {
@@ -1964,20 +2442,20 @@
             };
         },
 
-        getCurrentReward: function () {
-            return getCurrentReward();
-        },
-
-        getDayReward: function (
+        getReward: function (
             week,
             day
         ) {
-            return getDayReward(
+            return getReward(
                 week,
                 day
             );
-        }
+        },
 
+        getCurrentReward:
+            function () {
+                return getCurrentReward();
+            }
     };
 
 })();
