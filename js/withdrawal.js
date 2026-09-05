@@ -5,9 +5,9 @@
   "use strict";
 
   // Single source of truth for the coin economy on this page.
-  // 1,000 Coins = Rs 1  ->  RATE = 0.001
-  // Minimum withdrawal = 50,000 Coins = Rs 50
-  const COIN_TO_RS_RATE = 0.001;
+  // 2,000 Coins = Rs 1  ->  RATE = 0.0005
+  // Minimum withdrawal = 50,000 Coins = Rs 25
+  const COIN_TO_RS_RATE = 0.0005;
   const MIN_WITHDRAW_COINS = 50000;
 
   /* =====================================================
@@ -441,6 +441,7 @@
               withdrawBtn.style.cursor =
                 "pointer";
             }
+
           }
 
         }
@@ -593,7 +594,7 @@
           /* REAL WITHDRAWAL — calls the existing create_withdrawal
              RPC with its exact, verified signature. The database is
              authoritative: it re-validates auth, minimum, balance,
-             and computes cash_amount itself (1,000 coins = Rs 1).
+             and computes cash_amount itself (2,000 coins = Rs 1).
              The client-side checks above are for responsive UX only. */
 
           const paymentMethod =
@@ -637,6 +638,8 @@
               msg.className = "withdraw-message pending show";
               msg.style.display = "block";
             }
+
+
 /* =====================================================
    CREATE WITHDRAWAL NOTIFICATION
 ===================================================== */
@@ -681,7 +684,7 @@ if (window.EarnRushNotifications) {
             if (rsDisplay) rsDisplay.textContent = "= 0 Rs";
 
             await refreshCoinBalance();
-await loadWithdrawalHistory();
+            await loadWithdrawalHistory();
 
             await loadWithdrawalHistory();
 
@@ -724,7 +727,7 @@ await loadWithdrawalHistory();
       const balanceEl = document.getElementById("balance");
       if (balanceEl) balanceEl.textContent = data.coins.toLocaleString();
     }
-}
+  }
 
 
   /* =====================================================
