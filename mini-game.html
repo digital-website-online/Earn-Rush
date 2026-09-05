@@ -1,0 +1,3864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<meta
+name="description"
+content="EarnRush Aviator — play the EarnRush mini game, fly the plane and multiply your Arcade Tokens."
+>
+
+<meta
+name="theme-color"
+content="#07111f"
+>
+
+<title>EarnRush Aviator — Mini Game</title>
+
+<style>
+/* =========================================================
+   EARNRUSH MINI GAME - FULL STYLING
+   ========================================================= */
+
+/* Body Lock when Game is Open */
+body.mg-open {
+  overflow: hidden !important;
+}
+
+/* Card Button in Dashboard */
+.mg-card {
+  background: linear-gradient(135deg, #101c29 0%, #1e293b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.mg-card:active {
+  transform: scale(0.98);
+}
+
+.mg-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mg-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Fullscreen Game Overlay */
+.mg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0b1120;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mg-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mg-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* Header */
+.mg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.mg-back {
+  background: #1e293b;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.mg-header h2 {
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.mg-wallet-badge {
+  background: rgba(255, 215, 90, 0.12);
+  color: #ffd75a;
+  padding: 6px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid rgba(255, 215, 90, 0.28);
+  text-shadow: 0 0 12px rgba(255, 215, 90, 0.25);
+}
+
+/* Game Animation Screen — dark, layered, premium */
+.mg-screen {
+  position: relative;
+  height: 240px;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(56, 189, 248, 0.10), transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(239, 68, 68, 0.08), transparent 60%),
+    linear-gradient(180deg, #101a2c 0%, #070c15 100%);
+  border-radius: 18px;
+  margin: 12px 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+}
+
+/* Subtle rising grid for depth, static — no per-frame cost */
+.mg-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 70%);
+  mask-image: linear-gradient(180deg, transparent, #000 70%);
+  pointer-events: none;
+}
+
+.mg-round-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  z-index: 5;
+}
+
+.mg-multiplier {
+  font-size: 46px;
+  font-weight: 900;
+  color: #22c55e;
+  letter-spacing: -1px;
+  z-index: 3;
+}
+
+.mg-multiplier.crashed {
+  color: #ef4444;
+  animation: mgCrashPulse 0.3s ease;
+}
+
+@keyframes mgCrashPulse {
+  0% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.mg-status {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+  z-index: 3;
+  font-weight: 600;
+}
+
+/* Flight trail — grows/rotates purely via transform+width, written
+   directly from JS alongside the plane, no layout cost. */
+.mg-trail {
+  position: absolute;
+  left: 15%;
+  bottom: 24%;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0), #ff3b5c 70%, #ff8a9a);
+  border-radius: 4px;
+  transform-origin: left center;
+  will-change: width, transform;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.mg-plane {
+  position: absolute;
+  font-size: 30px;
+  left: 15%;
+  bottom: 24%;
+  /* Animated purely via transform (translate3d), written directly each
+     animation frame from JS — no CSS transition here, since a transition
+     would fight with the per-frame rAF updates and cost extra paint work. */
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  z-index: 2;
+}
+
+/* Ambient idle sway while waiting for the next flight — purely CSS,
+   so the plane always feels alive even with zero bets placed. This
+   class is removed the instant a flight begins, handing control back
+   to the per-frame JS transform. */
+.mg-plane.idle {
+  animation: mgPlaneIdle 2.6s ease-in-out infinite;
+}
+
+@keyframes mgPlaneIdle {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+  50% { transform: translate3d(4px, -6px, 0) rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mg-plane.idle { animation: none; }
+}
+
+/* Simulated activity badge on the graph corner */
+.mg-demo-badge {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(8, 14, 24, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  font-weight: 800;
+  color: #cbd5e1;
+  z-index: 5;
+}
+
+/* Controls & Betting */
+.mg-controls {
+  background: linear-gradient(180deg, #16233699, #0f1826);
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.mg-panel-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.mg-bet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.mg-token-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.mg-token-buttons button {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  flex: 1;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.mg-token-buttons button.active {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+}
+
+.mg-start {
+  width: 132px;
+  padding: 8px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.5;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 18px rgba(34, 197, 94, 0.22);
+  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.mg-start span {
+  display: block;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.mg-start:active {
+  transform: scale(0.98);
+}
+
+.mg-start.cashout {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 8px 18px rgba(245, 158, 11, 0.25);
+  animation: mgCashoutPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes mgCashoutPulse {
+  0%, 100% { box-shadow: 0 8px 18px rgba(245, 158, 11, 0.25); }
+  50% { box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45); }
+}
+
+.mg-start:disabled {
+  background: #475569;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+  animation: none;
+}
+
+/* Dual betting panels, stacked vertically (matches reference layout) */
+.mg-betting-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.mg-controls {
+  flex-shrink: 0;
+}
+
+/* Numeric stepper: - [ amount ] + */
+.mg-stepper {
+  display: flex;
+  align-items: stretch;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0b1420;
+}
+
+.mg-step-btn {
+  flex: 0 0 34px;
+  border: none;
+  background: #16233a;
+  color: #cbd5e1;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mg-step-btn:active {
+  background: #22344f;
+}
+
+.mg-step-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 0 4px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.mg-step-input::-webkit-outer-spin-button,
+.mg-step-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Recent results / activity */
+.mg-live-bets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 2px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.mg-demo-note {
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.06);
+  font-size: 10px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.mg-stats-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: #101c29;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.mg-stats-strip strong {
+  color: #38bdf8;
+}
+
+.mg-live-bet-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+  transition: background 0.15s ease;
+}
+
+.mg-live-bet-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mg-live-bet-item .user {
+  display: flex;
+  align-items: center;
+  color: #e2e8f0;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.mg-live-bet-item .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00ff88;
+  box-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
+}
+
+.mg-live-bet-amount {
+  color: #22c55e;
+  font-weight: 800;
+}
+.mg-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.mg-tabs button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.mg-tabs button.active {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+/* Tab Panels */
+.mg-panel-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.mg-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mg-history-item {
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  background: #131f30;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mg-history-item.low { color: #38bdf8; }
+.mg-history-item.medium { color: #a855f7; }
+.mg-history-item.high { color: #f472b6; text-shadow: 0 0 10px rgba(244, 114, 182, 0.35); }
+
+/* Statistics Tab UI */
+.mg-statistics-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.mg-statistics-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #1e293b;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.mg-statistics-row strong {
+  color: #22c55e;
+}
+
+.mg-statistics-row small {
+  color: #64748b;
+}
+
+/* Modal Popup */
+.mg-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.mg-popup.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mg-popup-content {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 16px;
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mg-popup-content h3 {
+  margin: 0 0 10px 0;
+  color: #38bdf8;
+}
+
+.mg-popup-content p {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.mg-popup-btn {
+  background: #38bdf8;
+  color: #0f172a;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* =========================================================
+   COINS -> ARCADE TOKENS CONVERTER (one-way only)
+   ========================================================= */
+
+.mg-convert-bar {
+  margin: 10px 0 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #101c29;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mg-convert-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.mg-convert-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.mg-convert-coins {
+  font-size: 14px;
+  color: #ffd75a;
+  font-weight: 900;
+}
+
+.mg-convert-row {
+  display: flex;
+  gap: 8px;
+}
+
+.mg-convert-input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: #0b1420;
+  color: #fff;
+  padding: 0 12px;
+  outline: none;
+  font: 700 13px Arial, sans-serif;
+}
+
+.mg-convert-input:focus {
+  border-color: #38bdf8;
+}
+
+.mg-convert-btn {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #12bff2, #087dce);
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mg-convert-btn:active {
+  transform: scale(0.97);
+}
+
+.mg-convert-preview {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.mg-convert-msg {
+  min-height: 14px;
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mg-convert-msg.is-error {
+  color: #ef4444;
+}
+
+.mg-convert-msg.is-success {
+  color: #22c55e;
+}
+
+.mg-convert-note {
+  margin: 6px 0 0;
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   SIMULATED / DEMO ACTIVITY LABELING
+   The "active players" and "live bets" feed are simulated
+   for atmosphere only — this makes that explicit in the UI
+   rather than presenting fabricated activity as real users.
+   ========================================================= */
+
+.mg-demo-note {
+  padding: 6px 10px;
+  font-size: 10px;
+  color: #64748b;
+  font-style: italic;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mg-demo-tag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+}
+
+/* =========================================
+   MINI GAME — TRUE MOBILE FULLSCREEN
+   ========================================= */
+
+#miniGameOverlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100svh;
+    min-height: 100svh;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+#miniGameOverlay .mg-container {
+    width: 100%;
+    height: 100%;
+    min-height: 100svh;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    display: flex;
+    flex-direction: column;
+}
+
+#miniGameOverlay .mg-screen {
+    width: 100%;
+    height: 220px;
+    min-height: 220px;
+    max-height: 220px;
+    flex-shrink: 0;
+}
+
+html.mini-game-active,
+body.mini-game-active {
+    overflow: hidden !important;
+    height: 100%;
+    overscroll-behavior: none;
+}
+
+/* NOTE: A previous pass added
+     transform: translateZ(0); will-change: transform, opacity;
+   plus an opaque background-color directly on #miniGameOverlay to
+   "fix" the black-flash bug. That was the actual cause: forcing a
+   solid-background full-viewport element onto its own GPU layer at
+   the exact moment its opacity was toggled by JS (e.g. right as the
+   converter re-rendered) is a known trigger for a visible flash of
+   the raw layer background before the content paints on iOS Safari
+   — i.e. the "fix" was causing the bug. It has been removed rather
+   than papered over. The overlay now transitions via opacity/
+   visibility only (see .mg-overlay base rule), which is enough for
+   a smooth fade without forcing layer promotion.
+   [This exact regression was reintroduced once already by a stale
+   file re-copy and has been removed again — see conversation.] */
+
+#miniGameOverlay {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+/* =========================================================
+   EARNRUSH MINI GAME - COMPACT CONVERTER
+========================================================= */
+
+.mg-convert-bar {
+  padding: 10px 10px 8px !important;
+  border-radius: 16px !important;
+  flex-shrink: 0;
+}
+
+.mg-convert-top {
+  margin-bottom: 6px !important;
+}
+
+.mg-convert-box {
+  padding: 6px 7px;
+  margin-top: 5px;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 31, 49, 0.72),
+      rgba(8, 20, 34, 0.72)
+    );
+
+  border: 1px solid rgba(90, 190, 255, 0.10);
+}
+
+.mg-convert-box-title {
+  margin: 0 0 4px 2px;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .45px;
+
+  color: var(--text-soft, #8d9bb0);
+}
+
+.mg-convert-row {
+  gap: 6px !important;
+}
+
+.mg-convert-input {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+
+.mg-convert-btn {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 11px !important;
+}
+
+.mg-convert-preview {
+  margin-top: 3px !important;
+  font-size: 10px !important;
+}
+
+.mg-token-to-coin {
+  margin-top: 5px;
+}
+
+.mg-convert-msg {
+  min-height: 12px;
+  margin: 3px 2px 0 !important;
+  font-size: 10px !important;
+}
+
+
+/* =========================================================
+   HIDE OLD PERMANENT TAB BAR
+========================================================= */
+
+.mg-insights-drawer .mg-tabs {
+  display: flex;
+}
+
+
+/* =========================================================
+   ACTIVITY / STATS TOGGLE
+========================================================= */
+
+.mg-history {
+  flex-shrink: 0;
+}
+
+.mg-insights-toggle {
+  width: 100%;
+  min-height: 42px;
+  flex-shrink: 0;
+
+  margin: 10px 0 0;
+  padding: 0 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: 1px solid rgba(55, 190, 255, 0.14);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 34, 53, 0.94),
+      rgba(9, 21, 36, 0.94)
+    );
+
+  color: #8fdcff;
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .2px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 20px rgba(0,0,0,.12);
+
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease;
+}
+
+.mg-insights-toggle:active {
+  transform: scale(.985);
+}
+
+.mg-insights-toggle:hover {
+  border-color: rgba(55, 190, 255, 0.25);
+}
+
+.mg-insights-arrow {
+  font-size: 15px;
+  line-height: 1;
+
+  transition:
+    transform .22s ease;
+}
+
+
+/* =========================================================
+   SLIDING DRAWER
+========================================================= */
+
+.mg-insights-drawer {
+  display: block;
+
+  max-height: 0;
+  overflow: hidden;
+
+  opacity: 0;
+
+  transform: translateY(8px);
+
+  margin-top: 0;
+
+  transition:
+    max-height .28s ease,
+    opacity .20s ease,
+    transform .28s ease,
+    margin-top .28s ease;
+}
+
+.mg-insights-drawer.open {
+  max-height: 650px;
+
+  opacity: 1;
+
+  transform: translateY(0);
+
+  margin-top: 8px;
+}
+
+
+/* =========================================================
+   DRAWER INNER
+========================================================= */
+
+.mg-insights-inner {
+  padding: 10px;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(12, 27, 44, .96),
+      rgba(7, 17, 30, .96)
+    );
+
+  border: 1px solid rgba(60, 180, 255, .13);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.18);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .mg-convert-bar {
+    padding: 12px !important;
+  }
+
+  .mg-convert-box {
+    padding: 7px;
+  }
+
+  .mg-convert-input {
+    font-size: 13px !important;
+  }
+
+  .mg-convert-btn {
+    padding: 0 14px !important;
+    font-size: 12px !important;
+  }
+
+  .mg-insights-toggle {
+    min-height: 40px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .mg-insights-drawer,
+  .mg-insights-arrow,
+  .mg-insights-toggle {
+    transition: none !important;
+  }
+
+}
+</style>
+
+</head>
+
+
+<body>
+
+<!-- =======================================================
+     MINI GAME OVERLAY
+     Existing structure preserved exactly as in index.html.
+======================================================= -->
+
+<div
+  id="miniGameOverlay"
+  class="mg-overlay"
+>
+
+  <div class="mg-container">
+
+
+    <!-- MINI GAME HEADER -->
+
+    <div class="mg-header">
+
+      <button
+        id="mgClose"
+        class="mg-back"
+        type="button"
+      >
+        ← Back
+      </button>
+
+
+      <h2>
+        EarnRush Aviator
+      </h2>
+
+
+      <div class="mg-wallet-badge">
+
+        Arcade Tokens:
+
+        <span id="mgTokenBalance">
+          300
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================================
+         COMPACT COINS / ARCADE TOKEN CONVERTER
+    ========================================== -->
+
+    <div
+      class="mg-convert-bar"
+      id="mgConvertBar"
+    >
+
+      <div class="mg-convert-top">
+
+        <span class="mg-convert-label">
+          Your Coins
+        </span>
+
+
+        <strong
+          id="mgCoinBalance"
+          class="mg-convert-coins"
+        >
+          0
+        </strong>
+
+      </div>
+
+
+      <!-- COINS → TOKENS -->
+
+      <div class="mg-convert-box">
+
+        <div class="mg-convert-box-title">
+          Coins → Arcade Tokens
+        </div>
+
+
+        <div class="mg-convert-row">
+
+          <input
+            type="number"
+            id="mgCoinConvertInput"
+            class="mg-convert-input"
+            placeholder="Min 10 Coins"
+            min="10"
+            step="1"
+            inputmode="numeric"
+          >
+
+
+          <button
+            id="mgConvertBtn"
+            class="mg-convert-btn"
+            type="button"
+          >
+            Convert
+          </button>
+
+        </div>
+
+
+        <div
+          class="mg-convert-preview"
+          id="mgConvertPreview"
+        >
+          = 0 Arcade Tokens
+        </div>
+
+      </div>
+
+
+      <!-- TOKENS → COINS -->
+
+      <div
+        class="mg-convert-box mg-token-to-coin"
+      >
+
+        <div class="mg-convert-box-title">
+          Arcade Tokens → Coins
+        </div>
+
+
+        <div class="mg-convert-row">
+
+          <input
+            type="number"
+            id="mgTokenConvertInput"
+            class="mg-convert-input"
+            placeholder="Min 10 Tokens"
+            min="10"
+            step="1"
+            inputmode="numeric"
+          >
+
+
+          <button
+            id="mgTokenConvertBtn"
+            class="mg-convert-btn"
+            type="button"
+          >
+            Convert
+          </button>
+
+        </div>
+
+
+        <div
+          class="mg-convert-preview"
+          id="mgTokenConvertPreview"
+        >
+          = 0 Coins
+        </div>
+
+      </div>
+
+
+      <p
+        id="mgConvertMsg"
+        class="mg-convert-msg"
+        role="status"
+        aria-live="polite"
+      ></p>
+
+    </div>
+
+
+    <!-- =========================================
+         GRAPH SCREEN
+    ========================================== -->
+
+    <div class="mg-screen">
+
+      <div
+        id="mgRoundNumber"
+        class="mg-round-tag"
+      >
+        ROUND 1
+      </div>
+
+
+      <div
+        id="mgMultiplier"
+        class="mg-multiplier"
+      >
+        1.00x
+      </div>
+
+
+      <div
+        id="mgStatus"
+        class="mg-status"
+      >
+        Next flight in 4s
+      </div>
+
+
+      <div
+        id="mgTrail"
+        class="mg-trail"
+      ></div>
+
+
+      <div
+        id="mgPlane"
+        class="mg-plane"
+      >
+        ✈️
+      </div>
+
+
+      <div class="mg-demo-badge">
+
+        🎮
+
+        <span id="mgLivePlayers">
+          136
+        </span>
+
+        Active Player
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================================
+         HISTORY BAR
+    ========================================== -->
+
+    <div
+      class="mg-history"
+      id="mgHistory"
+    ></div>
+
+
+    <!-- =========================================
+         DUAL BETTING PANELS
+    ========================================== -->
+
+    <div class="mg-betting-container">
+
+
+      <!-- PANEL 1 -->
+
+      <div
+        class="mg-controls"
+        data-panel-id="1"
+      >
+
+        <div class="mg-panel-left">
+
+          <div class="mg-stepper">
+
+            <button
+              type="button"
+              class="mg-step-btn"
+              data-action="minus"
+              data-panel="1"
+            >
+              −
+            </button>
+
+
+            <input
+              type="number"
+              id="mgBetInput1"
+              class="mg-step-input"
+              value="16"
+              min="16"
+              max="16000"
+              step="1"
+              inputmode="numeric"
+            >
+
+
+            <button
+              type="button"
+              class="mg-step-btn"
+              data-action="plus"
+              data-panel="1"
+            >
+              +
+            </button>
+
+          </div>
+
+
+          <div class="mg-token-buttons">
+
+            <button
+              type="button"
+              data-mg-token="16"
+              data-panel="1"
+            >
+              16
+            </button>
+
+
+            <button
+              type="button"
+              data-mg-token="100"
+              data-panel="1"
+            >
+              100
+            </button>
+
+
+            <button
+              type="button"
+              data-mg-token="1000"
+              data-panel="1"
+            >
+              1000
+            </button>
+
+
+            <button
+              type="button"
+              data-mg-token="10000"
+              data-panel="1"
+            >
+              10K
+            </button>
+
+
+            <button
+              type="button"
+              data-mg-token="16000"
+              data-panel="1"
+            >
+              16K
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="mgStart1"
+          class="mg-start"
+          data-panel="1"
+          type="button"
+        >
+          BET<br>
+
+          <span>
+            16
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <!-- PANEL 2 -->
+
+      <div
+        class="mg-controls"
+        data-panel-id="2"
+      >
+
+        <div class="mg-panel-left">
+
+          <div class="mg-stepper">
+
+            <button
+              type="button"
+              class="mg-step-btn"
+              data-action="minus"
+              data-panel="2"
+            >
+              −
+            </button>
+
+
+            <input
+              type="number"
+              id="mgBetInput2"
+              class="mg-step-input"
+              value="16"
+              min="16"
+              max="16000"
+              step="1"
+              inputmode="numeric"
+            >
+
+
+            <button
+              type="button"
+              class="mg-step-btn"
+              data-action="plus"
+              data-panel="2"
+            >
+              +
+            </button>
+
+          </div>
+
+
+          <div class="mg-token-buttons">
+
+            <button
+              type="button"
+              data-mg-token="16"
+              data-panel="2"
+            >
+              16
+            </button>
+
+
+            <button
+              type="button"
+              data-mg-token="100"
+              data-panel="2"
+            >
+              100
+            </button>
+
+
+            <button
+              type="button"
+              data-mg-token="1000"
+              data-panel="2"
+            >
+              1000
+            </button>
+
+
+            <button
+              type="button"
+              data-mg-token="10000"
+              data-panel="2"
+            >
+              10K
+            </button>
+
+
+            <button
+              type="button"
+              data-mg-token="16000"
+              data-panel="2"
+            >
+              16K
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="mgStart2"
+          class="mg-start"
+          data-panel="2"
+          type="button"
+        >
+          BET<br>
+
+          <span>
+            16
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================================
+         ACTIVITY / HISTORY / STATS TOGGLE
+    ========================================== -->
+
+    <button
+      type="button"
+      id="mgInsightsToggle"
+      class="mg-insights-toggle"
+      aria-expanded="false"
+    >
+
+      <span class="mg-insights-toggle-text">
+        Activity &amp; Stats
+      </span>
+
+
+      <span
+        id="mgInsightsArrow"
+        class="mg-insights-arrow"
+      >
+        ↓
+      </span>
+
+    </button>
+
+
+    <!-- =========================================
+         HIDDEN / FLOATING INSIGHTS PANEL
+    ========================================== -->
+
+    <div
+      id="mgInsightsDrawer"
+      class="mg-insights-drawer"
+    >
+
+      <div class="mg-insights-inner">
+
+
+        <!-- TABS -->
+
+        <div class="mg-tabs">
+
+          <button
+            data-mg-tab="current"
+            class="active"
+            type="button"
+          >
+            Demo Activity
+          </button>
+
+
+          <button
+            data-mg-tab="history"
+            type="button"
+          >
+            History
+          </button>
+
+
+          <button
+            data-mg-tab="statistics"
+            type="button"
+          >
+            Stats
+          </button>
+
+        </div>
+
+
+        <!-- TAB CONTENT -->
+
+        <div class="mg-panel-container">
+
+
+          <!-- CURRENT / DEMO -->
+
+          <div
+            data-mg-panel="current"
+            class="mg-panel"
+          >
+
+            <div class="mg-live-bets-header">
+
+              <span>
+                Demo Activity
+              </span>
+
+              <span>
+                Amount
+              </span>
+
+            </div>
+
+
+            <div class="mg-stats-strip">
+
+              <span>
+
+                <strong id="mgDemoBetsCount">
+                  0
+                </strong>
+
+                demo bets shown
+
+              </span>
+
+
+              <span>
+
+                Total shown:
+
+                <strong id="mgDemoTotal">
+                  0
+                </strong>
+
+                Tokens
+
+              </span>
+
+            </div>
+
+
+            <div class="mg-demo-note">
+
+              🎮 Simulated game activity for
+              atmosphere only — not real players
+              or real bets.
+
+            </div>
+
+
+            <div
+              class="mg-live-bets-list"
+              id="mgLiveBetsList"
+            ></div>
+
+          </div>
+
+
+          <!-- HISTORY -->
+
+          <div
+            data-mg-panel="history"
+            class="mg-panel"
+            style="display:none;"
+          >
+
+            <div
+              class="mg-history-list"
+              id="mgHistoryList"
+            ></div>
+
+          </div>
+
+
+          <!-- STATISTICS -->
+
+          <div
+            data-mg-panel="statistics"
+            class="mg-panel"
+            style="display:none;"
+          >
+
+            <div
+              id="mgStatistics"
+              class="mg-statistics"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================
+POPUP MODAL
+========================================== -->
+
+<div
+  class="mg-popup"
+  id="mgPopup"
+>
+
+  <div class="mg-popup-box">
+
+    <h3>
+      Notice
+    </h3>
+
+
+    <p>
+      Message text here...
+    </p>
+
+
+    <button
+      class="mg-popup-close"
+      id="mgPopupClose"
+      type="button"
+    >
+      Close
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- Hidden trigger — reuses the existing [data-open-mini-game] hook
+     that minigame.js already listens for in its init(). This is how
+     the overlay is opened automatically on this standalone page,
+     without touching a single line of the game logic below. -->
+<button
+  type="button"
+  data-open-mini-game
+  style="display:none;"
+  aria-hidden="true"
+></button>
+
+
+<script>
+/* =========================================================
+   EARNRUSH MINI GAME - ARCADE TOKEN ENGINE
+   =========================================================
+   Rules:
+   - New user starts with 300 Arcade Tokens.
+   - Minimum bet: 16 Tokens.
+   - Maximum bet: 16,000 Tokens.
+   - Coins -> Arcade Tokens is one-way only.
+   - Arcade Tokens never enter the withdrawal system.
+   - Demo activity is simulated and clearly labeled.
+   ========================================================= */
+
+(() => {
+  "use strict";
+
+  if (window.__earnRushMiniGameLoaded) return;
+  window.__earnRushMiniGameLoaded = true;
+
+  const CONFIG = {
+    MIN_BET: 16,
+    MAX_BET: 16000,
+
+    COINS_PER_TOKEN: 0.1,
+    MIN_CONVERT_COINS: 10,
+
+    START_MULTIPLIER: 1.15,
+    DISPLAY_MAX_MULTIPLIER: 1000,
+
+    WAITING_SECONDS: 4,
+    CRASH_HOLD_MS: 2200,
+    HISTORY_LIMIT: 14,
+    LIVE_PLAYER_INTERVAL: 4000,
+
+    NEW_USER_TOKENS: 300
+  };
+
+  const STORAGE_KEY = "earnrush_minigame_tokens_v2";
+
+  const COIN_FALLBACK_KEYS = [
+    "earnrush_coins",
+    "earnrushCoins",
+    "coins"
+  ];
+
+  const RTP_STATISTICS = [
+    { target: 1.70, probability: 80.8 },
+    { target: 2.50, probability: 64.7 },
+    { target: 3.00, probability: 48.5 },
+    { target: 4.00, probability: 32.3 },
+    { target: 5.00, probability: 19.4 },
+    { target: 6.00, probability: 9.7 },
+    { target: 7.00, probability: 4.85 },
+    { target: 8.00, probability: 1.94 },
+    { target: 100.00, probability: 0.97 }
+  ];
+
+  const DEMO_NAMES = [
+    "Ali_Khan",
+    "Zeeshan99",
+    "FastRunner",
+    "Ahmed_Dev",
+    "User_771",
+    "PixelPilot"
+  ];
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+
+  const state = {
+    open: false,
+    cycleActive: false,
+
+    round: "waiting",
+    roundNumber: 0,
+
+    multiplier: 1,
+    crashPoint: 1,
+    secondsLeft: CONFIG.WAITING_SECONDS,
+
+    savedScrollY: 0,
+
+    gameTokens: loadSavedTokens(),
+
+    bets: {
+      1: {
+        amount: CONFIG.MIN_BET,
+        active: false,
+        cashedOut: false,
+        pending: false
+      },
+      2: {
+        amount: CONFIG.MIN_BET,
+        active: false,
+        cashedOut: false,
+        pending: false
+      }
+    },
+
+    history: [],
+
+    livePlayers: 136,
+    demoTotal: 0,
+
+    animationFrame: null,
+    waitTimer: null,
+    countdownTimer: null,
+    crashTimer: null,
+    playerTimer: null,
+
+    stageRect: null,
+
+    lastMultiplierText: "",
+lastPlaneX: null,
+lastPlaneY: null,
+
+lastRenderTime: 0,
+lastMultiplierRender: 0
+
+  };
+
+  /* =========================================================
+     STORAGE
+     ========================================================= */
+
+  function loadSavedTokens() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+
+      /*
+       * Important:
+       * 0 is valid.
+       * Only a completely missing key gets 300 tokens.
+       */
+      if (
+        saved !== null &&
+        saved !== "" &&
+        !Number.isNaN(Number(saved))
+      ) {
+        return Math.max(
+          0,
+          Math.floor(Number(saved))
+        );
+      }
+    } catch (e) {}
+
+    return CONFIG.NEW_USER_TOKENS;
+  }
+
+  function saveTokensToStorage() {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        String(state.gameTokens)
+      );
+    } catch (e) {}
+  }
+
+  /* =========================================================
+     DOM
+     ========================================================= */
+
+  const $ = (selector, root = document) =>
+    root.querySelector(selector);
+
+  const $$ = (selector, root = document) =>
+    [...root.querySelectorAll(selector)];
+
+  const byId = id =>
+    document.getElementById(id);
+
+  const dom = {};
+
+  function cacheDom() {
+    dom.overlay = byId("miniGameOverlay");
+
+    dom.roundTag = byId("mgRoundNumber");
+    dom.multiplier = byId("mgMultiplier");
+    dom.status = byId("mgStatus");
+
+    dom.plane = byId("mgPlane");
+    dom.trail = byId("mgTrail");
+
+    dom.stage = dom.plane
+      ? dom.plane.closest(".mg-screen")
+      : null;
+
+    dom.history = byId("mgHistory");
+
+    dom.tokenBalance = byId("mgTokenBalance");
+
+    dom.coinBalance =
+      byId("mgCoinBalance") ||
+      byId("miniGameCoins");
+
+    dom.livePlayers =
+      byId("mgLivePlayers");
+
+    dom.liveBetsList =
+      byId("mgLiveBetsList");
+
+    dom.statistics =
+      byId("mgStatistics");
+
+    dom.historyList =
+      byId("mgHistoryList");
+
+    dom.demoBetsCount =
+      byId("mgDemoBetsCount");
+
+    dom.demoTotal =
+      byId("mgDemoTotal");
+
+    dom.betInputs = {
+      1: byId("mgBetInput1"),
+      2: byId("mgBetInput2")
+    };
+
+    dom.startBtns = {
+      1: byId("mgStart1"),
+      2: byId("mgStart2")
+    };
+
+    dom.convertInput =
+      byId("mgCoinConvertInput");
+
+    dom.convertBtn =
+      byId("mgConvertBtn");
+
+    dom.convertPreview =
+      byId("mgConvertPreview");
+
+    dom.tokenConvertInput =
+      byId("mgTokenConvertInput");
+
+    dom.tokenConvertBtn =
+      byId("mgTokenConvertBtn");
+
+    dom.tokenConvertPreview =
+      byId("mgTokenConvertPreview");
+
+    dom.convertMsg =
+      byId("mgConvertMsg");
+
+    dom.insightsToggle =
+      byId("mgInsightsToggle");
+
+    dom.insightsDrawer =
+      byId("mgInsightsDrawer");
+
+    dom.insightsArrow =
+      byId("mgInsightsArrow");
+  }
+
+  /* =========================================================
+     FORMAT
+     ========================================================= */
+
+  function fmt(n) {
+    return Math.floor(Number(n) || 0)
+      .toLocaleString();
+  }
+
+  function clampBet(value) {
+    let amount = Math.floor(
+      Number(value) || CONFIG.MIN_BET
+    );
+
+    amount = Math.max(
+      CONFIG.MIN_BET,
+      Math.min(CONFIG.MAX_BET, amount)
+    );
+
+    return amount;
+  }
+
+  function setStartBtnLabel(btn, top, bottom) {
+    if (!btn) return;
+
+    btn.innerHTML =
+      bottom !== undefined
+        ? `${top}<br><span>${bottom}</span>`
+        : top;
+  }
+
+  /* =========================================================
+     TOKEN WALLET
+     ========================================================= */
+
+  function getTokens() {
+    return Math.max(
+      0,
+      Math.floor(Number(state.gameTokens) || 0)
+    );
+  }
+
+  function setTokens(value) {
+    state.gameTokens = Math.max(
+      0,
+      Math.floor(Number(value) || 0)
+    );
+
+    saveTokensToStorage();
+    updateWalletUI();
+  }
+
+  function updateWalletUI() {
+    if (dom.tokenBalance) {
+      dom.tokenBalance.textContent =
+        fmt(getTokens());
+    }
+
+    if (dom.coinBalance) {
+      dom.coinBalance.textContent =
+        fmt(getEarnRushCoins());
+    }
+  }
+
+  /* =========================================================
+     REAL COINS
+     ========================================================= */
+
+  function getEarnRushCoins() {
+    try {
+      if (
+        window.EarnRushGame &&
+        typeof window.EarnRushGame.getCoins === "function"
+      ) {
+        return Number(
+          window.EarnRushGame.getCoins()
+        ) || 0;
+      }
+    } catch (e) {}
+
+    try {
+      const balance = byId("balance");
+
+      if (balance) {
+        const value = Number(
+          String(balance.textContent)
+            .replace(/[^\d.-]/g, "")
+        );
+
+        if (Number.isFinite(value)) {
+          return value;
+        }
+      }
+
+      for (const key of COIN_FALLBACK_KEYS) {
+        const stored =
+          localStorage.getItem(key);
+
+        if (
+          stored !== null &&
+          !Number.isNaN(Number(stored))
+        ) {
+          return Number(stored) || 0;
+        }
+      }
+    } catch (e) {}
+
+    return 0;
+  }
+
+  function spendEarnRushCoins(amount) {
+    amount = Math.floor(Number(amount));
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return false;
+    }
+
+    try {
+      if (
+        window.EarnRushGame &&
+        typeof window.EarnRushGame.getState === "function"
+      ) {
+        const gameState =
+          window.EarnRushGame.getState();
+
+        if (
+          gameState &&
+          Number.isFinite(Number(gameState.coins))
+        ) {
+          if (
+            Number(gameState.coins) < amount
+          ) {
+            return false;
+          }
+
+          gameState.coins =
+            Number(gameState.coins) - amount;
+
+          if (
+            typeof window.EarnRushGame.updateUI ===
+            "function"
+          ) {
+            window.EarnRushGame.updateUI();
+          }
+
+          if (
+            typeof window.EarnRushGame.save ===
+            "function"
+          ) {
+            window.EarnRushGame.save();
+          }
+
+          updateWalletUI();
+
+          return true;
+        }
+      }
+    } catch (e) {}
+
+    /* Fallback */
+
+    const before = getEarnRushCoins();
+
+    if (before < amount) {
+      return false;
+    }
+
+    const newBalance =
+      Math.max(0, before - amount);
+
+    try {
+      const mainBalance =
+        byId("balance");
+
+      if (mainBalance) {
+        mainBalance.textContent =
+          fmt(newBalance);
+      }
+
+      if (dom.coinBalance) {
+        dom.coinBalance.textContent =
+          fmt(newBalance);
+      }
+
+      let targetKey = null;
+
+      for (const key of COIN_FALLBACK_KEYS) {
+        if (localStorage.getItem(key) !== null) {
+          targetKey = key;
+          break;
+        }
+      }
+
+      localStorage.setItem(
+        targetKey || COIN_FALLBACK_KEYS[0],
+        String(newBalance)
+      );
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /* =========================================================
+     COINS -> ARCADE TOKENS
+     ========================================================= */
+
+  function updateConvertPreview() {
+
+    /* Coins → Tokens */
+
+    if (
+      dom.convertInput &&
+      dom.convertPreview
+    ) {
+      const amount =
+        Math.floor(
+          Number(dom.convertInput.value) || 0
+        );
+
+      if (amount <= 0) {
+        dom.convertPreview.textContent =
+          "= 0 Arcade Tokens";
+      } else {
+        const tokens =
+          Math.floor(
+            amount /
+            CONFIG.COINS_PER_TOKEN
+          );
+
+        dom.convertPreview.textContent =
+          `= ${fmt(tokens)} Arcade Tokens`;
+      }
+    }
+
+    /* Tokens → Coins */
+
+    if (
+      dom.tokenConvertInput &&
+      dom.tokenConvertPreview
+    ) {
+      const tokens =
+        Math.floor(
+          Number(
+            dom.tokenConvertInput.value
+          ) || 0
+        );
+
+      if (tokens <= 0) {
+        dom.tokenConvertPreview.textContent =
+          "= 0 Coins";
+      } else {
+        const coins =
+          Math.floor(
+            tokens *
+            CONFIG.COINS_PER_TOKEN
+          );
+
+        dom.tokenConvertPreview.textContent =
+          `= ${fmt(coins)} Coins`;
+      }
+    }
+  }
+
+  function showConvertMessage(
+    text,
+    isError
+  ) {
+    if (!dom.convertMsg) return;
+
+    dom.convertMsg.textContent = text;
+
+    dom.convertMsg.classList.toggle(
+      "is-error",
+      !!isError
+    );
+
+    dom.convertMsg.classList.toggle(
+      "is-success",
+      !isError
+    );
+  }
+
+  function handleConvert() {
+    if (!dom.convertInput) return;
+
+    const raw =
+      dom.convertInput.value;
+
+    const amount =
+      Math.floor(Number(raw));
+
+    if (
+      !raw ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
+      showConvertMessage(
+        "Enter a valid Coins amount.",
+        true
+      );
+      return;
+    }
+
+    if (
+      amount <
+      CONFIG.MIN_CONVERT_COINS
+    ) {
+      showConvertMessage(
+        `Minimum conversion is ${fmt(
+          CONFIG.MIN_CONVERT_COINS
+        )} Coins.`,
+        true
+      );
+      return;
+    }
+
+    const available =
+      getEarnRushCoins();
+
+    if (amount > available) {
+      showConvertMessage(
+        "Not enough Coins for this conversion.",
+        true
+      );
+      return;
+    }
+
+    /* =========================================
+       CALCULATE ARCADE TOKENS
+
+       1 Coin = 10 Tokens
+       10 Coins = 100 Tokens
+       100 Coins = 1,000 Tokens
+       1,000 Coins = 10,000 Tokens
+    ========================================= */
+
+    const tokens =
+      Math.floor(
+        amount /
+        CONFIG.COINS_PER_TOKEN
+      );
+
+    if (tokens <= 0) {
+      showConvertMessage(
+        "Conversion amount is too small.",
+        true
+      );
+      return;
+    }
+
+    /* =========================================
+       REMOVE COINS
+    ========================================= */
+
+    if (
+      !spendEarnRushCoins(amount)
+    ) {
+      showConvertMessage(
+        "Conversion failed. Please try again.",
+        true
+      );
+      return;
+    }
+
+    /* =========================================
+       ADD ARCADE TOKENS
+    ========================================= */
+
+    setTokens(
+      getTokens() + tokens
+    );
+
+    updateWalletUI();
+
+    /* Clear input before preview update */
+    dom.convertInput.value = "";
+
+    updateConvertPreview();
+
+    showConvertMessage(
+      `Converted ${fmt(amount)} Coins → ${fmt(
+        tokens
+      )} Arcade Tokens.`,
+      false
+    );
+  }
+
+  /* =========================================================
+     ARCADE TOKENS -> COINS
+     ========================================================= */
+
+  function handleTokenConvert() {
+
+    if (!dom.tokenConvertInput) return;
+
+    const raw =
+      dom.tokenConvertInput.value;
+
+    const amount =
+      Math.floor(Number(raw));
+
+    if (
+      !raw ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
+      showConvertMessage(
+        "Enter a valid Arcade Token amount.",
+        true
+      );
+      return;
+    }
+
+    if (amount < 10) {
+      showConvertMessage(
+        "Minimum conversion is 10 Arcade Tokens.",
+        true
+      );
+      return;
+    }
+
+    /* 10 Tokens = 1 Coin */
+
+    const coins =
+      Math.floor(
+        amount *
+        CONFIG.COINS_PER_TOKEN
+      );
+
+    if (coins <= 0) {
+      showConvertMessage(
+        "Conversion amount is too small.",
+        true
+      );
+      return;
+    }
+
+    if (getTokens() < amount) {
+      showConvertMessage(
+        "Not enough Arcade Tokens.",
+        true
+      );
+      return;
+    }
+
+    /* Remove Arcade Tokens */
+
+    setTokens(
+      getTokens() - amount
+    );
+
+    /*
+     * Add Coins back through the existing
+     * EarnRush coin state when available.
+     */
+
+    let added = false;
+
+    try {
+      if (
+        window.EarnRushGame &&
+        typeof window.EarnRushGame.getState ===
+          "function"
+      ) {
+        const gameState =
+          window.EarnRushGame.getState();
+
+        if (
+          gameState &&
+          Number.isFinite(
+            Number(gameState.coins)
+          )
+        ) {
+          gameState.coins =
+            Number(gameState.coins) + coins;
+
+          if (
+            typeof window.EarnRushGame.updateUI ===
+            "function"
+          ) {
+            window.EarnRushGame.updateUI();
+          }
+
+          if (
+            typeof window.EarnRushGame.save ===
+            "function"
+          ) {
+            window.EarnRushGame.save();
+          }
+
+          added = true;
+        }
+      }
+    } catch (e) {}
+
+    /*
+     * Fallback for existing EarnRush storage.
+     */
+
+    if (!added) {
+      try {
+        const before =
+          getEarnRushCoins();
+
+        const newBalance =
+          before + coins;
+
+        const mainBalance =
+          byId("balance");
+
+        if (mainBalance) {
+          mainBalance.textContent =
+            fmt(newBalance);
+        }
+
+        if (dom.coinBalance) {
+          dom.coinBalance.textContent =
+            fmt(newBalance);
+        }
+
+        let targetKey = null;
+
+        for (
+          const key of COIN_FALLBACK_KEYS
+        ) {
+          if (
+            localStorage.getItem(key) !==
+            null
+          ) {
+            targetKey = key;
+            break;
+          }
+        }
+
+        localStorage.setItem(
+          targetKey ||
+          COIN_FALLBACK_KEYS[0],
+          String(newBalance)
+        );
+
+        added = true;
+
+      } catch (e) {
+        added = false;
+      }
+    }
+
+    if (!added) {
+
+      /* Roll back tokens if coin update failed */
+
+      setTokens(
+        getTokens() + amount
+      );
+
+      showConvertMessage(
+        "Conversion failed. Please try again.",
+        true
+      );
+
+      return;
+    }
+
+    updateWalletUI();
+
+    dom.tokenConvertInput.value = "";
+
+    updateConvertPreview();
+
+    showConvertMessage(
+      `Converted ${fmt(amount)} Arcade Tokens → ${fmt(
+        coins
+      )} Coin${coins === 1 ? "" : "s"}.`,
+      false
+    );
+  }
+
+  /* =========================================================
+     CONVERSION SETUP
+     ========================================================= */
+
+  function setupConversion() {
+
+    /* Coins → Tokens */
+
+    if (dom.convertInput) {
+      dom.convertInput.addEventListener(
+        "input",
+        updateConvertPreview
+      );
+    }
+
+    if (dom.convertBtn) {
+      dom.convertBtn.addEventListener(
+        "click",
+        handleConvert
+      );
+    }
+
+    /* Tokens → Coins */
+
+    if (dom.tokenConvertInput) {
+      dom.tokenConvertInput.addEventListener(
+        "input",
+        updateConvertPreview
+      );
+    }
+
+    if (dom.tokenConvertBtn) {
+      dom.tokenConvertBtn.addEventListener(
+        "click",
+        handleTokenConvert
+      );
+    }
+  }
+
+  /* =========================================================
+     INSIGHTS DRAWER
+     ========================================================= */
+
+  function setInsightsDrawer(open) {
+    if (!dom.insightsDrawer) return;
+
+    dom.insightsDrawer.classList.toggle(
+      "open",
+      open
+    );
+
+    dom.insightsDrawer.classList.toggle(
+      "active",
+      open
+    );
+
+    dom.insightsDrawer.setAttribute(
+      "aria-hidden",
+      open ? "false" : "true"
+    );
+
+    if (dom.insightsToggle) {
+      dom.insightsToggle.setAttribute(
+        "aria-expanded",
+        open ? "true" : "false"
+      );
+    }
+
+    if (dom.insightsArrow) {
+      dom.insightsArrow.textContent =
+        open ? "↑" : "↓";
+    }
+
+    if (open) {
+      renderLiveBets();
+      renderHistory();
+      renderStatistics();
+    }
+  }
+
+  function setupInsights() {
+    if (!dom.insightsToggle) return;
+
+    setInsightsDrawer(false);
+
+    dom.insightsToggle.addEventListener(
+      "click",
+      () => {
+        const isOpen =
+          dom.insightsDrawer?.classList.contains(
+            "open"
+          ) ||
+          dom.insightsDrawer?.classList.contains(
+            "active"
+          );
+
+        setInsightsDrawer(!isOpen);
+      }
+    );
+  }
+
+  /* =========================================================
+     OPEN / CLOSE
+     ========================================================= */
+
+  function openGame() {
+    state.open = true;
+
+    dom.overlay?.classList.add("active");
+
+    state.savedScrollY =
+      window.scrollY ||
+      window.pageYOffset ||
+      0;
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--mg-scroll-y",
+        `${state.savedScrollY}px`
+      );
+
+    document.documentElement
+      .classList.add("mini-game-active");
+
+    document.body
+      .classList.add("mini-game-active");
+
+    document.body
+      .classList.add("mg-open");
+
+    updateWalletUI();
+    updateConvertPreview();
+
+    renderLiveBets();
+    renderHistory();
+    renderStatistics();
+
+    setInsightsDrawer(false);
+
+    startLivePlayerTimer();
+
+    if (!state.cycleActive) {
+      state.cycleActive = true;
+      scheduleWaiting();
+    }
+  }
+
+  function closeGame() {
+    state.open = false;
+
+    dom.overlay?.classList.remove("active");
+
+    document.documentElement
+      .classList.remove("mini-game-active");
+
+    document.body
+      .classList.remove("mini-game-active");
+
+    document.documentElement
+      .style
+      .removeProperty("--mg-scroll-y");
+
+    const restoreY =
+      state.savedScrollY || 0;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(
+          0,
+          restoreY
+        );
+      });
+    });
+
+    document.body
+      .classList.remove("mg-open");
+
+    setInsightsDrawer(false);
+
+    stopLivePlayerTimer();
+    stopCycle();
+  }
+
+  function stopCycle() {
+    state.cycleActive = false;
+
+    cancelAnimationFrame(
+      state.animationFrame
+    );
+
+    clearTimeout(
+      state.waitTimer
+    );
+
+    clearInterval(
+      state.countdownTimer
+    );
+
+    clearTimeout(
+      state.crashTimer
+    );
+  }
+
+  /* =========================================================
+     BET CONTROLS
+     ========================================================= */
+
+  function setupBetControls() {
+    [1, 2].forEach(panelId => {
+      const input =
+        dom.betInputs[panelId];
+
+      if (!input) return;
+
+      /* Force correct HTML limits */
+      input.min =
+        String(CONFIG.MIN_BET);
+
+      input.max =
+        String(CONFIG.MAX_BET);
+
+      input.value =
+        clampBet(input.value);
+
+      state.bets[panelId].amount =
+        clampBet(input.value);
+
+      input.addEventListener(
+        "input",
+        () => {
+          const amount =
+            clampBet(input.value);
+
+          state.bets[panelId].amount =
+            amount;
+
+          input.value = amount;
+
+          updatePanelUI(panelId);
+        }
+      );
+
+      const container =
+        $(`[data-panel-id="${panelId}"]`);
+
+      if (!container) return;
+
+      container.addEventListener(
+        "click",
+        e => {
+          const stepBtn =
+            e.target.closest(
+              ".mg-step-btn"
+            );
+
+          if (stepBtn) {
+            let current =
+              state.bets[panelId].amount;
+
+            /*
+             * Step size:
+             * Small amounts move by 16.
+             * This makes the 16 minimum easy to reach.
+             */
+            const step =
+              current < 100
+                ? 16
+                : 100;
+
+            if (
+              stepBtn.dataset.action ===
+              "plus"
+            ) {
+              current += step;
+            } else {
+              current -= step;
+            }
+
+            current =
+              clampBet(current);
+
+            state.bets[panelId].amount =
+              current;
+
+            input.value = current;
+
+            updatePanelUI(panelId);
+
+            return;
+          }
+
+          const tokenBtn =
+            e.target.closest(
+              "[data-mg-token]"
+            );
+
+          if (tokenBtn) {
+            const amount =
+              clampBet(
+                Number(
+                  tokenBtn.dataset.mgToken
+                )
+              );
+
+            state.bets[panelId].amount =
+              amount;
+
+            input.value = amount;
+
+            updatePanelUI(panelId);
+          }
+        }
+      );
+    });
+  }
+
+  function updatePanelUI(panelId) {
+    const btn =
+      dom.startBtns[panelId];
+
+    const bet =
+      state.bets[panelId];
+
+    if (!btn) return;
+
+    if (
+      state.round === "waiting" &&
+      bet.pending
+    ) {
+      setStartBtnLabel(
+        btn,
+        "Bet Placed",
+        "✓"
+      );
+
+      btn.disabled = true;
+
+      return;
+    }
+
+    if (state.round === "waiting") {
+      setStartBtnLabel(
+        btn,
+        "BET",
+        fmt(bet.amount)
+      );
+
+      btn.disabled = false;
+
+      btn.classList.remove(
+        "cashout"
+      );
+    }
+  }
+
+  function startRoundForPanel(panelId) {
+    const bet =
+      state.bets[panelId];
+
+    if (state.round === "waiting") {
+      if (bet.pending) return;
+
+      if (
+        getTokens() <
+        bet.amount
+      ) {
+        showTokenWarning();
+        return;
+      }
+
+      setTokens(
+        getTokens() -
+        bet.amount
+      );
+
+      bet.pending = true;
+      bet.active = false;
+      bet.cashedOut = false;
+
+      updatePanelUI(panelId);
+
+      return;
+    }
+
+    if (
+      state.round === "running" &&
+      bet.active &&
+      !bet.cashedOut
+    ) {
+      cashOutPanel(panelId);
+    }
+  }
+
+  function showTokenWarning() {
+    if (!dom.status) return;
+
+    const previous =
+      dom.status.textContent;
+
+    dom.status.textContent =
+      "Not enough Arcade Tokens — convert more Coins to play.";
+
+    setTimeout(() => {
+      if (
+        dom.status &&
+        state.round === "waiting"
+      ) {
+        dom.status.textContent =
+          previous;
+      }
+    }, 1800);
+  }
+
+  /* =========================================================
+     ROUND CYCLE
+     ========================================================= */
+
+  function scheduleWaiting() {
+    state.round = "waiting";
+
+    state.secondsLeft =
+      CONFIG.WAITING_SECONDS;
+
+    if (dom.multiplier) {
+      dom.multiplier.textContent =
+        "1.00x";
+
+      dom.multiplier.classList.remove(
+        "crashed"
+      );
+    }
+
+    resetPlaneToStart();
+
+    dom.plane?.classList.add(
+      "idle"
+    );
+
+    [1, 2].forEach(id => {
+      const bet =
+        state.bets[id];
+
+      bet.active = false;
+      bet.cashedOut = false;
+
+      const btn =
+        dom.startBtns[id];
+
+      if (btn) {
+        btn.classList.remove(
+          "cashout"
+        );
+
+        btn.disabled =
+          bet.pending;
+
+        setStartBtnLabel(
+          btn,
+          bet.pending
+            ? "Bet Placed"
+            : "BET",
+          bet.pending
+            ? "✓"
+            : fmt(bet.amount)
+        );
+      }
+    });
+
+    updateCountdownText();
+
+    clearInterval(
+      state.countdownTimer
+    );
+
+    state.countdownTimer =
+      setInterval(() => {
+        state.secondsLeft--;
+
+        if (
+          state.secondsLeft <= 0
+        ) {
+          clearInterval(
+            state.countdownTimer
+          );
+
+          beginFlight();
+        } else {
+          updateCountdownText();
+        }
+      }, 1000);
+  }
+
+  function updateCountdownText() {
+    if (dom.status) {
+      dom.status.textContent =
+        `Next flight in ${state.secondsLeft}s`;
+    }
+
+    if (dom.roundTag) {
+      dom.roundTag.textContent =
+        `ROUND ${state.roundNumber + 1}`;
+    }
+  }
+
+  function resetPlaneToStart() {
+    if (dom.plane) {
+      dom.plane.style.transform =
+        "translate3d(0, 0, 0)";
+    }
+
+    if (dom.trail) {
+      dom.trail.style.width =
+        "0px";
+
+      dom.trail.style.transform =
+        "rotate(0deg)";
+    }
+
+    state.lastPlaneX = null;
+    state.lastPlaneY = null;
+  }
+
+  function beginFlight() {
+    state.round = "running";
+
+    state.roundNumber++;
+
+    state.multiplier =
+      CONFIG.START_MULTIPLIER;
+
+    state.crashPoint =
+      parseFloat(
+        (
+          0.97 /
+          (1 - Math.random())
+        ).toFixed(2)
+      );
+
+    if (Math.random() < 0.03) {
+      state.crashPoint = 1;
+    }
+
+    dom.plane?.classList.remove(
+      "idle"
+    );
+
+    if (dom.roundTag) {
+      dom.roundTag.textContent =
+        `ROUND ${state.roundNumber}`;
+    }
+
+    if (dom.status) {
+      dom.status.textContent =
+        "Plane taking off...";
+    }
+
+    dom.multiplier?.classList.remove(
+      "crashed"
+    );
+
+    state.stageRect =
+      dom.stage
+        ? dom.stage.getBoundingClientRect()
+        : null;
+
+    state.lastMultiplierText = "";
+    state.lastPlaneX = null;
+    state.lastPlaneY = null;
+
+    [1, 2].forEach(id => {
+      const bet =
+        state.bets[id];
+
+      if (bet.pending) {
+        bet.pending = false;
+        bet.active = true;
+        bet.cashedOut = false;
+
+        const btn =
+          dom.startBtns[id];
+
+        if (btn) {
+          setStartBtnLabel(
+            btn,
+            "CASH OUT",
+            `${state.multiplier.toFixed(2)}x`
+          );
+
+          btn.classList.add(
+            "cashout"
+          );
+
+          btn.disabled = false;
+        }
+      }
+    });
+
+    runAnimation();
+  }
+
+  function runAnimation() {
+  cancelAnimationFrame(
+    state.animationFrame
+  );
+
+  const startTime =
+    performance.now();
+
+  state.lastRenderTime = 0;
+  state.lastMultiplierRender = 0;
+
+  function frame(now) {
+    if (
+      state.round !== "running"
+    ) {
+      return;
+    }
+
+    const elapsed =
+      (now - startTime) / 1000;
+
+    state.multiplier =
+      1 +
+      (
+        Math.pow(
+          elapsed,
+          1.3
+        ) * 0.15
+      );
+
+    const crashed =
+      state.multiplier >=
+      state.crashPoint;
+
+    if (crashed) {
+      state.multiplier =
+        state.crashPoint;
+    }
+
+    /*
+     * Render only when the browser has
+     * actually given us enough time.
+     * This prevents unnecessary DOM work
+     * without changing game timing.
+     */
+    if (
+      state.open &&
+      (
+        now - state.lastRenderTime >= 16 ||
+        state.lastRenderTime === 0
+      )
+    ) {
+      state.lastRenderTime = now;
+
+      updateScreenUI(
+        now
+      );
+    }
+
+    if (crashed) {
+      finishRound();
+      return;
+    }
+
+    state.animationFrame =
+      requestAnimationFrame(
+        frame
+      );
+  }
+
+  state.animationFrame =
+    requestAnimationFrame(
+      frame
+    );
+}
+
+  function updateScreenUI(now) {
+  const value =
+    Math.min(
+      CONFIG.DISPLAY_MAX_MULTIPLIER,
+      state.multiplier
+    );
+
+  const text =
+    `${value.toFixed(2)}x`;
+
+  /*
+   * Multiplier text does NOT need to be
+   * rewritten on every animation frame.
+   * Update it at most every 50ms.
+   */
+  if (
+    dom.multiplier &&
+    (
+      text !== state.lastMultiplierText &&
+      (
+        state.lastMultiplierRender === 0 ||
+        now - state.lastMultiplierRender >= 50
+      )
+    )
+  ) {
+    dom.multiplier.textContent =
+      text;
+
+    state.lastMultiplierText =
+      text;
+
+    state.lastMultiplierRender =
+      now;
+
+    [1, 2].forEach(id => {
+      const bet =
+        state.bets[id];
+
+      const btn =
+        dom.startBtns[id];
+
+      if (
+        btn &&
+        bet.active &&
+        !bet.cashedOut
+      ) {
+        const span =
+          btn.querySelector("span");
+
+        if (span) {
+          span.textContent =
+            text;
+        }
+      }
+    });
+  }
+
+  /*
+   * Plane movement remains smooth.
+   * Only transform-based movement is used.
+   */
+  if (dom.plane) {
+    const pos =
+      Math.min(
+        75,
+        (state.multiplier / 10) *
+          75
+      );
+
+    const rect =
+      state.stageRect;
+
+    const width =
+      rect
+        ? rect.width
+        : 300;
+
+    const height =
+      rect
+        ? rect.height
+        : 220;
+
+    const x =
+      Math.round(
+        (pos / 75) *
+        (width * 0.6)
+      );
+
+    const y =
+      Math.round(
+        (pos / 75) *
+        (height * 0.5)
+      );
+
+    if (
+      x !== state.lastPlaneX ||
+      y !== state.lastPlaneY
+    ) {
+      dom.plane.style.transform =
+        `translate3d(${x}px, ${-y}px, 0)`;
+
+      state.lastPlaneX = x;
+      state.lastPlaneY = y;
+
+      if (dom.trail) {
+        const length =
+          Math.round(
+            Math.sqrt(
+              x * x +
+              y * y
+            )
+          );
+
+        const angle =
+          -(
+            Math.atan2(
+              y,
+              x
+            ) *
+            (180 / Math.PI)
+          );
+
+        dom.trail.style.width =
+          `${length}px`;
+
+        dom.trail.style.transform =
+          `rotate(${angle}deg)`;
+      }
+    }
+  }
+}
+  /* =========================================================
+     CASH OUT
+     ========================================================= */
+
+  function cashOutPanel(panelId) {
+    const bet =
+      state.bets[panelId];
+
+    if (
+      !bet.active ||
+      bet.cashedOut
+    ) {
+      return;
+    }
+
+    bet.cashedOut = true;
+
+    const winnings =
+      Math.floor(
+        bet.amount *
+        state.multiplier
+      );
+
+    setTokens(
+      getTokens() +
+      winnings
+    );
+
+    const btn =
+      dom.startBtns[panelId];
+
+    if (btn) {
+      setStartBtnLabel(
+        btn,
+        "WON",
+        fmt(winnings)
+      );
+
+      btn.classList.remove(
+        "cashout"
+      );
+
+      btn.disabled = true;
+    }
+  }
+
+  /* =========================================================
+     ROUND FINISH
+     ========================================================= */
+
+  function finishRound() {
+    state.round = "crashed";
+
+    cancelAnimationFrame(
+      state.animationFrame
+    );
+
+    const finalValue =
+      Number(
+        state.multiplier.toFixed(2)
+      );
+
+    addHistory(finalValue);
+
+    dom.multiplier?.classList.add(
+      "crashed"
+    );
+
+    if (dom.status) {
+      dom.status.textContent =
+        `Flew away at ${finalValue}x`;
+    }
+
+    [1, 2].forEach(id => {
+      const bet =
+        state.bets[id];
+
+      if (
+        bet.active &&
+        !bet.cashedOut
+      ) {
+        const btn =
+          dom.startBtns[id];
+
+        if (btn) {
+          setStartBtnLabel(
+            btn,
+            "LOST",
+            `${finalValue.toFixed(2)}x`
+          );
+
+          btn.classList.remove(
+            "cashout"
+          );
+
+          btn.disabled = true;
+        }
+      }
+    });
+
+    clearTimeout(
+      state.crashTimer
+    );
+
+    state.crashTimer =
+      setTimeout(() => {
+        if (state.cycleActive) {
+          scheduleWaiting();
+        }
+      }, CONFIG.CRASH_HOLD_MS);
+  }
+
+  /* =========================================================
+     HISTORY
+     ========================================================= */
+
+  function historyClass(value) {
+    if (value < 2) return "low";
+    if (value < 10) return "medium";
+    return "high";
+  }
+
+  function addHistory(value) {
+    state.history.unshift(value);
+
+    state.history =
+      state.history.slice(
+        0,
+        CONFIG.HISTORY_LIMIT
+      );
+
+    renderHistory();
+  }
+
+  function renderHistory() {
+    if (!dom.history) return;
+
+    if (state.history.length === 0) {
+      dom.history.innerHTML =
+        `<div class="mg-history-item"
+          style="width:100%;text-align:center;color:#888;">
+          No rounds yet
+        </div>`;
+
+      return;
+    }
+
+    dom.history.innerHTML =
+      state.history
+        .map(value =>
+          `<div class="mg-history-item ${historyClass(value)}">
+            ${value.toFixed(2)}x
+          </div>`
+        )
+        .join("");
+  }
+
+  /* =========================================================
+     STATISTICS
+     ========================================================= */
+
+  function renderStatistics() {
+    if (!dom.statistics) return;
+
+    dom.statistics.innerHTML = `
+      <div class="mg-statistics-title">
+        In-game odds (arcade mechanic — for entertainment only,
+        not real-money odds)
+      </div>
+
+      ${RTP_STATISTICS.map(item => `
+        <div class="mg-statistics-row">
+          <span>
+            Target:
+            <strong>${item.target.toFixed(2)}x</strong>
+          </span>
+
+          <small>
+            Chance: ${item.probability}%
+          </small>
+        </div>
+      `).join("")}
+    `;
+  }
+
+  /* =========================================================
+     DEMO ACTIVITY
+     ========================================================= */
+
+  function renderLiveBets() {
+    if (!dom.liveBetsList) return;
+
+    let total = 0;
+
+    const rows =
+      DEMO_NAMES
+        .map(name => {
+          const amount =
+            Math.floor(
+              Math.random() *
+                900 +
+                100
+            );
+
+          total += amount;
+
+          return `
+            <div class="mg-live-bet-item">
+              <div class="user">
+                <span class="dot"></span>
+                ${name}
+                <span class="mg-demo-tag">
+                  DEMO
+                </span>
+              </div>
+
+              <span class="mg-live-bet-amount">
+                ${fmt(amount)} Tokens
+              </span>
+            </div>
+          `;
+        })
+        .join("");
+
+    dom.liveBetsList.innerHTML =
+      rows;
+
+    state.demoTotal =
+      total;
+
+    if (dom.demoBetsCount) {
+      dom.demoBetsCount.textContent =
+        DEMO_NAMES.length;
+    }
+
+    if (dom.demoTotal) {
+      dom.demoTotal.textContent =
+        fmt(total);
+    }
+  }
+
+  /* =========================================================
+     TABS
+     ========================================================= */
+
+  function setupTabs() {
+    $$("[data-mg-tab]")
+      .forEach(button => {
+        button.addEventListener(
+          "click",
+          () => {
+
+            $$("[data-mg-tab]")
+              .forEach(btn =>
+                btn.classList.remove(
+                  "active"
+                )
+              );
+
+            button.classList.add(
+              "active"
+            );
+
+            const tab =
+              button.dataset.mgTab;
+
+            $$("[data-mg-panel]")
+              .forEach(panel => {
+                if (
+                  panel.dataset.mgPanel ===
+                  tab
+                ) {
+                  panel.style.display =
+                    "block";
+
+                  if (
+                    tab ===
+                    "history"
+                  ) {
+                    renderHistory();
+                  }
+
+                  if (
+                    tab ===
+                      "statistics" ||
+                    tab ===
+                      "stats"
+                  ) {
+                    renderStatistics();
+                  }
+
+                  if (
+                    tab ===
+                    "demo"
+                  ) {
+                    renderLiveBets();
+                  }
+                } else {
+                  panel.style.display =
+                    "none";
+                }
+              });
+          }
+        );
+      });
+  }
+
+  /* =========================================================
+     DEMO PLAYER TIMER
+     ========================================================= */
+
+  function startLivePlayerTimer() {
+    stopLivePlayerTimer();
+
+    state.playerTimer =
+      setInterval(() => {
+        if (!state.open) return;
+
+        state.livePlayers +=
+          Math.floor(
+            Math.random() * 7
+          ) - 3;
+
+        state.livePlayers =
+          Math.max(
+            80,
+            Math.min(
+              200,
+              state.livePlayers
+            )
+          );
+
+        if (dom.livePlayers) {
+          dom.livePlayers.textContent =
+            state.livePlayers;
+        }
+      }, CONFIG.LIVE_PLAYER_INTERVAL);
+  }
+
+  function stopLivePlayerTimer() {
+    if (state.playerTimer) {
+      clearInterval(
+        state.playerTimer
+      );
+
+      state.playerTimer = null;
+    }
+  }
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+
+  function init() {
+    cacheDom();
+
+    setupBetControls();
+    setupConversion();
+    setupTabs();
+    setupInsights();
+
+    byId("mgClose")
+      ?.addEventListener(
+        "click",
+        closeGame
+      );
+
+    $$("[data-open-mini-game]")
+      .forEach(el =>
+        el.addEventListener(
+          "click",
+          openGame
+        )
+      );
+
+    byId("miniGameCard")
+      ?.addEventListener(
+        "click",
+        openGame
+      );
+
+    dom.startBtns[1]
+      ?.addEventListener(
+        "click",
+        () =>
+          startRoundForPanel(1)
+      );
+
+    dom.startBtns[2]
+      ?.addEventListener(
+        "click",
+        () =>
+          startRoundForPanel(2)
+      );
+
+    /*
+     * Force correct values in existing HTML.
+     * This protects against old min=100/max=10000 markup.
+     */
+    [1, 2].forEach(id => {
+      const input =
+        dom.betInputs[id];
+
+      if (!input) return;
+
+      input.min =
+        String(CONFIG.MIN_BET);
+
+      input.max =
+        String(CONFIG.MAX_BET);
+
+      input.value =
+        clampBet(input.value);
+
+      state.bets[id].amount =
+        clampBet(input.value);
+    });
+
+    updateWalletUI();
+    updateConvertPreview();
+
+    window.addEventListener(
+      "beforeunload",
+      () => {
+        stopCycle();
+        stopLivePlayerTimer();
+      },
+      { once: true }
+    );
+  }
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init,
+      { once: true }
+    );
+  } else {
+    init();
+  }
+
+})();
+</script>
+
+</body>
+</html>
